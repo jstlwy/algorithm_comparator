@@ -9,15 +9,17 @@
 
 void printArray(int*, int);
 void insertionSort(int*, int);
-void mergeSort(int*, int);
+void mergeSort(int*, int, int);
+void merge();
 int getIntInput(int, int);
 
 int main()
 {
 	srand(time(NULL));
-	const int ARRAY_LENGTH = 100;
+	const int ARRAY_LENGTH = 1000;
 	int array[ARRAY_LENGTH];
 	int choice;
+	struct timespec start, stop;
 
 	do
 	{
@@ -41,20 +43,24 @@ int main()
 			{
 				array[i] = rand() % 1000;
 			}
-			printArray(array, ARRAY_LENGTH);
+			//printArray(array, ARRAY_LENGTH);
 
 			switch(choice)
 			{
 				case 1:
+					clock_gettime(CLOCK_MONOTONIC, &start);
 					insertionSort(array, ARRAY_LENGTH);
+					clock_gettime(CLOCK_MONOTONIC, &stop);
 					break;
 				case 2:
-					mergeSort(array, ARRAY_LENGTH);
+					clock_gettime(CLOCK_MONOTONIC, &start);
+					mergeSort(array, 0, ARRAY_LENGTH - 1);
+					clock_gettime(CLOCK_MONOTONIC, &stop);
 					break;
 			}
-
-			printArray(array, ARRAY_LENGTH);
+			//printArray(array, ARRAY_LENGTH);
 			printf("\n");
+			printf("Time elapsed: %ld (ns)\n", stop.tv_nsec - start.tv_nsec);
 		}
 	}
 	while(choice != 0);
@@ -73,10 +79,8 @@ void printArray(int *array, int arraySize)
 
 void insertionSort(int *array, int arraySize)
 {
-	struct timespec start, stop;
-	clock_gettime(CLOCK_MONOTONIC, &start);
 	int j;
-	for(int i = 2; i < arraySize; i = i + 1)
+	for(int i = 1; i < arraySize; i = i + 1)
 	{
 		int key = array[i];
 		j = i - 1;
@@ -87,17 +91,75 @@ void insertionSort(int *array, int arraySize)
 		}
 		array[j + 1] = key;	
 	}
-	clock_gettime(CLOCK_MONOTONIC, &stop);
-	printf("Time elapsed: %ld (ns)\n", stop.tv_nsec - start.tv_nsec);
 }
 
-void mergeSort(int *array, int arraySize)
+void mergeSort(int *array, int l, int r)
 {
-	struct timespec start, stop;
-	clock_gettime(CLOCK_MONOTONIC, &start);
-	// Do the sort!
-	clock_gettime(CLOCK_MONOTONIC, &stop);
-	printf("Time elapsed: %ld (ns)\n", stop.tv_nsec - start.tv_nsec);
+	int median;
+	if(l < r)
+	{
+		median = l + ((r - l) / 2);
+		mergeSort(array, l, median);
+		mergeSort(array, median + 1, r);
+		merge(array, l, median, r);
+	}
+}
+
+void merge(int *arr, int l, int m, int r)
+{
+    int i, j, k; 
+    int n1 = m - l + 1; 
+    int n2 =  r - m; 
+
+    // create temp arrays
+    int L[n1], R[n2]; 
+
+    // Copy data to temp arrays L[] and R[]
+    for (i = 0; i < n1; i = i + 1) 
+	{
+        L[i] = arr[l + i]; 
+	}
+    for (j = 0; j < n2; j = j + 1) 
+	{
+        R[j] = arr[m + 1 + j]; 
+	}
+
+    // Merge the temp arrays back into arr[l..r]
+    i = 0; // Initial index of first subarray 
+    j = 0; // Initial index of second subarray 
+    k = l; // Initial index of merged subarray 
+    while (i < n1 && j < n2) 
+    { 
+		// Note: i or j only incremented
+		// when their values are placed in k
+        if (L[i] <= R[j]) 
+        { 
+            arr[k] = L[i]; 
+            i = i + 1; 
+        } 
+        else
+        { 
+            arr[k] = R[j]; 
+            j = j + 1; 
+        } 
+        k = k + 1; 
+    }
+
+    // Copy any remaining elements of L[]
+    while (i < n1) 
+    { 
+        arr[k] = L[i]; 
+        i = i + 1; 
+        k = k + 1; 
+    } 
+  
+    // Copy any remaining elements of R[]
+    while (j < n2) 
+    { 
+        arr[k] = R[j]; 
+        j = j + 1; 
+        k = k + 1; 
+    } 
 }
 
 /*
@@ -123,7 +185,8 @@ int getIntInput(int lowerBound, int upperBound)
 
 		// Get user input
 		fgets(userInput, INPUT_LENGTH, stdin);
-		// Flush the buffer if the user entered too many characters
+		// Flush the buffer if the user entered too many characters.
+		// First, check whether userInput contains newline char.
 		for(int i = 0; i < INPUT_LENGTH; i = i + 1)
 		{	
 			if(*(userInput + i) == '\n')
@@ -132,6 +195,9 @@ int getIntInput(int lowerBound, int upperBound)
 				terminus = i;
 			}
 		}
+		// If no newline char found, input was too long.
+		// Still, fgets automatically pulls NULL char as last char in userInput.
+		// Set terminus to last char, clear input.
 		if(newlineWasFound == false)
 		{
 			terminus = INPUT_LENGTH - 1;
