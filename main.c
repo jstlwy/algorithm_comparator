@@ -4,6 +4,9 @@
 #include <sys/time.h>
 #include "input.h"
 #include "sort.h"
+#include "linklist.h"
+
+void printArray(int*, int);
 
 int main()
 {
