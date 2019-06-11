@@ -1,4 +1,5 @@
 #include "sort.h"
+#include <limits.h>
 
 void insertionSort(int *array, int arraySize)
 {
@@ -83,4 +84,70 @@ void merge(int *arr, int l, int m, int r)
         j = j + 1; 
         k = k + 1; 
     } 
+}
+
+struct MaxSA findMaxCrossingSubarray(int* A, int low, int mid, int high)
+{
+    struct MaxSA msdata;
+
+    int leftSum = INT_MIN;
+    int sum = 0;
+    for(int i = mid; i >= low; i = i - 1)
+    {
+        sum = sum + A[i];
+        if(sum > leftSum)
+        {
+            leftSum = sum;
+            msdata.lowIndex = i;
+        }
+    }
+
+    int rightSum = INT_MIN;
+    sum = 0;
+    for(int j = mid + 1; j <= high; j = j + 1)
+    {
+        sum = sum + A[j];
+        if(sum > rightSum)
+        {
+            rightSum = sum;
+            msdata.highIndex = j;
+        }
+    }
+
+    msdata.maxSum = leftSum + rightSum; 
+    return msdata;
+}
+
+struct MaxSA findMaxSubarray(int* A, int low, int high)
+{
+    struct MaxSA leftms;
+    struct MaxSA rightms;
+    struct MaxSA crossms;
+
+    if(high == low)
+    {
+        crossms.lowIndex = low;
+        crossms.highIndex = high;
+        crossms.maxSum = A[low];
+        return crossms;
+    }
+    else
+    {
+        int mid = (low + high) / 2;
+        leftms = findMaxSubarray(A, low, mid);
+        rightms = findMaxSubarray(A, mid + 1, high);
+        crossms = findMaxCrossingSubarray(A, low, mid, high);
+        if(leftms.maxSum >= rightms.maxSum && leftms.maxSum >= crossms.maxSum)
+        {
+            return leftms;
+        }
+        else if(rightms.maxSum >= leftms.maxSum && rightms.maxSum >= crossms.maxSum)
+        {
+            return rightms;
+        }
+        else
+        {
+            return crossms;
+        }
+    }
 }
