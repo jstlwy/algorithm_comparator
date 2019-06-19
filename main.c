@@ -4,7 +4,7 @@
 #include <sys/time.h>
 #include "input.h"
 #include "utils.h"
-#include "sort.h"
+#include "arraysort.h"
 #include "linklist.h"
 
 void sortTest(int* array, int arraySize, int sortType, char* sortHeader);
@@ -36,7 +36,8 @@ int main()
 	{
 		printf("\nDATA STRUCTURES AND ALGORITHMS TEST BENCH\n");
 		printf("1. Array Sorting Algorithm Comparison\n");
-		printf("2. Maximum Subarray\n");
+		printf("2. List Sorting Algorithm Comparison\n")
+		printf("3. Maximum Subarray\n");
 		printf("0. Quit\n");
 
 		choice = getIntInput(3);
@@ -66,6 +67,8 @@ int main()
 					}
 					break;
 				case 2:
+					break;
+				case 3:
 					printf("\nOriginal Array:\n");
 					printArray(array, ARRAY_LENGTH);
 					clock_gettime(CLOCK_MONOTONIC, &start);

@@ -8,12 +8,12 @@ typedef struct LLNode {
     struct LLNode* next;
 } LLNode;
 
-LLNode* initLinkedList(int numNodes);
-
-void insertNodeAtHead (LLNode* newNode);
-
-void insertNodeAtTail (LLNode* newNode);
-
-void removeNode (LLNode* targetNode);
+LLNode* initRandLinkedList(int numNodes);
+void addToHead(LLNode* headNode, LLNode* newNode);
+void deleteFromHead(LLNode* headNode);
+void addToTail(LLNode* headNode, LLNode* newNode);
+void deleteFromTail(LLNode* headNode);
+void addAtPosition(LLNode* headNode, int position);
+void deleteFromPosition(LLNode* headNode, int position);
 
 #endif
