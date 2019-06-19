@@ -86,9 +86,9 @@ void merge(int *arr, int l, int m, int r)
     } 
 }
 
-struct MaxSA findMaxCrossingSubarray(int* A, int low, int mid, int high)
+MaxSA findMaxCrossingSubarray(int* A, int low, int mid, int high)
 {
-    struct MaxSA msdata;
+    MaxSA msdata;
 
     int leftSum = INT_MIN;
     int sum = 0;
@@ -118,11 +118,11 @@ struct MaxSA findMaxCrossingSubarray(int* A, int low, int mid, int high)
     return msdata;
 }
 
-struct MaxSA findMaxSubarray(int* A, int low, int high)
+MaxSA findMaxSubarray(int* A, int low, int high)
 {
-    struct MaxSA leftms;
-    struct MaxSA rightms;
-    struct MaxSA crossms;
+    MaxSA leftms;
+    MaxSA rightms;
+    MaxSA crossms;
 
     if(high == low)
     {

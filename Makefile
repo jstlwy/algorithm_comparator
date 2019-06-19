@@ -1,6 +1,6 @@
 CC = gcc
-CFLAGS = -Wall
-LDFLAGS = -lm
+CFLAGS = -Wall -Werror
+LDFLAGS = 
 OBJFILES = input.o sort.o main.o
 TARGET = test
 

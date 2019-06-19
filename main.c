@@ -7,15 +7,18 @@
 #include "linklist.h"
 
 void printArray(int*, int);
+int randomNum(int a, int b);
 
 int main()
 {
-	srand(time(NULL));
+	srand(time(0));
 	const int ARRAY_LENGTH = 100;
+	const int MENU_MIN = 0;
+	const int MENU_MAX = 3;
 	int array[ARRAY_LENGTH];
 	int choice;
 	struct timespec start, stop;
-	struct MaxSA msdata;
+	MaxSA msdata;
 
 	do
 	{
@@ -25,11 +28,15 @@ int main()
 		printf("3. Maximum Subarray\n");
 		printf("0. Quit\n");
 
-		choice = getIntInput(0, 3);
+		choice = getIntInput(3);
 
 		if(choice == 0)
 		{
 			printf("\nGoodbye.\n\n");
+		}
+		else if(choice < MENU_MIN || choice > MENU_MAX)
+		{
+			printf("\nInvalid input.  Please try again.\n");
 		}
 		else
 		{
@@ -38,7 +45,7 @@ int main()
 			// Insert random numbers into array
 			for(int i = 0; i < ARRAY_LENGTH; i = i + 1)
 			{
-				array[i] = (rand() % 2000) - 1000;
+				array[i] = randomNum(-1000, 1000);
 			}
 			printArray(array, ARRAY_LENGTH);
 
@@ -83,4 +90,25 @@ void printArray(int *array, int arraySize)
 		printf("%d ", array[i]);
 	}
 	printf("\n");
+}
+
+int randomNum(int a, int b)
+{
+	int low, high;
+	if(a < b)
+	{
+		low = a;
+		high = b;
+	}
+	else if(a > b)
+	{
+		low = b;
+		high = a;
+	}
+	else
+	{
+		return a;
+	}
+	int difference = high - low;
+	return (rand() % difference) + low;
 }
