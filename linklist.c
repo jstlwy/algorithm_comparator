@@ -111,9 +111,12 @@ void deleteFromIndex(LLNode** headNode, int position)
 
 void deleteList(LLNode** headNode)
 {
+    LLNode* tempNode;
     while(*headNode != NULL)
     {
-        deleteFromTail(headNode);
+        tempNode = *headNode;
+        *headNode = tempNode->next;
+        free(tempNode);
     }
 }
 
