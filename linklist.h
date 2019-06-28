@@ -8,12 +8,15 @@ typedef struct LLNode {
     struct LLNode* next;
 } LLNode;
 
-LLNode* initRandLinkedList(int numNodes);
-void addToHead(LLNode* headNode, LLNode* newNode);
-void deleteFromHead(LLNode* headNode);
-void addToTail(LLNode* headNode, LLNode* newNode);
-void deleteFromTail(LLNode* headNode);
-void addAtPosition(LLNode* headNode, int position);
-void deleteFromPosition(LLNode* headNode, int position);
+LLNode* initRandIntLL(int size, int smallestInt, int largestInt);
+void insertAtHead(LLNode** headNode, LLNode* newNode);
+void insertAtTail(LLNode** headNode, LLNode* newNode);
+void insertAtIndex(LLNode** headNode, int position);
+void deleteFromHead(LLNode** headNode);
+void deleteFromTail(LLNode** headNode);
+void deleteFromIndex(LLNode** headNode, int position);
+void deleteList(LLNode** headNode);
+int sizeOfList(LLNode* headNode);
+void printList(LLNode* headNode);
 
 #endif
