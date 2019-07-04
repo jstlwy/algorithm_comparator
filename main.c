@@ -110,11 +110,23 @@ void arraySortTest()
 
 void linkedListTest()
 {
-	LLNode* headNode = initRandIntLL(10, 200, 400);
-	printList(headNode);
-	int listSize = sizeOfList(headNode);
-	printf("Size of list: %d\n", listSize);
-	deleteList(&headNode);
+	int listSize = 25;
+	List* intList = initList();
+	for(int i = 0; i < listSize; i = i + 1)
+	{
+		int* newInt = malloc(sizeof(int));
+		*newInt = randomNum(-1000, 1000);
+		insertAtTail(intList, newInt);
+	}
+	printf("Size of list: %d\n", intList->size);
+	Node* headNode = intList->first;
+	while(headNode != NULL)
+	{
+		int* listNumPtr = headNode->data;
+		printf("%d\n", *listNumPtr);
+		headNode = headNode->next;
+	}
+	deleteList(intList);
 }
 
 void linkedListSortTest()

@@ -3,152 +3,134 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-LLNode* initRandIntLL(int size, int smallestInt, int largestInt)
+List* initList()
 {
-    if(size <= 0)
-    {
-        return NULL;
-    }
-    else
-    {
-        LLNode* headNode = NULL;
-        for(int i = 0; i < size; i = i + 1)
-        {
-            LLNode* newNode = malloc(sizeof(LLNode));
-            newNode->data = randomNum(smallestInt, largestInt);
-            insertAtTail(&headNode, newNode);
-        }
-        return headNode;
-    }
+    List* newList = malloc(sizeof(List));
+    newList->size = 0;
+    newList->first = NULL;
+    newList->last = NULL;
+    return newList;
 }
 
-void insertAtHead(LLNode** headNode, LLNode* newNode)
+int sizeOfList(List* list)
 {
+    return list->size;
+}
+
+void insertAtHead(List* list, void* newData)
+{
+    Node* newNode = malloc(sizeof(Node));
+    newNode->data = newData;
     newNode->previous = NULL;
 
-    if(*headNode == NULL)
+    if(list->first == NULL)
     {
         newNode->next = NULL;
+        list->last = newNode;
     }
     else
     {
-        newNode->next = *headNode;
-        (*headNode)->previous = newNode;   
+        Node* oldFirstNode = list->first;
+        newNode->next = oldFirstNode;
+        oldFirstNode->previous = newNode;   
     }
 
-    *headNode = newNode;
+    list->first = newNode;
+    list->size = list->size + 1;
 }
 
-void insertAtTail(LLNode** headNode, LLNode* newNode)
+void insertAtTail(List* list, void* newData)
 {
-    if(*headNode == NULL)
+    Node* newNode = malloc(sizeof(Node));
+    newNode->data = newData;
+    newNode->next = NULL;
+
+    if(list->last == NULL)
     {
-        *headNode = newNode;
+        list->first = newNode;
+        newNode->previous = NULL;
     }
     else
     {
-        LLNode* tempNode = *headNode;
-        while(tempNode->next != NULL)
-        {
-            tempNode = tempNode->next;
-        }
-        tempNode->next = newNode;
-        newNode->previous = tempNode;
-        newNode->next = NULL;
+        Node* oldLastNode = list->last;
+        oldLastNode->next = newNode;
+        newNode->previous = oldLastNode;
     }
+
+    list->last = newNode;
+    list->size = list->size + 1;
 }
 
-void insertAtIndex(LLNode** headNode, int position)
+void insertAtIndex(List* list, void* newData, int position)
 {
-
-}
-
-void deleteFromHead(LLNode** headNode)
-{
-    if(*headNode != NULL)
+    if(list->first == NULL)
     {
-        if((*headNode)->next == NULL)
+
+    }
+    else
+    {
+        
+    }
+    
+    list->size = list->size + 1;
+}
+
+void deleteFromHead(List* list)
+{
+    Node* oldFirstNode = list->first;
+    if(oldFirstNode != NULL)
+    {
+        if(oldFirstNode == list->last)
         {
-            free(*headNode);
-            *headNode = NULL;
+            list->first = NULL;
+            list->last = NULL;
         }
         else
         {
-            LLNode* tempNode = (*headNode)->next;
-            tempNode->previous = NULL;
-            free(*headNode);
-            *headNode = tempNode;
+            Node* newFirstNode = oldFirstNode->next;
+            newFirstNode->previous = NULL;
+            list->first = newFirstNode;
         }
+        free(oldFirstNode);
+        list->size = list->size - 1;
     }
 }
 
-void deleteFromTail(LLNode** headNode)
+void deleteFromTail(List* list)
 {
-    if(*headNode != NULL)
+    Node* oldLastNode = list->last;
+    if(oldLastNode != NULL)
     {
-        if((*headNode)->next == NULL)
+        if(oldLastNode == list->first)
         {
-            free(*headNode);
-            *headNode = NULL;
+            list->first = NULL;
+            list->last = NULL;
         }
         else
         {
-            LLNode* tempNode = *headNode;
-            while(tempNode->next != NULL)
-            {
-                tempNode = tempNode->next;
-            }
-            tempNode->previous->next = NULL;
-            free(tempNode);
+            Node* newLastNode = oldLastNode->previous;
+            newLastNode->next = NULL;
+            list->last = newLastNode;
         }
+        free(oldLastNode);
+        list->size = list->size - 1;
     }
 }
 
-void deleteFromIndex(LLNode** headNode, int position)
+void deleteFromIndex(List* list, int position)
 {
 
 }
 
-void deleteList(LLNode** headNode)
+void deleteList(List* list)
 {
-    LLNode* tempNode;
-    while(*headNode != NULL)
+    Node* currentNode = list->first;
+    Node* nextNode;
+    while(currentNode != NULL)
     {
-        tempNode = *headNode;
-        *headNode = tempNode->next;
-        free(tempNode);
+        nextNode = currentNode->next;
+        free(currentNode);
+        currentNode = nextNode;
     }
-}
-
-int sizeOfList(LLNode* headNode)
-{
-    if(headNode == NULL)
-    {
-        return 0;
-    }
-    else
-    {
-        int size = 0;
-        LLNode* tempNode = headNode;
-        do
-        {
-            size = size + 1;
-            tempNode = tempNode->next;
-        } while (tempNode != NULL);
-        return size;
-    }
-}
-
-void printList(LLNode* headNode)
-{
-    if(headNode != NULL)
-    {
-        LLNode* tempNode = headNode;
-        do
-        {
-            printf("%d ", tempNode->data);
-            tempNode = tempNode->next;
-        } while (tempNode != NULL);
-        printf("\n");
-    }
+    free(list);
 }

@@ -1,22 +1,26 @@
 #ifndef LINKLIST_H
 #define LINKLIST_H
 
-typedef struct LLNode {
-    int rank;
-    int data;
-    struct LLNode* previous;
-    struct LLNode* next;
-} LLNode;
+typedef struct Node {
+    void* data;
+    struct Node* previous;
+    struct Node* next;
+} Node;
 
-LLNode* initRandIntLL(int size, int smallestInt, int largestInt);
-void insertAtHead(LLNode** headNode, LLNode* newNode);
-void insertAtTail(LLNode** headNode, LLNode* newNode);
-void insertAtIndex(LLNode** headNode, int position);
-void deleteFromHead(LLNode** headNode);
-void deleteFromTail(LLNode** headNode);
-void deleteFromIndex(LLNode** headNode, int position);
-void deleteList(LLNode** headNode);
-int sizeOfList(LLNode* headNode);
-void printList(LLNode* headNode);
+typedef struct List {
+    int size;
+    Node* first;
+    Node* last;
+} List;
+
+List* initList();
+int sizeOfList(List* list);
+void insertAtHead(List* list, void* newData);
+void insertAtTail(List* list, void* newData);
+void insertAtIndex(List* list, void* newData, int position);
+void deleteFromHead(List* list);
+void deleteFromTail(List* list);
+void deleteFromIndex(List* list, int position);
+void deleteList(List* list);
 
 #endif
