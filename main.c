@@ -110,7 +110,7 @@ void arraySortTest()
 
 void linkedListTest()
 {
-	int listSize = 25;
+	int listSize = 10;
 	List* intList = initList();
 	for(int i = 0; i < listSize; i = i + 1)
 	{

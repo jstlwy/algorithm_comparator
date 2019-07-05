@@ -1,7 +1,7 @@
 #include "arraysort.h"
 #include <limits.h>
 
-void insertionSort(int *array, int arraySize)
+void insertionSort(int* array, int arraySize)
 {
 	int j;
 	for(int i = 1; i < arraySize; i = i + 1)
@@ -17,7 +17,7 @@ void insertionSort(int *array, int arraySize)
 	}
 }
 
-void mergeSort(int *array, int l, int r)
+void mergeSort(int* array, int l, int r)
 {
 	int median;
 	if(l < r)
@@ -29,7 +29,7 @@ void mergeSort(int *array, int l, int r)
 	}
 }
 
-void merge(int *arr, int l, int m, int r)
+void merge(int* arr, int l, int m, int r)
 {
     int i, j, k; 
     int n1 = m - l + 1; 

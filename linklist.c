@@ -61,21 +61,25 @@ void insertAtTail(List* list, void* newData)
     list->size = list->size + 1;
 }
 
-void insertAtIndex(List* list, void* newData, int position)
+void insertBeforeIndex(List* list, void* newData, int index)
 {
-    if(list->first == NULL)
-    {
 
-    }
-    else
-    {
-        
-    }
-    
-    list->size = list->size + 1;
 }
 
-void deleteFromHead(List* list)
+void changeIndex(List* list, void* newData, int index)
+{
+    if(index >= 0 && index <= (list->size - 1))
+    {
+        Node* currentNode = list->first;
+        for(int i = 0; i < index; i = i + 1)
+        {
+            currentNode = currentNode->next;
+        }
+        currentNode->data = newData;
+    }
+}
+
+void deleteHead(List* list)
 {
     Node* oldFirstNode = list->first;
     if(oldFirstNode != NULL)
@@ -96,7 +100,7 @@ void deleteFromHead(List* list)
     }
 }
 
-void deleteFromTail(List* list)
+void deleteTail(List* list)
 {
     Node* oldLastNode = list->last;
     if(oldLastNode != NULL)
@@ -117,9 +121,14 @@ void deleteFromTail(List* list)
     }
 }
 
-void deleteFromIndex(List* list, int position)
+void deleteIndex(List* list, int index)
 {
 
+}
+
+void deleteNode(List* list, Node* node)
+{
+    
 }
 
 void deleteList(List* list)
