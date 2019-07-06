@@ -17,6 +17,34 @@ int sizeOfList(List* list)
     return list->size;
 }
 
+List* copyIntList(List* originalList)
+{
+    List* newList = initList();
+    Node* currentNode = originalList->first;
+    int* newInt;
+    int* originalInt;
+    while(currentNode != NULL)
+    {
+        newInt = malloc(sizeof(int));
+        originalInt = currentNode->data;
+        *newInt = *originalInt;
+		insertAtTail(newList, newInt);
+        currentNode = currentNode->next;
+    }
+    return newList;
+}
+
+void printIntList(List* list)
+{
+    Node* headNode = list->first;
+	while(headNode != NULL)
+	{
+		int* listNumPtr = headNode->data;
+		printf("%d ", *listNumPtr);
+		headNode = headNode->next;
+	}
+}
+
 void insertAtHead(List* list, void* newData)
 {
     Node* newNode = malloc(sizeof(Node));

@@ -6,6 +6,7 @@
 #include "utils.h"
 #include "arraysort.h"
 #include "linklist.h"
+#include "llsort.h"
 
 #define ARRAY_LENGTH 100
 
@@ -131,7 +132,50 @@ void linkedListTest()
 
 void linkedListSortTest()
 {
+	List* intList = initList();
+	for(int i = 0; i < ARRAY_LENGTH; i = i + 1)
+	{
+		int* newInt = malloc(sizeof(int));
+		*newInt = randomNum(-1000, 1000);
+		insertAtTail(intList, newInt);
+	}
 
+	const int NUM_SORT_TYPES = 2;
+	char* sortHeaders[NUM_SORT_TYPES];
+	sortHeaders[0] = "INSERTION SORT";
+	sortHeaders[1] = "MERGE SORT";
+	struct timespec start, stop;
+
+	for(int i = 0; i < NUM_SORT_TYPES; i = i + 1)
+	{
+		printf("\n%s\n", sortHeaders[i]);
+		List* newList = copyIntList(intList);
+		printf("\nUnsorted List:\n");
+		printIntList(newList);
+
+		switch(i)
+		{
+			case 0: // INSERTION SORT
+				clock_gettime(CLOCK_MONOTONIC, &start);
+				insertionSortIntLL(newList);
+				clock_gettime(CLOCK_MONOTONIC, &stop);
+				break;
+			case 1: // MERGE SORT
+				clock_gettime(CLOCK_MONOTONIC, &start);
+				mergeSortIntLL(newList->first, newList->last, newList->size);
+				clock_gettime(CLOCK_MONOTONIC, &stop);
+				break;
+			default:
+				break;
+		}
+
+		printf("\nSorted List:\n");
+		printIntList(newList);
+		printf("\nTime elapsed: %ld ns\n\n", stop.tv_nsec - start.tv_nsec);
+		deleteList(newList);
+	}
+
+	deleteList(intList);
 }
 
 void maxSubarrayTest()

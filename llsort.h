@@ -2,8 +2,8 @@
 #define LLSORT_H
 #include "linklist.h"
 
-void insertionSort();
-void mergeSort();
-void merge();
+void insertionSortIntLL(List* list);
+void mergeSortIntLL(Node* head, Node* tail, int size);
+void mergeIntLL(Node* leftHead, int leftSize, Node* rightHead, int rightSize);
 
 #endif

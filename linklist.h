@@ -15,10 +15,14 @@ typedef struct List {
 
 List* initList();
 int sizeOfList(List* list);
+List* copyIntList(List* originalList);
+void printIntList(List* list);
+
 void insertAtHead(List* list, void* newData);
 void insertAtTail(List* list, void* newData);
 void insertBeforeIndex(List* list, void* newData, int index);
 void changeIndex(List* list, void* newData, int index);
+
 void deleteHead(List* list);
 void deleteTail(List* list);
 void deleteIndex(List* list, int index);
