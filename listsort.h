@@ -1,18 +1,16 @@
-#ifndef SORT_H
-#define SORT_H
+#ifndef LISTSORT_H
+#define LISTSORT_H
+#include "linklist.h"
 
-typedef struct MaxSA {
-    int lowIndex;
-    int highIndex;
-    int maxSum;
-} MaxSA;
+void insertionSortIntLL(List* list);
+void mergeSortIntLL(Node* head, Node* tail, int size);
+void mergeIntLL(Node* leftHead, int leftSize, Node* rightHead, int rightSize);
 
-void insertionSort(int *array, int arraySize);
+Node* mergeSedg(Node* a, Node *b);
+Node* mergeSortSedg(Node* c);
 
-void mergeSort(int *array, int l, int r);
-void merge(int *arr, int l, int m, int r);
-
-MaxSA findMaxCrossingSubarray(int* A, int low, int mid, int high);
-MaxSA findMaxSubarray(int* A, int low, int high);
+Node* mergeSortList(Node* head);
+Node* mergeList(Node* list1, Node* list2);
+Node* bisectList(Node* head);
 
 #endif

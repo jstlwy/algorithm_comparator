@@ -1,153 +1,139 @@
-#include "sort.h"
-#include <limits.h>
+#include "listsort.h"
+#include <stdlib.h>
 
-void insertionSort(int *array, int arraySize)
+void insertionSortIntLL(List* list)
 {
-	int j;
-	for(int i = 1; i < arraySize; i = i + 1)
+	Node* node1 = list->first->next;
+    Node* node2;
+    Node* node2Next;
+    while(node1 != NULL)
 	{
-		int key = array[i];
-		j = i - 1;
-		while(j >= 0 && array[j] > key)
+        node2Next = node1;
+        node2 = node1->previous;
+        int* node1Data = node1->data;
+        int* node2Data = node2->data;
+		while(node2 != NULL && *node2Data > *node1Data)
 		{
-			array[j + 1] = array[j];
-			j = j - 1;
+            node2->next->data = node2Data;
+            node2Next = node2;
+			node2 = node2->previous;
+            if(node2 != NULL)
+            {
+                node2Data = node2->data;
+            }
 		}
-		array[j + 1] = key;	
+        node2Next->data = node1Data;
+        node1 = node1->next;
 	}
 }
 
-void mergeSort(int *array, int l, int r)
+Node* mergeSedg(Node* a, Node* b)
 {
-	int median;
-	if(l < r)
-	{
-		median = l + ((r - l) / 2);
-		mergeSort(array, l, median);
-		mergeSort(array, median + 1, r);
-		merge(array, l, median, r);
-	}
-}
+    Node head;
+    Node* c = &head;
 
-void merge(int *arr, int l, int m, int r)
-{
-    int i, j, k; 
-    int n1 = m - l + 1; 
-    int n2 =  r - m; 
-
-    // create temp arrays
-    int L[n1], R[n2]; 
-
-    // Copy data to temp arrays L[] and R[]
-    for (i = 0; i < n1; i = i + 1) 
-	{
-        L[i] = arr[l + i]; 
-	}
-    for (j = 0; j < n2; j = j + 1) 
-	{
-        R[j] = arr[m + 1 + j]; 
-	}
-
-    // Merge the temp arrays back into arr[l..r]
-    i = 0; // Initial index of first subarray 
-    j = 0; // Initial index of second subarray 
-    k = l; // Initial index of merged subarray 
-    while (i < n1 && j < n2) 
-    { 
-		// Note: i or j only incremented
-		// when their values are placed in k
-        if (L[i] <= R[j]) 
-        { 
-            arr[k] = L[i]; 
-            i = i + 1; 
-        } 
+    while(a != NULL && b != NULL)
+    {
+        int* aData = a->data;
+        int* bData = b->data;
+        if(*aData < *bData)
+        {
+            c->next = a;
+            c = a;
+            a = a->next;
+        }
         else
-        { 
-            arr[k] = R[j]; 
-            j = j + 1; 
-        } 
-        k = k + 1; 
-    }
-
-    // Copy any remaining elements of L[]
-    while (i < n1) 
-    { 
-        arr[k] = L[i]; 
-        i = i + 1; 
-        k = k + 1; 
-    } 
-  
-    // Copy any remaining elements of R[]
-    while (j < n2) 
-    { 
-        arr[k] = R[j]; 
-        j = j + 1; 
-        k = k + 1; 
-    } 
-}
-
-MaxSA findMaxCrossingSubarray(int* A, int low, int mid, int high)
-{
-    MaxSA msdata;
-
-    int leftSum = INT_MIN;
-    int sum = 0;
-    for(int i = mid; i >= low; i = i - 1)
-    {
-        sum = sum + A[i];
-        if(sum > leftSum)
         {
-            leftSum = sum;
-            msdata.lowIndex = i;
+            c->next = b;
+            c = b;
+            b = b->next;
         }
+        
     }
 
-    int rightSum = INT_MIN;
-    sum = 0;
-    for(int j = mid + 1; j <= high; j = j + 1)
+    if(a == NULL)
     {
-        sum = sum + A[j];
-        if(sum > rightSum)
-        {
-            rightSum = sum;
-            msdata.highIndex = j;
-        }
-    }
-
-    msdata.maxSum = leftSum + rightSum; 
-    return msdata;
-}
-
-MaxSA findMaxSubarray(int* A, int low, int high)
-{
-    MaxSA leftms;
-    MaxSA rightms;
-    MaxSA crossms;
-
-    if(high == low)
-    {
-        crossms.lowIndex = low;
-        crossms.highIndex = high;
-        crossms.maxSum = A[low];
-        return crossms;
+        c->next = b;
     }
     else
     {
-        int mid = (low + high) / 2;
-        leftms = findMaxSubarray(A, low, mid);
-        rightms = findMaxSubarray(A, mid + 1, high);
-        crossms = findMaxCrossingSubarray(A, low, mid, high);
-        if(leftms.maxSum >= rightms.maxSum && leftms.maxSum >= crossms.maxSum)
-        {
-            return leftms;
-        }
-        else if(rightms.maxSum >= leftms.maxSum && rightms.maxSum >= crossms.maxSum)
-        {
-            return rightms;
-        }
-        else
-        {
-            return crossms;
-        }
+        c->next = a;
     }
+    
+    return head.next;
+}
+
+Node* mergeSortSedg(Node* c)
+{
+    Node* a;
+    Node* b;
+
+    if(c == NULL || c->next == NULL)
+    {
+        return c;
+    }
+
+    a = c;
+    b = c->next;
+
+    while(b != NULL && b->next != NULL)
+    {
+        c = c->next;
+        b = b->next->next;
+    }
+
+    b = c->next;
+    c->next = NULL;
+    return mergeSedg(mergeSortSedg(a), mergeSortSedg(b));
+}
+
+Node* mergeSortList(Node* head) 
+{   
+    Node* list1 = head; 
+    if (list1 == NULL || list1->next == NULL)
+    {   
+        return list1;
+    }   
+
+    Node* list2 = bisectList(list1);
+
+    return mergeList(mergeSortList(list1), mergeSortList(list2));
+}
+
+Node* mergeList(Node* list1, Node* list2)
+{
+    Node dummy_head;
+    Node* tail = &dummy_head;
+
+    while ( (list1 != NULL) && (list2 != NULL) )
+    {   
+        int* list1Data = list1->data;
+        int* list2Data = list2->data;
+        Node **min = (*list1Data < *list2Data) ? &list1 : &list2;
+        Node *next = (*min)->next;
+        tail = tail->next = *min;
+        *min = next;
+    }
+    tail->next = list1 ? list1 : list2;
+    return dummy_head.next;
+}
+
+Node* bisectList(Node* head)
+{
+    /* The fast pointer moves twice as fast as the slow pointer. */
+    /* The prev pointer points to the node preceding the slow pointer. */
+    Node* fast = head, *slow = head, *prev = NULL;
+
+    while (fast != NULL && fast->next != NULL)
+    {
+        fast = fast->next->next;
+        prev = slow;
+        slow = slow->next;
+    }
+
+    if (prev != NULL)
+    {
+        prev->next = NULL;
+    }
+    return slow;
 }
