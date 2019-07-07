@@ -3,15 +3,6 @@
 #include <stdlib.h>
 #include <time.h>
 
-void printArray(int *array, int arraySize)
-{
-	for(int i = 0; i < arraySize; i = i + 1)
-	{
-		printf("%d ", array[i]);
-	}
-	printf("\n");
-}
-
 int randomNum(int a, int b)
 {
 	int low, high;
@@ -33,6 +24,15 @@ int randomNum(int a, int b)
 	return (rand() % difference) + low;
 }
 
+void printIntArray(int *array, int arraySize)
+{
+	for(int i = 0; i < arraySize; i = i + 1)
+	{
+		printf("%d ", array[i]);
+	}
+	printf("\n");
+}
+
 int* copyIntArray(int* oldArray, int arraySize)
 {
     int* newArray = malloc(arraySize * sizeof(int));
@@ -41,4 +41,15 @@ int* copyIntArray(int* oldArray, int arraySize)
         newArray[i] = oldArray[i];
     }
     return newArray;
+}
+
+int timeDiff(struct timeval start, struct timeval stop)
+{
+	int start_usec;
+	int stop_usec;
+	int diff;
+	start_usec = start.tv_usec + start.tv_sec * 1000000;
+	stop_usec = stop.tv_usec + stop.tv_sec * 1000000; 
+	diff = stop_usec - start_usec;
+	return diff;
 }

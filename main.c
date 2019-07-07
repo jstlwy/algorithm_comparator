@@ -8,7 +8,7 @@
 #include "linklist.h"
 #include "llsort.h"
 
-#define ARRAY_LENGTH 100
+#define ARRAY_LENGTH 100000
 
 void arraySortTest();
 void linkedListTest();
@@ -19,16 +19,15 @@ int main()
 {
 	srand(time(0));
 	const int MENU_MIN = 0;
-	const int MENU_MAX = 4;
+	const int MENU_MAX = 3;
 	int choice;
 
 	do
 	{
-		printf("\nDATA STRUCTURES AND ALGORITHMS TEST BENCH\n");
+		printf("\nDATA STRUCTURES AND ALGORITHMS TEST SUITE\n");
 		printf("1. Array Sorting Algorithms\n");
-		printf("2. Linked List Test\n");
-		printf("3. Linked List Sorting Algorithms\n");
-		printf("4. Maximum Subarray\n");
+		printf("2. Linked List Sorting Algorithms\n");
+		printf("3. Maximum Subarray\n");
 		printf("0. Quit\n");
 
 		choice = getIntInput(2);
@@ -49,12 +48,9 @@ int main()
 					arraySortTest();
 					break;
 				case 2:
-					linkedListTest();
-					break;
-				case 3:
 					linkedListSortTest();
 					break;
-				case 4:
+				case 3:
 					maxSubarrayTest();
 					break;
 			}
@@ -77,57 +73,43 @@ void arraySortTest()
 	char* sortHeaders[NUM_SORT_TYPES];
 	sortHeaders[0] = "INSERTION SORT";
 	sortHeaders[1] = "MERGE SORT";
-	struct timespec start, stop;
+	//struct timespec start, stop; 	// start.tv_nsec
+	struct timeval start, stop;		// start.tv_usec
 
 	for(int i = 0; i < NUM_SORT_TYPES; i = i + 1)
 	{
 		printf("\n%s\n", sortHeaders[i]);
 		int* newArray = copyIntArray(array, ARRAY_LENGTH);
-		printf("\nUnsorted Array:\n");
-		printArray(newArray, ARRAY_LENGTH);
+		//printf("\nUnsorted Array:\n");
+		//printIntArray(newArray, ARRAY_LENGTH);
 
 		switch(i)
 		{
 			case 0: // INSERTION SORT
-				clock_gettime(CLOCK_MONOTONIC, &start);
+				//clock_gettime(CLOCK_MONOTONIC, &start);
+				gettimeofday(&start, NULL);
 				insertionSort(newArray, ARRAY_LENGTH);
-				clock_gettime(CLOCK_MONOTONIC, &stop);
+				//clock_gettime(CLOCK_MONOTONIC, &stop);
+				gettimeofday(&stop, NULL);
 				break;
 			case 1: // MERGE SORT
-				clock_gettime(CLOCK_MONOTONIC, &start);
+				//clock_gettime(CLOCK_MONOTONIC, &start);
+				gettimeofday(&start, NULL);
 				mergeSort(newArray, 0, ARRAY_LENGTH - 1);
-				clock_gettime(CLOCK_MONOTONIC, &stop);
+				//clock_gettime(CLOCK_MONOTONIC, &stop);
+				gettimeofday(&stop, NULL);
 				break;
 			default:
 				break;
 		}
 
-		printf("\nSorted Array:\n");
-		printArray(newArray, ARRAY_LENGTH);
-		printf("\nTime elapsed: %ld ns\n\n", stop.tv_nsec - start.tv_nsec);
+		//printf("\nSorted Array:\n");
+		//printIntArray(newArray, ARRAY_LENGTH);
+		//printf("\nTime elapsed: %ld ns\n\n", stop.tv_nsec - start.tv_nsec);
+		int usecPassed = timeDiff(start, stop);
+		printf("\nTime elapsed: %d us\n\n", usecPassed);
 		free(newArray);
 	}
-}
-
-void linkedListTest()
-{
-	int listSize = 10;
-	List* intList = initList();
-	for(int i = 0; i < listSize; i = i + 1)
-	{
-		int* newInt = malloc(sizeof(int));
-		*newInt = randomNum(-1000, 1000);
-		insertAtTail(intList, newInt);
-	}
-	printf("Size of list: %d\n", intList->size);
-	Node* headNode = intList->first;
-	while(headNode != NULL)
-	{
-		int* listNumPtr = headNode->data;
-		printf("%d\n", *listNumPtr);
-		headNode = headNode->next;
-	}
-	deleteList(intList);
 }
 
 void linkedListSortTest()
@@ -140,38 +122,53 @@ void linkedListSortTest()
 		insertAtTail(intList, newInt);
 	}
 
-	const int NUM_SORT_TYPES = 2;
+	const int NUM_SORT_TYPES = 3;
 	char* sortHeaders[NUM_SORT_TYPES];
 	sortHeaders[0] = "INSERTION SORT";
-	sortHeaders[1] = "MERGE SORT";
-	struct timespec start, stop;
+	sortHeaders[1] = "MERGE SORT 1";
+	sortHeaders[2] = "MERGE SORT 2";
+	//struct timespec start, stop; 	// start.tv_nsec
+	struct timeval start, stop;		// start.tv_usec
 
 	for(int i = 0; i < NUM_SORT_TYPES; i = i + 1)
 	{
 		printf("\n%s\n", sortHeaders[i]);
 		List* newList = copyIntList(intList);
-		printf("\nUnsorted List:\n");
-		printIntList(newList);
+		//printf("\nUnsorted List:\n");
+		//printIntList(newList);
 
 		switch(i)
 		{
 			case 0: // INSERTION SORT
-				clock_gettime(CLOCK_MONOTONIC, &start);
+				//clock_gettime(CLOCK_MONOTONIC, &start);
+				gettimeofday(&start, NULL);
 				insertionSortIntLL(newList);
-				clock_gettime(CLOCK_MONOTONIC, &stop);
+				//clock_gettime(CLOCK_MONOTONIC, &stop);
+				gettimeofday(&stop, NULL);
 				break;
-			case 1: // MERGE SORT
-				clock_gettime(CLOCK_MONOTONIC, &start);
-				mergeSortIntLL(newList->first, newList->last, newList->size);
-				clock_gettime(CLOCK_MONOTONIC, &stop);
+			case 1: // MERGE SORT 1
+				//clock_gettime(CLOCK_MONOTONIC, &start);
+				gettimeofday(&start, NULL);
+				newList->first = mergeSortList(newList->first);
+				//clock_gettime(CLOCK_MONOTONIC, &stop);
+				gettimeofday(&stop, NULL);
+				break;
+			case 2: // MERGE SORT 2
+				//clock_gettime(CLOCK_MONOTONIC, &start);
+				gettimeofday(&start, NULL);
+				newList->first = mergeSortSedg(newList->first);
+				//clock_gettime(CLOCK_MONOTONIC, &stop);
+				gettimeofday(&stop, NULL);
 				break;
 			default:
 				break;
 		}
 
-		printf("\nSorted List:\n");
-		printIntList(newList);
-		printf("\nTime elapsed: %ld ns\n\n", stop.tv_nsec - start.tv_nsec);
+		//printf("\nSorted List:\n");
+		//printIntList(newList);
+		//printf("\nTime elapsed: %ld ns\n\n", stop.tv_nsec - start.tv_nsec);
+		int usecPassed = timeDiff(start, stop);
+		printf("\nTime elapsed: %d us\n\n", usecPassed);
 		deleteList(newList);
 	}
 
@@ -185,19 +182,26 @@ void maxSubarrayTest()
 	{
 		array[i] = randomNum(-1000, 1000);
 	}
+	printf("\nOriginal Array:\n");
+	printIntArray(array, ARRAY_LENGTH);
 
 	MaxSA msdata;
-	struct timespec start, stop;
-	printf("\nOriginal Array:\n");
-	printArray(array, ARRAY_LENGTH);
-	clock_gettime(CLOCK_MONOTONIC, &start);
+	//struct timespec start, stop; 	// start.tv_nsec
+	struct timeval start, stop;		// start.tv_usec
+	//clock_gettime(CLOCK_MONOTONIC, &start);
+	gettimeofday(&start, NULL);
 	msdata = findMaxSubarray(array, 0, ARRAY_LENGTH - 1);
-	clock_gettime(CLOCK_MONOTONIC, &stop);
+	//clock_gettime(CLOCK_MONOTONIC, &stop);
+	gettimeofday(&stop, NULL);
+
 	printf("\nMax Subarray:\n");
 	for(int i = msdata.lowIndex; i <= msdata.highIndex; i++)
 	{
 		printf("%d ", array[i]);
 	}
 	printf("\n\nMax Subarray Sum: %d\n", msdata.maxSum);
-	printf("\nTime elapsed: %ld ns\n", stop.tv_nsec - start.tv_nsec);
+
+	//printf("\nTime elapsed: %ld ns\n", stop.tv_nsec - start.tv_nsec);
+	int usecPassed = timeDiff(start, stop);
+	printf("\nTime elapsed: %d us\n\n", usecPassed);
 }

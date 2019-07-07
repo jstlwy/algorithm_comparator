@@ -19,10 +19,9 @@ void insertionSort(int* array, int arraySize)
 
 void mergeSort(int* array, int l, int r)
 {
-	int median;
 	if(l < r)
 	{
-		median = l + ((r - l) / 2);
+		int median = l + ((r - l) / 2);
 		mergeSort(array, l, median);
 		mergeSort(array, median + 1, r);
 		merge(array, l, median, r);

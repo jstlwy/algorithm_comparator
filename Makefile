@@ -1,5 +1,5 @@
 CC = gcc
-CFLAGS = -Wall -Werror
+CFLAGS = -Wall -Werror -g
 LDFLAGS = 
 OBJFILES = input.o utils.o arraysort.o linklist.o llsort.o main.o
 TARGET = test
