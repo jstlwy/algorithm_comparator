@@ -72,6 +72,7 @@ int getIntInput(int numDigits)
 				switch(numChar)
 				{
 					case '0' :
+						num = 0;
 						break;
 					case '1' :
 						num = 1;
@@ -99,6 +100,8 @@ int getIntInput(int numDigits)
 						break;
 					case '9':
 						num = 9;
+						break;
+					default:
 						break;
 				}
 				
