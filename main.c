@@ -277,26 +277,48 @@ void maxSubarrayTest()
 
 void unionFindTest()
 {
-	const int numDigits = 4;
-	printf("\nUNION FIND TEST\n");
-	printf("How many elements?\n");
-	int numElements = getIntInput(numDigits);
-	printf("Creating Union Find with %d elements.\n", numElements);
+	erase();
+	
+	char* menuOptions[] = {
+		"Find the root of a node",
+		"Check whether two nodes are connected",
+		"Connect two nodes",
+		"Return to the main menu"
+	};
+	int numMenuOptions = 4;	
+
+	attron(A_BOLD);
+	printw("UNION FIND TEST\n\n");
+	attroff(A_BOLD);
+	printw("How many elements?\n");
+	printw("Input: ");
+	refresh();
+
+	// Do something to get input
+	int numElements = 100;
+
+	printf("\nCreating Union Find with %d elements.\n\n", numElements);
 	WQuickUnion* newWQU = initWQuickUnionOfSize(numElements);
-
-	const int MENU_MIN = 0;
-	const int MENU_MAX = 4;
-	int choice;
-
-	do
+	int highlightedOption = 0;
+	bool userSelectedReturn = false;
+	while(userSelectedReturn == false)
 	{
-		printf("\n1. Find root of node\n");
-		printf("2. Check whether nodes connected\n");
-		printf("3. Connect nodes\n");
-		printf("0. Return to main menu\n");
+		for(int i = 0; i < numMenuOptions; i = i + 1)
+		{
+			if(i == highlightedOption)
+			{
+				attron(A_STANDOUT);
+			}
+			printw("%d. ", i);
+			printw(menuOptions[i]);
+			printw("\n");
+			if(i == highlightedOption)
+			{
+				attroff(A_STANDOUT);
+			}
+		}
 
-		choice = getIntInput(2);
-
+		int keyInput = getch();
 		if(choice < MENU_MIN || choice > MENU_MAX)
 		{
 			printf("\nInvalid input.  Please try again.\n\n");
@@ -345,7 +367,6 @@ void unionFindTest()
 			}
 		}
 	}
-	while(choice != 0);
 
 	deleteWQuickUnion(newWQU);
 }
