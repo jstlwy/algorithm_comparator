@@ -43,7 +43,7 @@ int main(int argc, char *argv[])
 	{
 		erase();
 		attron(A_BOLD);
-		printw("DATA STRUCTURES AND ALGORITHMS TEST SUITE\n");
+		printw("DATA STRUCTURES AND ALGORITHMS TEST SUITE\n\n");
 		attroff(A_BOLD);
 		for(int i = 0; i < numMenuOptions; i = i + 1)
 		{
@@ -77,6 +77,7 @@ int main(int argc, char *argv[])
 					break;
 				case 3:
 					unionFindTest();
+					break;
 				case 4:
 					userSelectedQuit = true;
 					break;
@@ -297,19 +298,26 @@ void unionFindTest()
 	// Do something to get input
 	int numElements = 100;
 
-	printf("\nCreating Union Find with %d elements.\n\n", numElements);
+	printw("\n%d-element weighted quick UF\n\n", numElements);
+	refresh();
 	WQuickUnion* newWQU = initWQuickUnionOfSize(numElements);
+
+	int y;
+	int x;
+	getyx(stdscr, y, x);
 	int highlightedOption = 0;
 	bool userSelectedReturn = false;
 	while(userSelectedReturn == false)
 	{
+		move(y, 0);
+		clrtobot();
 		for(int i = 0; i < numMenuOptions; i = i + 1)
 		{
 			if(i == highlightedOption)
 			{
 				attron(A_STANDOUT);
 			}
-			printw("%d. ", i);
+			printw("%d. ", i + 1);
 			printw(menuOptions[i]);
 			printw("\n");
 			if(i == highlightedOption)
@@ -317,54 +325,84 @@ void unionFindTest()
 				attroff(A_STANDOUT);
 			}
 		}
+		refresh();
 
 		int keyInput = getch();
-		if(choice < MENU_MIN || choice > MENU_MAX)
+		if(keyInput == KEY_ENTER || keyInput == 10)
 		{
-			printf("\nInvalid input.  Please try again.\n\n");
-		}
-		else if(choice == 1)
-		{
-			printf("\nEnter node number:\n");
-			int nodeNum = getIntInput(numDigits);
-			if(nodeNum < 0 || nodeNum > newWQU->count - 1)
+			switch(highlightedOption)
 			{
-				printf("Invalid input.\n");
-			}
-			else
-			{
-				int nodeRoot = findRootOfNode(newWQU, nodeNum);
-				printf("Root of Node %d is %d.\n", nodeNum, nodeRoot);
-			}
-		}
-		else if(choice != 0)
-		{
-			printf("\nEnter number of Node 1:\n");
-			int nodeNum1 = getIntInput(numDigits);
-			printf("\nEnter number of Node 2:\n");
-			int nodeNum2 = getIntInput(numDigits);
+				case 0:
+				{
+					printf("\nEnter node number:\n");
+					int nodeNum = getIntInput(3);
+					if(nodeNum < 0 || nodeNum > newWQU->count - 1)
+					{
+						printf("Invalid input.\n");
+					}
+					else
+					{
+						int nodeRoot = findRootOfNode(newWQU, nodeNum);
+						printf("Root of Node %d is %d.\n", nodeNum, nodeRoot);
+					}
+					break;
+				}
+				case 1:
+				{
+					printf("\nEnter number of Node 1:\n");
+					int nodeNum1 = getIntInput(3);
+					printf("\nEnter number of Node 2:\n");
+					int nodeNum2 = getIntInput(3);
 
-			if(nodeNum1 < 0 || nodeNum2 < 0 || nodeNum1 > (newWQU->count - 1) || nodeNum2 > (newWQU->count - 1))
-			{
-				printf("Invalid input.\n");
-			}
-			else if(choice == 2)
-			{
-				bool isConnected = pairIsConnected(newWQU, nodeNum1, nodeNum2);
-				printf("Nodes %d and %d are ", nodeNum1, nodeNum2);
-				if(isConnected == true)
-				{
-					printf("connected.\n");
+					if(nodeNum1 < 0 || nodeNum2 < 0 || nodeNum1 > (newWQU->count - 1) || nodeNum2 > (newWQU->count - 1))
+					{
+						printf("Invalid input.\n");
+					}
+					else
+					{
+						bool isConnected = pairIsConnected(newWQU, nodeNum1, nodeNum2);
+						printf("Nodes %d and %d are ", nodeNum1, nodeNum2);
+						if(isConnected == true)
+						{
+							printf("connected.\n");
+						}
+						else
+						{
+							printf("not connected.\n");
+						}
+					}
+					break;
 				}
-				else
+				case 2:
 				{
-					printf("not connected.\n");
+					printf("\nEnter number of Node 1:\n");
+					int nodeNum1 = getIntInput(3);
+					printf("\nEnter number of Node 2:\n");
+					int nodeNum2 = getIntInput(3);
+					if(nodeNum1 < 0 || nodeNum2 < 0 || nodeNum1 > (newWQU->count - 1) || nodeNum2 > (newWQU->count - 1))
+					{
+						printf("Invalid input.\n");
+					}
+					else
+					{
+						unionNodes(newWQU, nodeNum1, nodeNum2);
+					}
+					break;
 				}
+				case 3:
+					userSelectedReturn = true;
+					break;
+				default:
+					break;
 			}
-			else
-			{
-				unionNodes(newWQU, nodeNum1, nodeNum2);
-			}
+		}
+		else if(keyInput == KEY_UP && highlightedOption > 0)
+		{
+			highlightedOption = highlightedOption - 1;
+		}
+		else if(keyInput == KEY_DOWN && highlightedOption < numMenuOptions - 1)
+		{
+			highlightedOption = highlightedOption + 1;
 		}
 	}
 
