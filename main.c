@@ -19,71 +19,93 @@ void linkedListSortTest();
 void maxSubarrayTest();
 void unionFindTest();
 
-/*
-int ncursesTest()
+int main(int argc, char *argv[])
 {
 	initscr();
-	printw("Hello, world.");
-	refresh();
-	getch();
-	endwin();
-	return 0;
-}
-*/
-
-int main()
-{
+	keypad(stdscr, true);
+	noecho();
+	curs_set(0);
 	srand(time(0));
-	const int MENU_MIN = 0;
-	const int MENU_MAX = 4;
-	int choice;
 
-	do
+	const int numMenuOptions = 5;
+	char* menuOptions[numMenuOptions] = {
+		"Array Sorting Algorithms",
+		"Linked List Sorting Algorithms",
+		"Maximum Subarray",
+		"Union Find",
+		"Quit"
+	};
+
+	int keyInput = 0;
+	int highlightedOption = 0;
+	bool userSelectedQuit = false;
+	while(userSelectedQuit == false)
 	{
-		printf("\nDATA STRUCTURES AND ALGORITHMS TEST SUITE\n");
-		printf("1. Array Sorting Algorithms\n");
-		printf("2. Linked List Sorting Algorithms\n");
-		printf("3. Maximum Subarray\n");
-		printf("4. Union Find\n");
-		printf("0. Quit\n");
-
-		choice = getIntInput(2);
-
-		if(choice < MENU_MIN || choice > MENU_MAX)
+		erase();
+		attron(A_BOLD);
+		printw("DATA STRUCTURES AND ALGORITHMS TEST SUITE\n");
+		attroff(A_BOLD);
+		for(int i = 0; i < numMenuOptions; i = i + 1)
 		{
-			printf("\nInvalid input.  Please try again.\n\n");
+			if(i == highlightedOption)
+			{
+				attron(A_STANDOUT);
+			}
+			printw("%d. ", i + 1);
+			printw(menuOptions[i]);
+			printw("\n");
+			if(i == highlightedOption)
+			{
+				attroff(A_STANDOUT);
+			}
 		}
-		else
+		refresh();
+
+		keyInput = getch();
+		if(keyInput == KEY_ENTER || keyInput == 10)
 		{
-			switch(choice)
+			switch(highlightedOption)
 			{
 				case 0:
-					printf("\nGoodbye.\n\n");
-					break;
-				case 1:
 					arraySortTest();
 					break;
-				case 2:
+				case 1:
 					linkedListSortTest();
 					break;
-				case 3:
+				case 2:
 					maxSubarrayTest();
 					break;
-				case 4:
+				case 3:
 					unionFindTest();
+				case 4:
+					userSelectedQuit = true;
 					break;
 				default:
 					break;
 			}
-		}		
+		}
+		else if(keyInput == KEY_UP && highlightedOption > 0)
+		{
+			highlightedOption = highlightedOption - 1;
+		}
+		else if(keyInput == KEY_DOWN && highlightedOption < numMenuOptions - 1)
+		{
+			highlightedOption = highlightedOption + 1;
+		}
 	}
-	while(choice != 0);
 
+	endwin();
 	return 0;
 }
 
 void arraySortTest()
 {
+	erase();
+	attron(A_BOLD);
+	printw("Array Sorting Algorithms\n\n");
+	attroff(A_BOLD);
+	refresh();
+
 	int array[ARRAY_LENGTH];
 	for(int i = 0; i < ARRAY_LENGTH; i = i + 1)
 	{
@@ -92,14 +114,15 @@ void arraySortTest()
 
 	const int NUM_SORT_TYPES = 2;
 	char* sortHeaders[NUM_SORT_TYPES];
-	sortHeaders[0] = "INSERTION SORT";
-	sortHeaders[1] = "MERGE SORT";
+	sortHeaders[0] = "Insertion Sort";
+	sortHeaders[1] = "Merge Sort";
 	//struct timespec start, stop; 	// start.tv_nsec
 	struct timeval start, stop;		// start.tv_usec
 
 	for(int i = 0; i < NUM_SORT_TYPES; i = i + 1)
 	{
-		printf("\n%s\n", sortHeaders[i]);
+		printw("%s: ", sortHeaders[i]);
+		refresh();
 		int* newArray = copyIntArray(array, ARRAY_LENGTH);
 		//printf("\nUnsorted Array:\n");
 		//printIntArray(newArray, ARRAY_LENGTH);
@@ -128,13 +151,23 @@ void arraySortTest()
 		//printIntArray(newArray, ARRAY_LENGTH);
 		//printf("\nTime elapsed: %ld ns\n\n", stop.tv_nsec - start.tv_nsec);
 		int usecPassed = timeDiff(start, stop);
-		printf("\nTime elapsed: %d us\n\n", usecPassed);
+		printw("%d us\n", usecPassed);
+		refresh();
 		free(newArray);
 	}
+
+	printw("\n");
+	waitForEnter();
 }
 
 void linkedListSortTest()
 {
+	erase();
+	attron(A_BOLD);
+	printw("Linked List Sorting Algorithms\n\n");
+	attroff(A_BOLD);
+	refresh();
+
 	List* intList = initList();
 	for(int i = 0; i < ARRAY_LENGTH; i = i + 1)
 	{
@@ -145,18 +178,19 @@ void linkedListSortTest()
 
 	const int NUM_SORT_TYPES = 3;
 	char* sortHeaders[NUM_SORT_TYPES];
-	sortHeaders[0] = "INSERTION SORT";
-	sortHeaders[1] = "MERGE SORT 1";
-	sortHeaders[2] = "MERGE SORT 2";
+	sortHeaders[0] = "Insertion Sort";
+	sortHeaders[1] = "Merge Sort 1 (Sedgewick)";
+	sortHeaders[2] = "Merge Sort 2 (Bijection)";
 	//struct timespec start, stop; 	// start.tv_nsec
 	struct timeval start, stop;		// start.tv_usec
 
 	for(int i = 0; i < NUM_SORT_TYPES; i = i + 1)
 	{
-		printf("\n%s\n", sortHeaders[i]);
 		List* newList = copyIntList(intList);
+		printw("%s: ", sortHeaders[i]);
 		//printf("\nUnsorted List:\n");
 		//printIntList(newList);
+		refresh();
 
 		switch(i)
 		{
@@ -170,14 +204,14 @@ void linkedListSortTest()
 			case 1: // MERGE SORT 1
 				//clock_gettime(CLOCK_MONOTONIC, &start);
 				gettimeofday(&start, NULL);
-				newList->first = mergeSortList(newList->first);
+				newList->first = mergeSortSedg(newList->first);
 				//clock_gettime(CLOCK_MONOTONIC, &stop);
 				gettimeofday(&stop, NULL);
 				break;
 			case 2: // MERGE SORT 2
 				//clock_gettime(CLOCK_MONOTONIC, &start);
 				gettimeofday(&start, NULL);
-				newList->first = mergeSortSedg(newList->first);
+				newList->first = mergeSortList(newList->first);
 				//clock_gettime(CLOCK_MONOTONIC, &stop);
 				gettimeofday(&stop, NULL);
 				break;
@@ -189,42 +223,56 @@ void linkedListSortTest()
 		//printIntList(newList);
 		//printf("\nTime elapsed: %ld ns\n\n", stop.tv_nsec - start.tv_nsec);
 		int usecPassed = timeDiff(start, stop);
-		printf("\nTime elapsed: %d us\n\n", usecPassed);
+		printw("%d us\n", usecPassed);
+		refresh();
 		deleteList(newList);
 	}
 
 	deleteList(intList);
+	printw("\n");
+	waitForEnter();
 }
 
 void maxSubarrayTest()
 {
-	int array[ARRAY_LENGTH];
-	for(int i = 0; i < ARRAY_LENGTH; i = i + 1)
+	erase();
+	attron(A_BOLD);
+	printw("Max Subarray Test\n\n");
+	attroff(A_BOLD);
+	refresh();
+
+	int mstArrLen = 50;
+	int array[mstArrLen];
+	for(int i = 0; i < mstArrLen; i = i + 1)
 	{
-		array[i] = randomNum(-1000, 1000);
+		array[i] = randomNum(-100, 100);
 	}
-	printf("\nOriginal Array:\n");
-	printIntArray(array, ARRAY_LENGTH);
+	printw("Original Array:\n");
+	printIntArrayCurses(array, mstArrLen);
+	refresh();
 
 	MaxSA msdata;
 	//struct timespec start, stop; 	// start.tv_nsec
 	struct timeval start, stop;		// start.tv_usec
 	//clock_gettime(CLOCK_MONOTONIC, &start);
 	gettimeofday(&start, NULL);
-	msdata = findMaxSubarray(array, 0, ARRAY_LENGTH - 1);
+	msdata = findMaxSubarray(array, 0, mstArrLen - 1);
 	//clock_gettime(CLOCK_MONOTONIC, &stop);
 	gettimeofday(&stop, NULL);
 
-	printf("\nMax Subarray:\n");
+	printw("\n\nMax Subarray:\n");
 	for(int i = msdata.lowIndex; i <= msdata.highIndex; i++)
 	{
-		printf("%d ", array[i]);
+		printw("%d ", array[i]);
 	}
-	printf("\n\nMax Subarray Sum: %d\n", msdata.maxSum);
+	printw("\n\nMax Subarray Sum: %d\n", msdata.maxSum);
 
 	//printf("\nTime elapsed: %ld ns\n", stop.tv_nsec - start.tv_nsec);
 	int usecPassed = timeDiff(start, stop);
-	printf("\nTime elapsed: %d us\n\n", usecPassed);
+	printw("Time elapsed: %d us\n\n", usecPassed);
+	refresh();
+
+	waitForEnter();
 }
 
 void unionFindTest()
