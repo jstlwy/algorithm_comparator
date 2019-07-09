@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
+#include <ncurses.h>
 
 int randomNum(int a, int b)
 {
@@ -30,7 +31,14 @@ void printIntArray(int *array, int arraySize)
 	{
 		printf("%d ", array[i]);
 	}
-	printf("\n");
+}
+
+void printIntArrayCurses(int *array, int arraySize)
+{
+	for(int i = 0; i < arraySize; i = i + 1)
+	{
+		printw("%d ", array[i]);
+	}
 }
 
 int* copyIntArray(int* oldArray, int arraySize)
@@ -52,4 +60,15 @@ int timeDiff(struct timeval start, struct timeval stop)
 	stop_usec = stop.tv_usec + stop.tv_sec * 1000000; 
 	diff = stop_usec - start_usec;
 	return diff;
+}
+
+void waitForEnter()
+{
+	printw("Press Enter to continue.");
+	refresh();
+	int keyInput = 0;
+	while(keyInput != KEY_ENTER && keyInput != 10)
+	{
+		keyInput = getch();
+	}
 }
