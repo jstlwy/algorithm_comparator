@@ -27,14 +27,14 @@ int main(int argc, char *argv[])
 	curs_set(0);
 	srand(time(0));
 
-	const int numMenuOptions = 5;
-	char* menuOptions[numMenuOptions] = {
+	char* menuOptions[] = {
 		"Array Sorting Algorithms",
 		"Linked List Sorting Algorithms",
 		"Maximum Subarray",
 		"Union Find",
 		"Quit"
 	};
+	int numMenuOptions = 5;
 
 	int keyInput = 0;
 	int highlightedOption = 0;
