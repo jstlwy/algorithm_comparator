@@ -1,6 +1,33 @@
 #include "listsort.h"
 #include <stdlib.h>
 
+void selectionSortIntLL(List* list)
+{
+	Node* mainNode = list->first;
+	Node* nextNode;
+	Node* minNode;
+	int* minValue;
+	int* nextNodeValue;
+	while(mainNode != NULL)
+	{
+		minValue = mainNode->data;
+		nextNode = mainNode->next;
+		while(nextNode != NULL)
+		{
+			nextNodeValue = nextNode->data;
+			if(*nextNodeValue < *minValue)
+			{
+				minValue = nextNodeValue;
+				minNode = nextNode;
+			}
+			nextNode = nextNode->next;
+		}
+		minNode->data = mainNode->data;
+		mainNode->data = minValue;
+		mainNode = mainNode->next;
+	}
+}
+
 void insertionSortIntLL(List* list)
 {
 	Node* node1 = list->first->next;

@@ -7,8 +7,11 @@ typedef struct MaxSA {
     int maxSum;
 } MaxSA;
 
+// Quadratic sorting algorithms 
+void selectionSort(int* array, int arraySize);
 void insertionSort(int* array, int arraySize);
 
+// Linearithmic sorting algorithms
 void mergeSort(int* array, int l, int r);
 void merge(int* arr, int l, int m, int r);
 

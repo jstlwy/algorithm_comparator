@@ -14,8 +14,8 @@
 #define ARRAY_LENGTH 100000
 
 void arraySortTest();
-void linkedListTest();
 void linkedListSortTest();
+int getNumArrayElements();
 void maxSubarrayTest();
 void unionFindTest();
 
@@ -104,43 +104,55 @@ void arraySortTest()
 	erase();
 	attron(A_BOLD);
 	printw("Array Sorting Algorithms\n\n");
-	attroff(A_BOLD);
+	attroff(A_BOLD);	
+	printw("Select number of elements to sort:\n");
 	refresh();
-
-	int array[ARRAY_LENGTH];
-	for(int i = 0; i < ARRAY_LENGTH; i = i + 1)
+	
+	int arrayLength = getNumArrayElements();
+	printw("\nArray will contain %d elements.\n\n", arrayLength);
+	int array[arrayLength];
+	for(int i = 0; i < arrayLength; i = i + 1)
 	{
 		array[i] = randomNum(-1000, 1000);
 	}
 
-	const int NUM_SORT_TYPES = 2;
-	char* sortHeaders[NUM_SORT_TYPES];
-	sortHeaders[0] = "Insertion Sort";
-	sortHeaders[1] = "Merge Sort";
+	char* sortHeaders[] = {
+		"Selection Sort",
+		"Insertion Sort",
+		"Merge Sort"
+	};
+	int numSortTypes = 3;
 	//struct timespec start, stop; 	// start.tv_nsec
 	struct timeval start, stop;		// start.tv_usec
 
-	for(int i = 0; i < NUM_SORT_TYPES; i = i + 1)
+	for(int i = 0; i < numSortTypes; i = i + 1)
 	{
 		printw("%s: ", sortHeaders[i]);
 		refresh();
-		int* newArray = copyIntArray(array, ARRAY_LENGTH);
+		int* newArray = copyIntArray(array, arrayLength);
 		//printf("\nUnsorted Array:\n");
-		//printIntArray(newArray, ARRAY_LENGTH);
+		//printIntArray(newArray, arrayLength);
 
 		switch(i)
 		{
-			case 0: // INSERTION SORT
+			case 0: // SELECTION SORT
 				//clock_gettime(CLOCK_MONOTONIC, &start);
 				gettimeofday(&start, NULL);
-				insertionSort(newArray, ARRAY_LENGTH);
+				selectionSort(newArray, arrayLength);
 				//clock_gettime(CLOCK_MONOTONIC, &stop);
 				gettimeofday(&stop, NULL);
 				break;
-			case 1: // MERGE SORT
+			case 1: // INSERTION SORT
 				//clock_gettime(CLOCK_MONOTONIC, &start);
 				gettimeofday(&start, NULL);
-				mergeSort(newArray, 0, ARRAY_LENGTH - 1);
+				insertionSort(newArray, arrayLength);
+				//clock_gettime(CLOCK_MONOTONIC, &stop);
+				gettimeofday(&stop, NULL);
+				break;
+			case 2: // MERGE SORT
+				//clock_gettime(CLOCK_MONOTONIC, &start);
+				gettimeofday(&start, NULL);
+				mergeSort(newArray, 0, arrayLength - 1);
 				//clock_gettime(CLOCK_MONOTONIC, &stop);
 				gettimeofday(&stop, NULL);
 				break;
@@ -149,7 +161,7 @@ void arraySortTest()
 		}
 
 		//printf("\nSorted Array:\n");
-		//printIntArray(newArray, ARRAY_LENGTH);
+		//printIntArray(newArray, arrayLength);
 		//printf("\nTime elapsed: %ld ns\n\n", stop.tv_nsec - start.tv_nsec);
 		int usecPassed = timeDiff(start, stop);
 		printw("%d us\n", usecPassed);
@@ -167,25 +179,30 @@ void linkedListSortTest()
 	attron(A_BOLD);
 	printw("Linked List Sorting Algorithms\n\n");
 	attroff(A_BOLD);
+	printw("Select number of elements to sort:\n");
 	refresh();
 
+	int listLength = getNumArrayElements();
+	printw("\nList will contain %d elements.\n\n", listLength);
 	List* intList = initList();
-	for(int i = 0; i < ARRAY_LENGTH; i = i + 1)
+	for(int i = 0; i < listLength; i = i + 1)
 	{
 		int* newInt = malloc(sizeof(int));
 		*newInt = randomNum(-1000, 1000);
 		insertAtTail(intList, newInt);
 	}
 
-	const int NUM_SORT_TYPES = 3;
-	char* sortHeaders[NUM_SORT_TYPES];
-	sortHeaders[0] = "Insertion Sort";
-	sortHeaders[1] = "Merge Sort 1 (Sedgewick)";
-	sortHeaders[2] = "Merge Sort 2 (Bijection)";
+	char* sortHeaders[] = {
+		"Selection Sort",
+		"Insertion Sort",
+		"Merge Sort 1 (Sedgewick)",
+		"Merge Sort 2 (Bijection)"
+	};
+	int numSortTypes = 4;
 	//struct timespec start, stop; 	// start.tv_nsec
 	struct timeval start, stop;		// start.tv_usec
 
-	for(int i = 0; i < NUM_SORT_TYPES; i = i + 1)
+	for(int i = 0; i < numSortTypes; i = i + 1)
 	{
 		List* newList = copyIntList(intList);
 		printw("%s: ", sortHeaders[i]);
@@ -195,21 +212,28 @@ void linkedListSortTest()
 
 		switch(i)
 		{
-			case 0: // INSERTION SORT
+			case 0: // SELECTION SORT
+				//clock_gettime(CLOCK_MONOTONIC, &start);
+				gettimeofday(&start, NULL);
+				selectionSortIntLL(newList);
+				//clock_gettime(CLOCK_MONOTONIC, &stop);
+				gettimeofday(&stop, NULL);
+				break;
+			case 1: // INSERTION SORT
 				//clock_gettime(CLOCK_MONOTONIC, &start);
 				gettimeofday(&start, NULL);
 				insertionSortIntLL(newList);
 				//clock_gettime(CLOCK_MONOTONIC, &stop);
 				gettimeofday(&stop, NULL);
 				break;
-			case 1: // MERGE SORT 1
+			case 2: // MERGE SORT 1 (SEDGEWICK)
 				//clock_gettime(CLOCK_MONOTONIC, &start);
 				gettimeofday(&start, NULL);
 				newList->first = mergeSortSedg(newList->first);
 				//clock_gettime(CLOCK_MONOTONIC, &stop);
 				gettimeofday(&stop, NULL);
 				break;
-			case 2: // MERGE SORT 2
+			case 3: // MERGE SORT 2 (BIJECTION)
 				//clock_gettime(CLOCK_MONOTONIC, &start);
 				gettimeofday(&start, NULL);
 				newList->first = mergeSortList(newList->first);
@@ -232,6 +256,88 @@ void linkedListSortTest()
 	deleteList(intList);
 	printw("\n");
 	waitForEnter();
+}
+
+int getNumArrayElements()
+{
+	int arrayLength = 0;
+	
+	char* arraySizeChoices[] = {
+		"10",
+		"100",
+		"1000",
+		"10000",
+		"100000",
+		"1000000"
+	};
+	int numArraySizeChoices = 6;
+	
+	int y;
+	int x;
+	getyx(stdscr, y, x);
+	x = 0;
+	int highlightedOption = 0;
+	int keyInput;
+	bool userPressedEnter = false;
+	while(userPressedEnter == false)
+	{
+		move(y, x);
+		clrtobot();
+
+		for(int i = 0; i < numArraySizeChoices; i = i + 1)
+		{
+			if(i == highlightedOption)
+			{
+				attron(A_STANDOUT);
+			}
+			printw(arraySizeChoices[i]);
+			printw("\n");
+			if(i == highlightedOption)
+			{
+				attroff(A_STANDOUT);
+			}
+		}
+		refresh();
+
+		keyInput = getch();
+		if(keyInput == KEY_ENTER || keyInput == 10)
+		{
+			switch(highlightedOption)
+			{
+				case 0:
+					arrayLength = 10;
+					break;
+				case 1:
+					arrayLength = 100;
+					break;
+				case 2:
+					arrayLength = 1000;
+					break;
+				case 3:
+					arrayLength = 10000;
+					break;
+				case 4:
+					arrayLength = 100000;
+					break;
+				case 5:
+					arrayLength = 1000000;
+					break;
+				default:
+					break;
+			}
+			userPressedEnter = true;
+		}
+		else if(keyInput == KEY_UP && highlightedOption > 0)
+		{
+			highlightedOption = highlightedOption - 1;
+		}
+		else if(keyInput == KEY_DOWN && highlightedOption < numArraySizeChoices - 1)
+		{
+			highlightedOption = highlightedOption + 1;
+		}
+	}
+	
+	return arrayLength;
 }
 
 void maxSubarrayTest()
@@ -305,11 +411,12 @@ void unionFindTest()
 	int y;
 	int x;
 	getyx(stdscr, y, x);
+	x = 0;
 	int highlightedOption = 0;
 	bool userSelectedReturn = false;
 	while(userSelectedReturn == false)
 	{
-		move(y, 0);
+		move(y, x);
 		clrtobot();
 		for(int i = 0; i < numMenuOptions; i = i + 1)
 		{

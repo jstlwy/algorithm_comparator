@@ -1,6 +1,26 @@
 #include "arraysort.h"
 #include <limits.h>
 
+void selectionSort(int* array, int arraySize)
+{
+	int min;
+	int minIndex;
+	for(int i = 0; i < arraySize; i = i + 1)
+	{
+		min = i;
+		for(int j = i + 1; j < arraySize; j = j + 1)
+		{
+			if(array[j] < min)
+			{
+				min = array[j];
+				minIndex = j;
+			}
+		}
+		array[minIndex] = array[i];
+		array[i] = min;
+	}
+}
+
 void insertionSort(int* array, int arraySize)
 {
 	int j;

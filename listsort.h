@@ -2,10 +2,11 @@
 #define LISTSORT_H
 #include "linklist.h"
 
+// Quadratic
+void selectionSortIntLL(List* list);
 void insertionSortIntLL(List* list);
-void mergeSortIntLL(Node* head, Node* tail, int size);
-void mergeIntLL(Node* leftHead, int leftSize, Node* rightHead, int rightSize);
 
+// Linearithmic
 Node* mergeSedg(Node* a, Node *b);
 Node* mergeSortSedg(Node* c);
 
