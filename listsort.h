@@ -6,6 +6,9 @@
 void selectionSortIntLL(List* list);
 void insertionSortIntLL(List* list);
 
+// Alternate directions in passes through the list?
+void shellSortIntLL(List* list);
+
 // Linearithmic
 Node* mergeSedg(Node* a, Node *b);
 Node* mergeSortSedg(Node* c);

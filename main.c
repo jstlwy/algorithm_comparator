@@ -16,8 +16,10 @@
 void arraySortTest();
 void linkedListSortTest();
 int getNumArrayElements();
+bool getYesOrNo();
 void maxSubarrayTest();
 void unionFindTest();
+void newSortTest();
 
 int main(int argc, char *argv[])
 {
@@ -32,9 +34,10 @@ int main(int argc, char *argv[])
 		"Linked List Sorting Algorithms",
 		"Maximum Subarray",
 		"Union Find",
+		"New Sort Test",
 		"Quit"
 	};
-	int numMenuOptions = 5;
+	int numMenuOptions = 6;
 
 	int keyInput = 0;
 	int highlightedOption = 0;
@@ -79,6 +82,9 @@ int main(int argc, char *argv[])
 					unionFindTest();
 					break;
 				case 4:
+					newSortTest();
+					break;
+				case 5:
 					userSelectedQuit = true;
 					break;
 				default:
@@ -119,13 +125,28 @@ void arraySortTest()
 	char* sortHeaders[] = {
 		"Selection Sort",
 		"Insertion Sort",
-		"Merge Sort"
+		"Shell Sort",
+		"Merge Sort",
+		"Quick Sort"
 	};
-	int numSortTypes = 3;
+	int numSortTypes = 5;
 	//struct timespec start, stop; 	// start.tv_nsec
 	struct timeval start, stop;		// start.tv_usec
 
-	for(int i = 0; i < numSortTypes; i = i + 1)
+	printw("Skip quadratic algorithms?\n");
+	bool userDecidedToSkip = getYesOrNo();
+	printw("\n\n");
+	int skipPoint;
+	if(userDecidedToSkip == true)
+	{
+		skipPoint = 2;
+	}
+	else
+	{
+		skipPoint = 0;
+	}
+
+	for(int i = skipPoint; i < numSortTypes; i = i + 1)
 	{
 		printw("%s: ", sortHeaders[i]);
 		refresh();
@@ -149,10 +170,24 @@ void arraySortTest()
 				//clock_gettime(CLOCK_MONOTONIC, &stop);
 				gettimeofday(&stop, NULL);
 				break;
-			case 2: // MERGE SORT
+			case 2: // SHELL SORT
 				//clock_gettime(CLOCK_MONOTONIC, &start);
 				gettimeofday(&start, NULL);
-				mergeSort(newArray, 0, arrayLength - 1);
+				shellSort(newArray, arrayLength);
+				//clock_gettime(CLOCK_MONOTONIC, &stop);
+				gettimeofday(&stop, NULL);
+				break;
+			case 3: // MERGE SORT (SEDGEWICK)
+				//clock_gettime(CLOCK_MONOTONIC, &start);
+				gettimeofday(&start, NULL);
+				mergeSortIntArr(newArray, arrayLength);
+				//clock_gettime(CLOCK_MONOTONIC, &stop);
+				gettimeofday(&stop, NULL);
+				break;
+			case 4: // QUICK SORT
+				//clock_gettime(CLOCK_MONOTONIC, &start);
+				gettimeofday(&start, NULL);
+				quickSort(newArray, 0, arrayLength - 1);
 				//clock_gettime(CLOCK_MONOTONIC, &stop);
 				gettimeofday(&stop, NULL);
 				break;
@@ -202,7 +237,20 @@ void linkedListSortTest()
 	//struct timespec start, stop; 	// start.tv_nsec
 	struct timeval start, stop;		// start.tv_usec
 
-	for(int i = 0; i < numSortTypes; i = i + 1)
+	printw("Skip quadratic algorithms?\n");
+	bool userDecidedToSkip = getYesOrNo();
+	printw("\n\n");
+	int skipPoint;
+	if(userDecidedToSkip == true)
+	{
+		skipPoint = 2;
+	}
+	else
+	{
+		skipPoint = 0;
+	}
+
+	for(int i = skipPoint; i < numSortTypes; i = i + 1)
 	{
 		List* newList = copyIntList(intList);
 		printw("%s: ", sortHeaders[i]);
@@ -338,6 +386,72 @@ int getNumArrayElements()
 	}
 	
 	return arrayLength;
+}
+
+bool getYesOrNo()
+{
+	bool userChoice;
+
+	char* arraySizeChoices[] = {
+		"Yes",
+		"No"
+	};
+	int numArraySizeChoices = 2;
+	
+	int y;
+	int x;
+	getyx(stdscr, y, x);
+	x = 0;
+	int highlightedOption = 0;
+	int keyInput;
+	bool userPressedEnter = false;
+	while(userPressedEnter == false)
+	{
+		move(y, x);
+		clrtobot();
+
+		for(int i = 0; i < numArraySizeChoices; i = i + 1)
+		{
+			if(i == highlightedOption)
+			{
+				attron(A_STANDOUT);
+			}
+			printw(arraySizeChoices[i]);
+			printw("\n");
+			if(i == highlightedOption)
+			{
+				attroff(A_STANDOUT);
+			}
+		}
+		refresh();
+
+		keyInput = getch();
+		if(keyInput == KEY_ENTER || keyInput == 10)
+		{
+			switch(highlightedOption)
+			{
+				case 0:
+					userChoice = true;
+					break;
+				case 1:
+					userChoice = false;
+					break;
+				default:
+					break;
+			}
+			userPressedEnter = true;
+		}
+		else if(keyInput == KEY_UP && highlightedOption > 0)
+		{
+			highlightedOption = highlightedOption - 1;
+		}
+		else if(keyInput == KEY_DOWN && highlightedOption < numArraySizeChoices - 1)
+		{
+			highlightedOption = highlightedOption + 1;
+		}
+	}
+	
+	return userChoice;
 }
 
 void maxSubarrayTest()
@@ -514,4 +628,45 @@ void unionFindTest()
 	}
 
 	deleteWQuickUnion(newWQU);
+}
+
+void newSortTest()
+{
+	erase();
+	attron(A_BOLD);
+	//printw("Shell Sort Test\n\n");
+	//printw("Merge Sort Test\n\n");
+	printw("Quick Sort Test\n\n");
+	attroff(A_BOLD);	
+	printw("Select number of elements to sort:\n");
+	refresh();
+	
+	int arrayLength = getNumArrayElements();
+	printw("\nArray will contain %d elements.\n\n", arrayLength);
+	refresh();
+
+	int array[arrayLength];
+	for(int i = 0; i < arrayLength; i = i + 1)
+	{
+		array[i] = randomNum(-1000, 1000);
+	}
+	printIntArrayCurses(array, arrayLength);
+	printw("\n\n");
+	refresh();
+
+	struct timeval start, stop;		// start.tv_usec
+	gettimeofday(&start, NULL);
+	//shellSort(array, arrayLength);
+	//mergeSortIntArr(array, arrayLength);
+	quickSort(array, 0, arrayLength - 1);
+	gettimeofday(&stop, NULL);
+	int usecPassed = timeDiff(start, stop);
+	printw("Time elapsed: %d us\n\n", usecPassed);
+	refresh();
+
+	printIntArrayCurses(array, arrayLength);
+	printw("\n\n");
+	refresh();
+
+	waitForEnter();
 }
