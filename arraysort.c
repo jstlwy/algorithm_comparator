@@ -242,9 +242,12 @@ int partition(int* array, int low, int high)
         array[i] = array[j];
         array[j] = temp;
     }
-    temp = array[low];
-    array[low] = array[j];
-    array[j] = temp;
+    if(low != j)
+    {
+        temp = array[low];
+        array[low] = array[j];
+        array[j] = temp;
+    }
     return j;
 }
 
