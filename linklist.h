@@ -14,7 +14,7 @@ typedef struct List {
     Node* last;
 } List;
 
-List* initList();
+List* initList(void);
 int sizeOfList(List* list);
 List* copyIntList(List* originalList);
 

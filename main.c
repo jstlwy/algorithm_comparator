@@ -14,13 +14,13 @@
 
 #define ARRAY_LENGTH 100000
 
-void arraySortTest();
-void linkedListSortTest();
-int getNumArrayElements();
-bool getYesOrNo();
-void maxSubarrayTest();
-void unionFindTest();
-void newSortTest();
+void arraySortTest(void);
+void linkedListSortTest(void);
+int getNumArrayElements(void);
+bool getYesOrNo(void);
+void maxSubarrayTest(void);
+void unionFindTest(void);
+void newSortTest(void);
 
 int main(int argc, char *argv[])
 {
@@ -106,7 +106,7 @@ int main(int argc, char *argv[])
 	return 0;
 }
 
-void arraySortTest()
+void arraySortTest(void)
 {
 	erase();
 	attron(A_BOLD);
@@ -209,7 +209,7 @@ void arraySortTest()
 	waitForEnter();
 }
 
-void linkedListSortTest()
+void linkedListSortTest(void)
 {
 	erase();
 	attron(A_BOLD);
@@ -316,7 +316,7 @@ void linkedListSortTest()
 	waitForEnter();
 }
 
-int getNumArrayElements()
+int getNumArrayElements(void)
 {
 	int arrayLength = 0;
 	
@@ -398,7 +398,7 @@ int getNumArrayElements()
 	return arrayLength;
 }
 
-bool getYesOrNo()
+bool getYesOrNo(void)
 {
 	bool userChoice;
 
@@ -464,7 +464,7 @@ bool getYesOrNo()
 	return userChoice;
 }
 
-void maxSubarrayTest()
+void maxSubarrayTest(void)
 {
 	erase();
 	attron(A_BOLD);
@@ -506,7 +506,7 @@ void maxSubarrayTest()
 	waitForEnter();
 }
 
-void unionFindTest()
+void unionFindTest(void)
 {
 	erase();
 	
@@ -640,7 +640,7 @@ void unionFindTest()
 	deleteWQuickUnion(newWQU);
 }
 
-void newSortTest()
+void newSortTest(void)
 {
 	erase();
 	attron(A_BOLD);

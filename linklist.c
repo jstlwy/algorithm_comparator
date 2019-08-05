@@ -4,7 +4,7 @@
 #include <stdlib.h>
 #include <ncurses.h>
 
-List* initList()
+List* initList(void)
 {
     List* newList = malloc(sizeof(List));
     newList->size = 0;
