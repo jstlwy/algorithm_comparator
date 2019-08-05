@@ -12,13 +12,12 @@ typedef struct MaxPQ {
     Key** keys;
 } MaxPQ;
 
-MaxPQ* initMaxPQ();
 MaxPQ* initMaxPQOfSize(int size);
 void insertIntoPQ(MaxPQ* pq, Key* key);
 Key* maxInPQ(MaxPQ* pq);
 void deleteMaxInPQ(MaxPQ* pq);
-void swim(Key* array, int k);
-void sink(Key* array, int size, int k);
+void swimUpPQ(Key* array, int k);
+void sinkDownPQ(Key* array, int size, int k);
 bool isEmptyPQ(MaxPQ* pq);
 int sizeOfPQ(MaxPQ* pq);
 void heapsort(array, int size);

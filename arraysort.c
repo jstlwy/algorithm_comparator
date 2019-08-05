@@ -216,6 +216,55 @@ int partition2(int* array, int low, int high)
 }
 */
 
+void swimUpArray(int* arr, int k)
+{
+    while(k > 1 && arr[k/2] < arr[k])
+    {
+        int temp = arr[k/2];
+        arr[k/2] = arr[k];
+        arr[k] = temp;
+        k = k/2;
+    }
+}
+
+void sinkDownArray(int* arr, int k, int size)
+{
+    while(2*k <= size)
+    {
+        int j = 2 * k;
+        if(j < size && arr[j] < arr[j+1])
+        {
+            j++;
+        }
+        if(arr[k] >= arr[j])
+        {
+            break;
+        }
+        int temp = arr[k];
+        arr[k] = arr[j];
+        arr[j] = temp;
+        k = j;
+    }
+}
+
+void heapsortArray(int* arr, int l, int r)
+{
+    int N = r - l + 1;
+    int* pq = arr + l - 1;
+    for(int k = N/2; k >= 1; k--)
+    {
+        sinkDownArray(pq, k, N);
+    }
+    while(N > 1)
+    {
+        int temp = pq[1];
+        pq[1] = pq[N];
+        pq[N] = temp;
+        N--;
+        sinkDownArray(pq, 1, N);
+    }
+}
+
 MaxSA findMaxCrossingSubarray(int* A, int low, int mid, int high)
 {
     MaxSA msdata;

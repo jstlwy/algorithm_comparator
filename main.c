@@ -12,7 +12,19 @@
 #include "unionfind.h"
 //#include "pqueue.h"
 
-#define ARRAY_LENGTH 100000
+/* 
+To count in nanoseconds:
+struct timespec start, stop;
+clock_gettime(CLOCK_MONOTONIC, &start);
+someFunction();
+clock_gettime(CLOCK_MONOTONIC, &stop);
+printf("\nTime elapsed: %ld ns\n\n", stop.tv_nsec - start.tv_nsec);
+
+Note: 
+struct timespec
+instead of
+struct timeval
+*/
 
 void arraySortTest(void);
 void linkedListSortTest(void);
@@ -21,6 +33,7 @@ bool getYesOrNo(void);
 void maxSubarrayTest(void);
 void unionFindTest(void);
 void newSortTest(void);
+void priorityQueueTest(void);
 
 int main(int argc, char *argv[])
 {
@@ -36,9 +49,10 @@ int main(int argc, char *argv[])
 		"Maximum Subarray",
 		"Union Find",
 		"New Sort Test",
+		"Priority Queue Test",
 		"Quit"
 	};
-	int numMenuOptions = 6;
+	int numMenuOptions = 7;
 
 	int keyInput = 0;
 	int highlightedOption = 0;
@@ -49,7 +63,7 @@ int main(int argc, char *argv[])
 		attron(A_BOLD);
 		printw("DATA STRUCTURES AND ALGORITHMS TEST SUITE\n\n");
 		attroff(A_BOLD);
-		for(int i = 0; i < numMenuOptions; i = i + 1)
+		for(int i = 0; i < numMenuOptions; i++)
 		{
 			if(i == highlightedOption)
 			{
@@ -86,8 +100,10 @@ int main(int argc, char *argv[])
 					newSortTest();
 					break;
 				case 5:
-					userSelectedQuit = true;
+					priorityQueueTest();
 					break;
+				case 6:
+					userSelectedQuit = true;
 				default:
 					break;
 			}
@@ -118,7 +134,7 @@ void arraySortTest(void)
 	int arrayLength = getNumArrayElements();
 	printw("\nArray will contain %d elements.\n\n", arrayLength);
 	int array[arrayLength];
-	for(int i = 0; i < arrayLength; i = i + 1)
+	for(int i = 0; i < arrayLength; i++)
 	{
 		array[i] = randomNum(-1000, 1000);
 	}
@@ -127,11 +143,12 @@ void arraySortTest(void)
 		"Selection Sort",
 		"Insertion Sort",
 		"Shell Sort",
+		"Heap Sort",
 		"Merge Sort",
 		"Quick Sort"
 	};
-	int numSortTypes = 5;
-	//struct timespec start, stop; 	// start.tv_nsec
+	int numSortTypes = 6;
+	
 	struct timeval start, stop;		// start.tv_usec
 
 	printw("Skip quadratic algorithms?\n");
@@ -147,7 +164,7 @@ void arraySortTest(void)
 		skipPoint = 0;
 	}
 
-	for(int i = skipPoint; i < numSortTypes; i = i + 1)
+	for(int i = skipPoint; i < numSortTypes; i++)
 	{
 		printw("%s: ", sortHeaders[i]);
 		refresh();
@@ -158,38 +175,33 @@ void arraySortTest(void)
 		switch(i)
 		{
 			case 0: // SELECTION SORT
-				//clock_gettime(CLOCK_MONOTONIC, &start);
 				gettimeofday(&start, NULL);
 				selectionSort(newArray, arrayLength);
-				//clock_gettime(CLOCK_MONOTONIC, &stop);
 				gettimeofday(&stop, NULL);
 				break;
 			case 1: // INSERTION SORT
-				//clock_gettime(CLOCK_MONOTONIC, &start);
 				gettimeofday(&start, NULL);
 				insertionSort(newArray, arrayLength);
-				//clock_gettime(CLOCK_MONOTONIC, &stop);
 				gettimeofday(&stop, NULL);
 				break;
 			case 2: // SHELL SORT
-				//clock_gettime(CLOCK_MONOTONIC, &start);
 				gettimeofday(&start, NULL);
 				shellSort(newArray, arrayLength);
-				//clock_gettime(CLOCK_MONOTONIC, &stop);
 				gettimeofday(&stop, NULL);
 				break;
-			case 3: // MERGE SORT
-				//clock_gettime(CLOCK_MONOTONIC, &start);
+			case 3: // HEAP SORT
+				gettimeofday(&start, NULL);
+				heapsortArray(newArray, 0, arrayLength - 1);
+				gettimeofday(&stop, NULL);
+				break;
+			case 4: // MERGE SORT
 				gettimeofday(&start, NULL);
 				mergeSortIntArr(newArray, arrayLength);
-				//clock_gettime(CLOCK_MONOTONIC, &stop);
 				gettimeofday(&stop, NULL);
 				break;
-			case 4: // QUICK SORT
-				//clock_gettime(CLOCK_MONOTONIC, &start);
+			case 5: // QUICK SORT
 				gettimeofday(&start, NULL);
 				quickSort(newArray, 0, arrayLength - 1);
-				//clock_gettime(CLOCK_MONOTONIC, &stop);
 				gettimeofday(&stop, NULL);
 				break;
 			default:
@@ -198,7 +210,6 @@ void arraySortTest(void)
 
 		//printf("\nSorted Array:\n");
 		//printIntArray(newArray, arrayLength);
-		//printf("\nTime elapsed: %ld ns\n\n", stop.tv_nsec - start.tv_nsec);
 		int usecPassed = timeDiff(start, stop);
 		printw("%d us\n", usecPassed);
 		refresh();
@@ -221,7 +232,7 @@ void linkedListSortTest(void)
 	int listLength = getNumArrayElements();
 	printw("\nList will contain %d elements.\n\n", listLength);
 	List* intList = initList();
-	for(int i = 0; i < listLength; i = i + 1)
+	for(int i = 0; i < listLength; i++)
 	{
 		int newInt = randomNum(-1000, 1000);
 		Node* newNode = malloc(sizeof(Node));
@@ -237,7 +248,6 @@ void linkedListSortTest(void)
 		"Merge Sort (Sedgewick)"
 	};
 	int numSortTypes = 5;
-	//struct timespec start, stop; 	// start.tv_nsec
 	struct timeval start, stop;		// start.tv_usec
 
 	printw("Skip quadratic algorithms?\n");
@@ -253,7 +263,7 @@ void linkedListSortTest(void)
 		startPoint = 0;
 	}
 
-	for(int i = startPoint; i < numSortTypes; i = i + 1)
+	for(int i = startPoint; i < numSortTypes; i++)
 	{
 		List* newList = copyIntList(intList);
 		printw("%s: ", sortHeaders[i]);
@@ -264,38 +274,28 @@ void linkedListSortTest(void)
 		switch(i)
 		{
 			case 0: // SELECTION SORT
-				//clock_gettime(CLOCK_MONOTONIC, &start);
 				gettimeofday(&start, NULL);
 				selectionSortIntLL(newList);
-				//clock_gettime(CLOCK_MONOTONIC, &stop);
 				gettimeofday(&stop, NULL);
 				break;
 			case 1: // SELECTION SORT (SEDGEWICK)
-				//clock_gettime(CLOCK_MONOTONIC, &start);
 				gettimeofday(&start, NULL);
 				newList = selectionSortIntLLSedge(newList);
-				//clock_gettime(CLOCK_MONOTONIC, &stop);
 				gettimeofday(&stop, NULL);
 				break;
 			case 2: // INSERTION SORT
-				//clock_gettime(CLOCK_MONOTONIC, &start);
 				gettimeofday(&start, NULL);
 				insertionSortIntLL(newList);
-				//clock_gettime(CLOCK_MONOTONIC, &stop);
 				gettimeofday(&stop, NULL);
 				break;
 			case 3: // INSERTION SORT (SEDGEWICK)
-				//clock_gettime(CLOCK_MONOTONIC, &start);
 				gettimeofday(&start, NULL);
 				insertionSortIntLLSedge(newList);
-				//clock_gettime(CLOCK_MONOTONIC, &stop);
 				gettimeofday(&stop, NULL);
 				break;
 			case 4: // MERGE SORT (SEDGEWICK)
-				//clock_gettime(CLOCK_MONOTONIC, &start);
 				gettimeofday(&start, NULL);
 				newList->first = mergeSortIntLL(newList->first);
-				//clock_gettime(CLOCK_MONOTONIC, &stop);
 				gettimeofday(&stop, NULL);
 				break;
 			default:
@@ -304,7 +304,6 @@ void linkedListSortTest(void)
 
 		//printf("\nSorted List:\n");
 		//printIntList(newList);
-		//printf("\nTime elapsed: %ld ns\n\n", stop.tv_nsec - start.tv_nsec);
 		int usecPassed = timeDiff(start, stop);
 		printw("%d us\n", usecPassed);
 		refresh();
@@ -342,7 +341,7 @@ int getNumArrayElements(void)
 		move(y, x);
 		clrtobot();
 
-		for(int i = 0; i < numArraySizeChoices; i = i + 1)
+		for(int i = 0; i < numArraySizeChoices; i++)
 		{
 			if(i == highlightedOption)
 			{
@@ -420,7 +419,7 @@ bool getYesOrNo(void)
 		move(y, x);
 		clrtobot();
 
-		for(int i = 0; i < numArraySizeChoices; i = i + 1)
+		for(int i = 0; i < numArraySizeChoices; i++)
 		{
 			if(i == highlightedOption)
 			{
@@ -474,7 +473,7 @@ void maxSubarrayTest(void)
 
 	int mstArrLen = 50;
 	int array[mstArrLen];
-	for(int i = 0; i < mstArrLen; i = i + 1)
+	for(int i = 0; i < mstArrLen; i++)
 	{
 		array[i] = randomNum(-100, 100);
 	}
@@ -483,12 +482,9 @@ void maxSubarrayTest(void)
 	refresh();
 
 	MaxSA msdata;
-	//struct timespec start, stop; 	// start.tv_nsec
 	struct timeval start, stop;		// start.tv_usec
-	//clock_gettime(CLOCK_MONOTONIC, &start);
 	gettimeofday(&start, NULL);
 	msdata = findMaxSubarray(array, 0, mstArrLen - 1);
-	//clock_gettime(CLOCK_MONOTONIC, &stop);
 	gettimeofday(&stop, NULL);
 
 	printw("\n\nMax Subarray:\n");
@@ -498,7 +494,6 @@ void maxSubarrayTest(void)
 	}
 	printw("\n\nMax Subarray Sum: %d\n", msdata.maxSum);
 
-	//printf("\nTime elapsed: %ld ns\n", stop.tv_nsec - start.tv_nsec);
 	int usecPassed = timeDiff(start, stop);
 	printw("Time elapsed: %d us\n\n", usecPassed);
 	refresh();
@@ -542,7 +537,7 @@ void unionFindTest(void)
 	{
 		move(y, x);
 		clrtobot();
-		for(int i = 0; i < numMenuOptions; i = i + 1)
+		for(int i = 0; i < numMenuOptions; i++)
 		{
 			if(i == highlightedOption)
 			{
@@ -653,7 +648,7 @@ void newSortTest(void)
 	int arrayLength = getNumArrayElements();
 	printw("\nArray will contain %d elements.\n\n", arrayLength);
 	int array[arrayLength];
-	for(int i = 0; i < arrayLength; i = i + 1)
+	for(int i = 0; i < arrayLength; i++)
 	{
 		array[i] = randomNum(-1000, 1000);
 	}
@@ -663,7 +658,7 @@ void newSortTest(void)
 	int listLength = getNumArrayElements();
 	printw("\nList will contain %d elements.\n\n", listLength);
 	List* intList = initList();
-	for(int i = 0; i < listLength; i = i + 1)
+	for(int i = 0; i < listLength; i++)
 	{
 		int newInt = randomNum(-1000, 1000);
 		Node* newNode = malloc(sizeof(Node));
@@ -671,23 +666,59 @@ void newSortTest(void)
 		insertAtTail(intList, newNode);
 	}
 	printIntListCurses(intList);
-
 	printw("\n\n");
 	refresh();
 
 	struct timeval start, stop;		// start.tv_usec
 	gettimeofday(&start, NULL);
 	// PUT SORT METHOD HERE
-	intList = selectionSortIntLLSedge(intList);
+	insertionSortIntLLSedge(intList);
 	gettimeofday(&stop, NULL);
 	int usecPassed = timeDiff(start, stop);
 	printw("Time elapsed: %d us\n\n", usecPassed);
-	refresh();
 
 	//printIntArrayCurses(array, arrayLength);
 	printIntListCurses(intList);
 	printw("\n\n");
+	waitForEnter();
+}
+
+void priorityQueueTest(void)
+{
+	erase();
+	attron(A_BOLD);
+	printw("Heapsort Test\n\n");
+	attroff(A_BOLD);	
+	printw("Select number of elements to sort:\n");
+	refresh();
+	
+	int arrayLength = getNumArrayElements();
+	printw("\nArray will contain %d elements.\n\n", arrayLength);
+	int array[arrayLength];
+	for(int i = 0; i < arrayLength; i++)
+	{
+		array[i] = randomNum(-1000, 1000);
+	}
+	if(arrayLength < 1000)
+	{
+		printw("\nUnsorted Array:\n");
+		printIntArrayCurses(array, arrayLength);
+	}
+	printw("\n\n");
 	refresh();
 
+	struct timeval start, stop;		// start.tv_usec
+	gettimeofday(&start, NULL);
+	heapsortArray(array, 0, arrayLength-1);
+	gettimeofday(&stop, NULL);
+	int usecPassed = timeDiff(start, stop);
+	printw("Time elapsed: %d us\n\n", usecPassed);
+
+	if(arrayLength < 1000)
+	{
+		printw("\nSorted Array:\n");
+		printIntArrayCurses(array, arrayLength);
+	}
+	printw("\n\n");
 	waitForEnter();
 }
