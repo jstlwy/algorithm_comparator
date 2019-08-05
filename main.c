@@ -10,6 +10,7 @@
 #include "linklist.h"
 #include "listsort.h"
 #include "unionfind.h"
+//#include "pqueue.h"
 
 #define ARRAY_LENGTH 100000
 
@@ -177,7 +178,7 @@ void arraySortTest()
 				//clock_gettime(CLOCK_MONOTONIC, &stop);
 				gettimeofday(&stop, NULL);
 				break;
-			case 3: // MERGE SORT (SEDGEWICK)
+			case 3: // MERGE SORT
 				//clock_gettime(CLOCK_MONOTONIC, &start);
 				gettimeofday(&start, NULL);
 				mergeSortIntArr(newArray, arrayLength);
@@ -222,35 +223,37 @@ void linkedListSortTest()
 	List* intList = initList();
 	for(int i = 0; i < listLength; i = i + 1)
 	{
-		int* newInt = malloc(sizeof(int));
-		*newInt = randomNum(-1000, 1000);
-		insertAtTail(intList, newInt);
+		int newInt = randomNum(-1000, 1000);
+		Node* newNode = malloc(sizeof(Node));
+        newNode->data = newInt;
+		insertAtTail(intList, newNode);
 	}
 
 	char* sortHeaders[] = {
 		"Selection Sort",
+		"Selection Sort (Sedgewick)",
 		"Insertion Sort",
-		"Merge Sort 1 (Sedgewick)",
-		"Merge Sort 2 (Bijection)"
+		"Insertion Sort (Sedgewick)",
+		"Merge Sort (Sedgewick)"
 	};
-	int numSortTypes = 4;
+	int numSortTypes = 5;
 	//struct timespec start, stop; 	// start.tv_nsec
 	struct timeval start, stop;		// start.tv_usec
 
 	printw("Skip quadratic algorithms?\n");
 	bool userDecidedToSkip = getYesOrNo();
 	printw("\n\n");
-	int skipPoint;
+	int startPoint;
 	if(userDecidedToSkip == true)
 	{
-		skipPoint = 2;
+		startPoint = 4;
 	}
 	else
 	{
-		skipPoint = 0;
+		startPoint = 0;
 	}
 
-	for(int i = skipPoint; i < numSortTypes; i = i + 1)
+	for(int i = startPoint; i < numSortTypes; i = i + 1)
 	{
 		List* newList = copyIntList(intList);
 		printw("%s: ", sortHeaders[i]);
@@ -267,24 +270,31 @@ void linkedListSortTest()
 				//clock_gettime(CLOCK_MONOTONIC, &stop);
 				gettimeofday(&stop, NULL);
 				break;
-			case 1: // INSERTION SORT
+			case 1: // SELECTION SORT (SEDGEWICK)
+				//clock_gettime(CLOCK_MONOTONIC, &start);
+				gettimeofday(&start, NULL);
+				newList = selectionSortIntLLSedge(newList);
+				//clock_gettime(CLOCK_MONOTONIC, &stop);
+				gettimeofday(&stop, NULL);
+				break;
+			case 2: // INSERTION SORT
 				//clock_gettime(CLOCK_MONOTONIC, &start);
 				gettimeofday(&start, NULL);
 				insertionSortIntLL(newList);
 				//clock_gettime(CLOCK_MONOTONIC, &stop);
 				gettimeofday(&stop, NULL);
 				break;
-			case 2: // MERGE SORT 1 (SEDGEWICK)
+			case 3: // INSERTION SORT (SEDGEWICK)
 				//clock_gettime(CLOCK_MONOTONIC, &start);
 				gettimeofday(&start, NULL);
-				newList->first = mergeSortSedg(newList->first);
+				insertionSortIntLLSedge(newList);
 				//clock_gettime(CLOCK_MONOTONIC, &stop);
 				gettimeofday(&stop, NULL);
 				break;
-			case 3: // MERGE SORT 2 (BIJECTION)
+			case 4: // MERGE SORT (SEDGEWICK)
 				//clock_gettime(CLOCK_MONOTONIC, &start);
 				gettimeofday(&start, NULL);
-				newList->first = mergeSortList(newList->first);
+				newList->first = mergeSortIntLL(newList->first);
 				//clock_gettime(CLOCK_MONOTONIC, &stop);
 				gettimeofday(&stop, NULL);
 				break;
@@ -634,37 +644,48 @@ void newSortTest()
 {
 	erase();
 	attron(A_BOLD);
-	//printw("Shell Sort Test\n\n");
-	//printw("Merge Sort Test\n\n");
-	printw("Quick Sort Test\n\n");
+	printw("List Selection Sort (Sedgewick) Test\n\n");
 	attroff(A_BOLD);	
 	printw("Select number of elements to sort:\n");
 	refresh();
 	
+	/*
 	int arrayLength = getNumArrayElements();
 	printw("\nArray will contain %d elements.\n\n", arrayLength);
-	refresh();
-
 	int array[arrayLength];
 	for(int i = 0; i < arrayLength; i = i + 1)
 	{
 		array[i] = randomNum(-1000, 1000);
 	}
 	printIntArrayCurses(array, arrayLength);
+	*/
+
+	int listLength = getNumArrayElements();
+	printw("\nList will contain %d elements.\n\n", listLength);
+	List* intList = initList();
+	for(int i = 0; i < listLength; i = i + 1)
+	{
+		int newInt = randomNum(-1000, 1000);
+		Node* newNode = malloc(sizeof(Node));
+        newNode->data = newInt;
+		insertAtTail(intList, newNode);
+	}
+	printIntListCurses(intList);
+
 	printw("\n\n");
 	refresh();
 
 	struct timeval start, stop;		// start.tv_usec
 	gettimeofday(&start, NULL);
-	//shellSort(array, arrayLength);
-	//mergeSortIntArr(array, arrayLength);
-	quickSort(array, 0, arrayLength - 1);
+	// PUT SORT METHOD HERE
+	intList = selectionSortIntLLSedge(intList);
 	gettimeofday(&stop, NULL);
 	int usecPassed = timeDiff(start, stop);
 	printw("Time elapsed: %d us\n\n", usecPassed);
 	refresh();
 
-	printIntArrayCurses(array, arrayLength);
+	//printIntArrayCurses(array, arrayLength);
+	printIntListCurses(intList);
 	printw("\n\n");
 	refresh();
 

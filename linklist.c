@@ -2,6 +2,7 @@
 #include "utils.h"
 #include <stdio.h>
 #include <stdlib.h>
+#include <ncurses.h>
 
 List* initList()
 {
@@ -21,34 +22,82 @@ List* copyIntList(List* originalList)
 {
     List* newList = initList();
     Node* currentNode = originalList->first;
-    int* newInt;
-    int* originalInt;
     while(currentNode != NULL)
     {
-        newInt = malloc(sizeof(int));
-        originalInt = currentNode->data;
-        *newInt = *originalInt;
-		insertAtTail(newList, newInt);
+        Node* newNode = malloc(sizeof(Node));
+        newNode->data = currentNode->data;
+		insertAtTail(newList, newNode);
         currentNode = currentNode->next;
     }
     return newList;
 }
 
-void printIntList(List* list)
+void printIntListCurses(List* list)
 {
-    Node* headNode = list->first;
-	while(headNode != NULL)
+    Node* currentNode = list->first;
+	while(currentNode != NULL)
 	{
-		int* listNumPtr = headNode->data;
-		printf("%d ", *listNumPtr);
-		headNode = headNode->next;
+		printw("%d ", currentNode->data);
+		currentNode = currentNode->next;
 	}
 }
 
-void insertAtHead(List* list, void* newData)
+bool listContainsNode(List* list, Node* node)
 {
-    Node* newNode = malloc(sizeof(Node));
-    newNode->data = newData;
+    bool doesContainNode = false;
+    if(list != NULL && node != NULL)
+    {
+        Node* currentNode = list->first;
+        while(currentNode != NULL)
+        {
+            if(node == currentNode)
+            {
+                doesContainNode = true;
+            }
+            currentNode = currentNode->next;
+        }
+    }
+    return doesContainNode;
+}
+
+Node* findMaxNode(List* list)
+{
+    Node* maxNode = list->first;
+    if(maxNode != NULL)
+    {
+        Node* currentNode = maxNode->next;
+        while(currentNode != NULL)
+        {
+            if(currentNode->data > maxNode->data)
+            {
+                maxNode = currentNode;
+            }
+            currentNode = currentNode->next;
+        }
+    }
+    return maxNode;
+}
+
+Node* findMinNode(List* list)
+{
+    Node* minNode = list->first;
+    if(minNode != NULL)
+    {
+        Node* currentNode = minNode->next;
+        while(currentNode != NULL)
+        {
+            if(currentNode->data < minNode->data)
+            {
+                minNode = currentNode;
+            }
+            currentNode = currentNode->next;
+        }
+    }
+    return minNode;
+}
+
+void insertAtHead(List* list, Node* newNode)
+{
     newNode->previous = NULL;
 
     if(list->first == NULL)
@@ -67,10 +116,8 @@ void insertAtHead(List* list, void* newData)
     list->size = list->size + 1;
 }
 
-void insertAtTail(List* list, void* newData)
+void insertAtTail(List* list, Node* newNode)
 {
-    Node* newNode = malloc(sizeof(Node));
-    newNode->data = newData;
     newNode->next = NULL;
 
     if(list->last == NULL)
@@ -89,22 +136,14 @@ void insertAtTail(List* list, void* newData)
     list->size = list->size + 1;
 }
 
-void insertBeforeIndex(List* list, void* newData, int index)
+void insertBeforeIndex(List* list, Node* newNode, int index)
 {
 
 }
 
-void changeIndex(List* list, void* newData, int index)
+void updateNode(Node* node, int newData)
 {
-    if(index >= 0 && index <= (list->size - 1))
-    {
-        Node* currentNode = list->first;
-        for(int i = 0; i < index; i = i + 1)
-        {
-            currentNode = currentNode->next;
-        }
-        currentNode->data = newData;
-    }
+
 }
 
 void deleteHead(List* list)
@@ -149,23 +188,68 @@ void deleteTail(List* list)
     }
 }
 
-void deleteIndex(List* list, int index)
+void unlinkNode(List* list, Node* node)
 {
+    if(list != NULL && node != NULL)
+    {
+        short linkCond = 0;
 
+        if(node->previous != NULL)
+        {
+            linkCond = linkCond | 0b01;
+        }
+        if(node->next != NULL)
+        {
+            linkCond = linkCond | 0b10;
+        }
+
+        switch(linkCond)
+        {
+            case 0b00:
+                // The node doesn't link to anything.
+                list->first = NULL;
+                list->last = NULL;
+                break;
+            case 0b01:
+                // The node only links to a preceding node.
+                // It must be the tail of the list.
+                list->last = node->previous;
+                node->previous->next = NULL;
+                break;
+            case 0b10:
+                // The node only links to a succeeding node.
+                // It must be the head of the list.
+                list->first = node->next;
+                node->next->previous = NULL;
+                break;
+            case 0b11:
+                // The node is between two other nodes.
+                node->previous->next = node->next;
+                node->next->previous = node->previous;
+                break;
+            default:
+                break;
+        }
+
+        list->size -= 1;
+    }
 }
 
 void deleteNode(List* list, Node* node)
 {
-    
+    if(node != NULL)
+    {
+        unlinkNode(list, node);
+        free(node);
+    }
 }
 
 void deleteList(List* list)
 {
     Node* currentNode = list->first;
-    Node* nextNode;
     while(currentNode != NULL)
     {
-        nextNode = currentNode->next;
+        Node* nextNode = currentNode->next;
         free(currentNode);
         currentNode = nextNode;
     }

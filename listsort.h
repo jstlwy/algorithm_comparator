@@ -4,17 +4,15 @@
 
 // Quadratic
 void selectionSortIntLL(List* list);
+List* selectionSortIntLLSedge(List* list);
 void insertionSortIntLL(List* list);
+void insertionSortIntLLSedge(List* list);
 
 // Alternate directions in passes through the list?
 void shellSortIntLL(List* list);
 
 // Linearithmic
-Node* mergeSedg(Node* a, Node *b);
-Node* mergeSortSedg(Node* c);
-
-Node* mergeSortList(Node* head);
-Node* mergeList(Node* list1, Node* list2);
-Node* bisectList(Node* head);
+Node* mergeIntLL(Node* a, Node *b);
+Node* mergeSortIntLL(Node* c);
 
 #endif

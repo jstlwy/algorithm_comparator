@@ -17,7 +17,6 @@ void mergeSortIntArr(int* array, int arraySize);                // Stable
 void mergeSortTD(int* arr, int* aux, int low, int high);
 void mergeSortBU(int* arr, int* aux, int arraySize);
 void merge(int* arr, int* aux, int low, int mid, int high);
-//void merge2(int* arr, int low, int mid, int high);
 
 void quickSort(int* array, int low, int high);
 int partition(int* array, int low, int high);
