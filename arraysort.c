@@ -1,49 +1,51 @@
 #include "arraysort.h"
 #include <limits.h>
 
-void selectionSort(int* array, int arraySize)
+void selection_sort(int* array, const int array_size)
 {
 	int min;
-	int minIndex;
-	for(int i = 0; i < arraySize; i = i + 1)
+	int min_index;
+	for(int i = 0; i < array_size; i++)
 	{
 		min = i;
-		for(int j = i + 1; j < arraySize; j = j + 1)
+		for(int j = i + 1; j < array_size; j++)
 		{
 			if(array[j] < min)
 			{
 				min = array[j];
-				minIndex = j;
+				min_index = j;
 			}
 		}
-		array[minIndex] = array[i];
+		array[min_index] = array[i];
 		array[i] = min;
 	}
 }
 
-void insertionSort(int* array, int arraySize)
+
+void insertion_sort(int* array, const int array_size)
 {
 	int j;
-	for(int i = 1; i < arraySize; i = i + 1)
+	for(int i = 1; i < array_size; i++)
 	{
 		int key = array[i];
 		j = i - 1;
 		while(j >= 0 && array[j] > key)
 		{
 			array[j + 1] = array[j];
-			j = j - 1;
+			j--;
 		}
 		array[j + 1] = key;	
 	}
 }
 
-void shellSort(int* array, int arraySize)
+
+void shellsort(int* array, const int array_size)
 {
     // h = "gap"
     int h = 1;
     // First, find largest number by which to divide array
     // OEIS A003462: 0.5(3^k - 1) results in worst-case Theta(N^1.5)
-    while(h < arraySize / 3)
+    while(h < array_size / 3)
     {
         // 1, 4, 13, 40, 121, 364, 1093, ...
         h = (3 * h) + 1;
@@ -51,103 +53,101 @@ void shellSort(int* array, int arraySize)
     // Now, commence h-sorting the array
     while(h >= 1)
     {
-        for(int i = h; i < arraySize; i = i + 1)
+        for(int i = h; i < array_size; i++)
         {
-            for(int j = i; j >= h && array[j] < array[j - h]; j = j - h)
+            for(int j = i; j >= h && array[j] < array[j - h]; j -= h)
             {
                 int temp = array[j];
                 array[j] = array[j - h];
                 array[j - h] = temp;
             }
         }
-        h = h/3;
+        h /= 3;
     }
 }
 
-void mergeSortIntArr(int* array, int arraySize)
+
+void merge_sort_int_arr(int* array, const int array_size)
 {
-    int aux[arraySize];
-    mergeSortTD(array, aux, 0, arraySize - 1);
-    //mergeSortBU(array, aux, arraySize);
+    int aux[array_size];
+    merge_sort_td(array, aux, 0, array_size - 1);
+    //merge_sort_bu(array, aux, array_size);
 }
 
-void mergeSortTD(int* arr, int* aux, int low, int high)
+
+void merge_sort_td(int* arr, int* aux, int low, int high)
 {
 	if(low < high)
 	{
 		int mid = low + ((high - low) / 2);
-		mergeSortTD(arr, aux, low, mid);
-		mergeSortTD(arr, aux, mid + 1, high);
+		merge_sort_td(arr, aux, low, mid);
+		merge_sort_td(arr, aux, mid + 1, high);
 		merge(arr, aux, low, mid, high);
 	}
 }
 
-void mergeSortBU(int* arr, int* aux, int arraySize)
+
+void merge_sort_bu(int* arr, int* aux, const int array_size)
 {
-    for(int size = 1; size < arraySize; size = size + size)
+    for(int size = 1; size < array_size; size = size + size)
     {
-        for(int low = 0; low < arraySize - size; low = low + size + size)
+        for(int low = 0; low < array_size - size; low = low + size + size)
         {
-            int min;
             int value1 = low + size + size - 1;
-            int value2 = arraySize - 1;
-            if(value1 < value2)
-            {
-                min = value1;
-            }
-            else
-            {
-                min = value2;
-            }
+            int value2 = array_size - 1;
+			int min = (value1 < value2) ? value1 : value2;
             merge(arr, aux, low, low + size - 1, min);
         }
     }
 }
+
 
 void merge(int* arr, int* aux, int low, int mid, int high)
 {
     int i = low;
     int j = mid + 1;
 
-    for(int k = low; k <= high; k = k + 1)
+    for(int k = low; k <= high; k++)
     {
         aux[k] = arr[k];
     }
 
-    for(int k = low; k <= high; k = k + 1)
+    for(int k = low; k <= high; k++)
     {
         if(i > mid)
         {
             arr[k] = aux[j];
-            j = j + 1;
+            j++;
         }
         else if(j > high)
         {
             arr[k] = aux[i];
-            i = i + 1;
+            i++;
         }
         else if(aux[j] < aux[i])
         {
             arr[k] = aux[j];
-            j = j + 1;
+            j++;
         }
         else
         {
             arr[k] = aux[i];
-            i = i + 1;
+            i++;
         }
     }
 }
 
-void quickSort(int* array, int low, int high)
+
+void quicksort(int* array, int low, int high)
 {
     if(low < high)
     {
         int j = partition(array, low, high);
-        quickSort(array, low, j - 1);
-        quickSort(array, j + 1, high);
+        quicksort(array, low, j - 1);
+        quicksort(array, j + 1, high);
     }
 }
+
 
 int partition(int* array, int low, int high)
 {
@@ -216,7 +216,7 @@ int partition2(int* array, int low, int high)
 }
 */
 
-void swimUpArray(int* arr, int k)
+void swim_up_array(int* arr, int k)
 {
     while(k > 1 && arr[k/2] < arr[k])
     {
@@ -227,7 +227,8 @@ void swimUpArray(int* arr, int k)
     }
 }
 
-void sinkDownArray(int* arr, int k, int size)
+
+void sink_down_array(int* arr, int k, int size)
 {
     while(2*k <= size)
     {
@@ -247,13 +248,14 @@ void sinkDownArray(int* arr, int k, int size)
     }
 }
 
-void heapsortArray(int* arr, int l, int r)
+
+void heapsort_array(int* arr, int l, int r)
 {
     int N = r - l + 1;
     int* pq = arr + l - 1;
     for(int k = N/2; k >= 1; k--)
     {
-        sinkDownArray(pq, k, N);
+        sink_down_array(pq, k, N);
     }
     while(N > 1)
     {
@@ -261,11 +263,12 @@ void heapsortArray(int* arr, int l, int r)
         pq[1] = pq[N];
         pq[N] = temp;
         N--;
-        sinkDownArray(pq, 1, N);
+        sink_down_array(pq, 1, N);
     }
 }
 
-MaxSA findMaxCrossingSubarray(int* A, int low, int mid, int high)
+
+MaxSA find_max_crossing_subarray(int* A, int low, int mid, int high)
 {
     MaxSA msdata;
 
@@ -297,7 +300,8 @@ MaxSA findMaxCrossingSubarray(int* A, int low, int mid, int high)
     return msdata;
 }
 
-MaxSA findMaxSubarray(int* A, int low, int high)
+
+MaxSA find_max_subarray(int* A, int low, int high)
 {
     MaxSA leftms;
     MaxSA rightms;
@@ -313,9 +317,9 @@ MaxSA findMaxSubarray(int* A, int low, int high)
     else
     {
         int mid = (low + high) / 2;
-        leftms = findMaxSubarray(A, low, mid);
-        rightms = findMaxSubarray(A, mid + 1, high);
-        crossms = findMaxCrossingSubarray(A, low, mid, high);
+        leftms = find_max_subarray(A, low, mid);
+        rightms = find_max_subarray(A, mid + 1, high);
+        crossms = find_max_crossing_subarray(A, low, mid, high);
         if(leftms.maxSum >= rightms.maxSum && leftms.maxSum >= crossms.maxSum)
         {
             return leftms;
@@ -330,3 +334,4 @@ MaxSA findMaxSubarray(int* A, int low, int high)
         }
     }
 }
+

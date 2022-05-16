@@ -7,6 +7,6 @@
  * and checking whether the user entered anything other
  * than integers into the input field.
  */
-int getIntInput(int numDigits);
+int get_int_input(int num_digits);
 
 #endif

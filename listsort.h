@@ -3,16 +3,16 @@
 #include "linklist.h"
 
 // Quadratic
-void selectionSortIntLL(List* list);
-List* selectionSortIntLLSedge(List* list);
-void insertionSortIntLL(List* list);
-void insertionSortIntLLSedge(List* list);
+void selection_sort_list(doubly_linked_list* list);
+doubly_linked_list* selection_sort_list_sw(doubly_linked_list* list);
+void insertion_sort_list(doubly_linked_list* list);
+void insertion_sort_list_sw(doubly_linked_list* list);
 
 // Alternate directions in passes through the list?
-void shellSortIntLL(List* list);
+void shellsort_list(doubly_linked_list* list);
 
 // Linearithmic
-Node* mergeIntLL(Node* a, Node *b);
-Node* mergeSortIntLL(Node* c);
+doubly_linked_node* merge_list(doubly_linked_node* a, doubly_linked_node *b);
+doubly_linked_node* merge_sort_list(doubly_linked_node* c);
 
 #endif

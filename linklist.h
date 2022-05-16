@@ -2,36 +2,36 @@
 #define LINKLIST_H
 #include <stdbool.h>
 
-typedef struct Node {
+typedef struct doubly_linked_node {
     int data;
-    struct Node* previous;
-    struct Node* next;
-} Node;
+    struct doubly_linked_node* previous;
+    struct doubly_linked_node* next;
+} doubly_linked_node;
 
-typedef struct List {
+typedef struct doubly_linked_list {
     int size;
-    Node* first;
-    Node* last;
-} List;
+    doubly_linked_node* first;
+    doubly_linked_node* last;
+} doubly_linked_list;
 
-List* initList(void);
-int sizeOfList(List* list);
-List* copyIntList(List* originalList);
+doubly_linked_list* init_list(void);
+int size_of_list(doubly_linked_list* list);
+doubly_linked_list* copy_int_list(doubly_linked_list* original_list);
 
-void printIntListCurses(List* list);
-bool listContainsNode(List* list, Node* node);
-Node* findMaxNode(List* list);
-Node* findMinNode(List* list);
+void print_int_list_curses(doubly_linked_list* list);
+bool list_contains_node(doubly_linked_list* list, doubly_linked_node* node);
+doubly_linked_node* find_max_node(doubly_linked_list* list);
+doubly_linked_node* find_min_node(doubly_linked_list* list);
 
-void insertAtHead(List* list, Node* newNode);
-void insertAtTail(List* list, Node* newNode);
-void insertBeforeIndex(List* list, Node* newNode, int index);
-void updateNode(Node* node, int newData);
+void insert_at_head(doubly_linked_list* list, doubly_linked_node* new_node);
+void insert_at_tail(doubly_linked_list* list, doubly_linked_node* new_node);
+void insert_before_index(doubly_linked_list* list, doubly_linked_node* new_node, const int index);
+void update_node(doubly_linked_node* node, const int new_data);
 
-void deleteHead(List* list);
-void deleteTail(List* list);
-void unlinkNode(List* list, Node* node);
-void deleteNode(List* list, Node* node);
-void deleteList(List* list);
+void delete_head(doubly_linked_list* list);
+void delete_tail(doubly_linked_list* list);
+void unlink_node(doubly_linked_list* list, doubly_linked_node* node);
+void delete_node(doubly_linked_list* list, doubly_linked_node* node);
+void delete_list(doubly_linked_list* list);
 
 #endif
