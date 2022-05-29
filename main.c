@@ -58,33 +58,23 @@ int main(int argc, char *argv[])
 	int key_input = 0;
 	int highlighted_option = 0;
 	bool user_selected_quit = false;
-	while(user_selected_quit == false)
-	{
+	while (!user_selected_quit) {
 		erase();
 		attron(A_BOLD);
 		printw("DATA STRUCTURES AND ALGORITHMS TEST SUITE\n\n");
 		attroff(A_BOLD);
-		for(int i = 0; i < num_menu_options; i++)
-		{
-			if(i == highlighted_option)
-			{
+		for (int i = 0; i < num_menu_options; i++) {
+			if (i == highlighted_option)
 				attron(A_STANDOUT);
-			}
-			printw("%d. ", i + 1);
-			printw(menu_options[i]);
-			printw("\n");
-			if(i == highlighted_option)
-			{
+			printw("%d. %s\n", i + 1, menu_options[i]);
+			if (i == highlighted_option)
 				attroff(A_STANDOUT);
-			}
 		}
 		refresh();
 
 		key_input = getch();
-		if(key_input == KEY_ENTER || key_input == 10)
-		{
-			switch(highlighted_option)
-			{
+		if (key_input == KEY_ENTER || key_input == 10) {
+			switch (highlighted_option) {
 			case 0:
 				array_sort_test();
 				break;
@@ -110,12 +100,10 @@ int main(int argc, char *argv[])
 				break;
 			}
 		}
-		else if(key_input == KEY_UP && highlighted_option > 0)
-		{
+		else if (key_input == KEY_UP && highlighted_option > 0) {
 			highlighted_option--;
 		}
-		else if(key_input == KEY_DOWN && highlighted_option < num_menu_options - 1)
-		{
+		else if (key_input == KEY_DOWN && highlighted_option < num_menu_options - 1) {
 			highlighted_option++;
 		}
 	}
@@ -137,8 +125,7 @@ void array_sort_test(void)
 	const int array_length = get_num_array_elements();
 	printw("\nArray will contain %d elements.\n\n", array_length);
 	int array[array_length];
-	for(int i = 0; i < array_length; i++)
-	{
+	for (int i = 0; i < array_length; i++) {
 		array[i] = get_random_num(-1000, 1000);
 	}
 
@@ -159,16 +146,14 @@ void array_sort_test(void)
 	printw("\n\n");
 	const int menu_start_point = should_skip_quadratic ? 2 : 0;
 
-	for(int i = menu_start_point; i < num_sort_algorithms; i++)
-	{
+	for (int i = menu_start_point; i < num_sort_algorithms; i++) {
 		printw("%s: ", sort_algorithm_titles[i]);
 		refresh();
 		int* new_array = copy_int_array(array, array_length);
 		//printf("\nUnsorted Array:\n");
 		//printIntArray(new_array, array_length);
 
-		switch(i)
-		{
+		switch (i) {
 		case 0: // SELECTION SORT
 			gettimeofday(&start, NULL);
 			selectionSort(new_array, array_length);
@@ -228,10 +213,9 @@ void linked_list_sort_test(void)
 	const int list_length = get_num_array_elements();
 	printw("\nList will contain %d elements.\n\n", list_length);
 	doubly_linked_list* int_list = init_list();
-	for(int i = 0; i < list_length; i++)
-	{
+	for (int i = 0; i < list_length; i++) {
 		doubly_linked_node* new_node = malloc(sizeof(doubly_linked_node));
-        new_node->data = get_random_num(-1000, 1000);
+        	new_node->data = get_random_num(-1000, 1000);
 		insert_at_tail(int_list, new_node);
 	}
 
@@ -250,16 +234,14 @@ void linked_list_sort_test(void)
 	printw("\n\n");
 	const int start_point = should_skip_quadratic ? 4 : 0;
 
-	for(int i = start_point; i < num_sort_algorithms; i++)
-	{
+	for (int i = start_point; i < num_sort_algorithms; i++) {
 		doubly_linked_list* new_list = copy_int_list(int_list);
 		printw("%s: ", sort_algorithm_titles[i]);
 		//printf("\nUnsorted List:\n");
 		//printIntList(new_list);
 		refresh();
 
-		switch(i)
-		{
+		switch (i) {
 		case 0: // SELECTION SORT
 			gettimeofday(&start, NULL);
 			selection_sort_list(new_list);
@@ -305,18 +287,10 @@ void linked_list_sort_test(void)
 
 int get_num_array_elements(void)
 {
-	int array_length = 0;
+	int array_length = 10;
 	
-	const int num_array_size_options = 6;
-	const char* array_size_options[num_array_size_options] = {
-		"10",
-		"100",
-		"1000",
-		"10000",
-		"100000",
-		"1000000"
-	};
-	const int array_size_values[num_array_size_options] = {
+	const int num_array_sizes = 6;
+	const int array_sizes[num_array_sizes] = {
 		10,
 		100,
 		1000,
@@ -332,38 +306,28 @@ int get_num_array_elements(void)
 	int highlighted_option = 0;
 	int key_input;
 	bool user_pressed_enter = false;
-	while(user_pressed_enter == false)
-	{
+	while (!user_pressed_enter) {
 		move(y, x);
 		clrtobot();
 
-		for(int i = 0; i < numArraySizeChoices; i++)
-		{
-			if(i == highlighted_option)
-			{
+		for (int i = 0; i < num_array_sizes; i++) {
+			if (i == highlighted_option)
 				attron(A_STANDOUT);
-			}
-			printw(arraySizeChoices[i]);
-			printw("\n");
-			if(i == highlighted_option)
-			{
+			printw("%d\n", array_sizes[i]);
+			if (i == highlighted_option)
 				attroff(A_STANDOUT);
-			}
 		}
 		refresh();
 
 		key_input = getch();
-		if(key_input == KEY_ENTER || key_input == 10)
-		{
-			array_length = array_size_values[highlighted_option];
-			user_pressed_enter = true;
+		user_pressed_enter = (key_input == KEY_ENTER || key_input == 10);
+		if (user_pressed_enter) {
+			array_length = array_sizes[highlighted_option];
 		}
-		else if(key_input == KEY_UP && highlighted_option > 0)
-		{
+		else if (key_input == KEY_UP && highlighted_option > 0) {
 			highlighted_option--;
 		}
-		else if(key_input == KEY_DOWN && highlighted_option < numArraySizeChoices - 1)
-		{
+		else if (key_input == KEY_DOWN && highlighted_option < num_array_sizes - 1) {
 			highlighted_option++;
 		}
 	}
@@ -374,9 +338,6 @@ int get_num_array_elements(void)
 
 bool get_yes_or_no(void)
 {
-	const num_menu_options = 2;
-	const char* menu_options[num_menu_options] = {"Yes", "No"};
-	
 	int y;
 	int x;
 	getyx(stdscr, y, x);
@@ -384,48 +345,33 @@ bool get_yes_or_no(void)
 	int highlighted_option = 0;
 	bool user_pressed_enter = false;
 	bool user_choice;
-	while(user_pressed_enter == false)
-	{
+	while (!user_pressed_enter) {
 		move(y, x);
 		clrtobot();
 
-		for(int i = 0; i < num_menu_options; i++)
-		{
-			if(i == highlighted_option)
-			{
-				attron(A_STANDOUT);
-			}
-			printw(menu_options[i]);
-			printw("\n");
-			if(i == highlighted_option)
-			{
-				attroff(A_STANDOUT);
-			}
-		}
+		if (highlighted_option == 0)
+			attron(A_STANDOUT);
+		printw("Yes\n");
+		if (highlighted_option == 0)
+			attroff(A_STANDOUT);
+
+		if (highlighted_option == 1)
+			attron(A_STANDOUT);
+		printw("No\n");
+		if (highlighted_option == 1)
+			attroff(A_STANDOUT);
+
 		refresh();
 
 		const int key_input = getch();
-		if(key_input == KEY_ENTER || key_input == 10)
-		{
-			switch(highlighted_option)
-			{
-			case 0:
-				user_choice = true;
-				break;
-			case 1:
-				user_choice = false;
-				break;
-			default:
-				break;
-			}
-			user_pressed_enter = true;
+		user_pressed_enter = (key_input == KEY_ENTER || key_input == 10);
+		if (user_pressed_enter) {
+			user_choice = (highlighted_option == 0);
 		}
-		else if(key_input == KEY_UP && highlighted_option > 0)
-		{
+		else if (key_input == KEY_UP && highlighted_option > 0) {
 			highlighted_option--;
 		}
-		else if(key_input == KEY_DOWN && highlighted_option < numArraySizeChoices - 1)
-		{
+		else if (key_input == KEY_DOWN && highlighted_option < 1) {
 			highlighted_option++;
 		}
 	}
@@ -444,8 +390,7 @@ void max_subarray_test(void)
 
 	int mstArrLen = 50;
 	int array[mstArrLen];
-	for(int i = 0; i < mstArrLen; i++)
-	{
+	for (int i = 0; i < mstArrLen; i++) {
 		array[i] = get_random_num(-100, 100);
 	}
 	printw("Original Array:\n");
@@ -459,8 +404,7 @@ void max_subarray_test(void)
 	gettimeofday(&stop, NULL);
 
 	printw("\n\nMax Subarray:\n");
-	for(int i = msdata.lowIndex; i <= msdata.highIndex; i++)
-	{
+	for (int i = msdata.lowIndex; i <= msdata.highIndex; i++) {
 		printw("%d ", array[i]);
 	}
 	printw("\n\nMax Subarray Sum: %d\n", msdata.maxSum);
@@ -505,101 +449,74 @@ void union_find_test(void)
 	x = 0;
 	int highlighted_option = 0;
 	bool userSelectedReturn = false;
-	while(userSelectedReturn == false)
-	{
+	while (!userSelectedReturn) {
 		move(y, x);
 		clrtobot();
-		for(int i = 0; i < num_menu_options; i++)
-		{
-			if(i == highlighted_option)
-			{
+		for (int i = 0; i < num_menu_options; i++) {
+			if (i == highlighted_option)
 				attron(A_STANDOUT);
-			}
-			printw("%d. ", i + 1);
-			printw(menu_options[i]);
-			printw("\n");
-			if(i == highlighted_option)
-			{
+			printw("%d. %s\n", i + 1, menu_options[i]);
+			if (i == highlighted_option)
 				attroff(A_STANDOUT);
-			}
 		}
 		refresh();
 
 		int key_input = getch();
-		if(key_input == KEY_ENTER || key_input == 10)
-		{
-			switch(highlighted_option)
-			{
-			case 0:
-			{
+		if (key_input == KEY_ENTER || key_input == 10) {
+			switch (highlighted_option) {
+			case 0: {
 				printf("\nEnter node number:\n");
 				int nodeNum = getIntInput(3);
-				if(nodeNum < 0 || nodeNum > newWQU->count - 1)
-				{
+				if (nodeNum < 0 || nodeNum > newWQU->count - 1) {
 					printf("Invalid input.\n");
 				}
-				else
-				{
+				else {
 					int nodeRoot = findRootOfNode(newWQU, nodeNum);
 					printf("Root of Node %d is %d.\n", nodeNum, nodeRoot);
 				}
 				break;
 			}
-			case 1:
-			{
+			case 1: {
 				printf("\nEnter number of Node 1:\n");
 				int nodeNum1 = getIntInput(3);
 				printf("\nEnter number of Node 2:\n");
 				int nodeNum2 = getIntInput(3);
 
-				if(nodeNum1 < 0 || nodeNum2 < 0 || nodeNum1 > (newWQU->count - 1) || nodeNum2 > (newWQU->count - 1))
-				{
+				if (nodeNum1 < 0 || nodeNum2 < 0 || nodeNum1 > (newWQU->count - 1) || nodeNum2 > (newWQU->count - 1)) {
 					printf("Invalid input.\n");
 				}
-				else
-				{
+				else {
 					bool isConnected = pairIsConnected(newWQU, nodeNum1, nodeNum2);
 					printf("Nodes %d and %d are ", nodeNum1, nodeNum2);
-					if(isConnected == true)
-					{
+					if (isConnected)
 						printf("connected.\n");
-					}
 					else
-					{
 						printf("not connected.\n");
-					}
 				}
 				break;
 			}
-			case 2:
-			{
+			case 2: {
 				printf("\nEnter number of Node 1:\n");
 				int nodeNum1 = getIntInput(3);
 				printf("\nEnter number of Node 2:\n");
 				int nodeNum2 = getIntInput(3);
-				if(nodeNum1 < 0 || nodeNum2 < 0 || nodeNum1 > (newWQU->count - 1) || nodeNum2 > (newWQU->count - 1))
-				{
+				if (nodeNum1 < 0 || nodeNum2 < 0 || nodeNum1 > (newWQU->count - 1) || nodeNum2 > (newWQU->count - 1)) 
 					printf("Invalid input.\n");
-				}
 				else
-				{
 					unionNodes(newWQU, nodeNum1, nodeNum2);
-				}
 				break;
 			}
 			case 3:
 				userSelectedReturn = true;
 				break;
 			default:
-					break;
+				break;
 			}
 		}
-		else if(key_input == KEY_UP && highlighted_option > 0)
-		{
+		else if (key_input == KEY_UP && highlighted_option > 0) {
 			highlighted_option--;
 		}
-		else if(key_input == KEY_DOWN && highlighted_option < num_menu_options - 1)
-		{
+		else if (key_input == KEY_DOWN && highlighted_option < num_menu_options - 1) {
 			highlighted_option++;
 		}
 	}
@@ -621,8 +538,7 @@ void new_sort_test(void)
 	const int array_length = get_num_array_elements();
 	printw("\nArray will contain %d elements.\n\n", array_length);
 	int array[array_length];
-	for(int i = 0; i < array_length; i++)
-	{
+	for (int i = 0; i < array_length; i++) {
 		array[i] = get_random_num(-1000, 1000);
 	}
 	print_int_array_curses(array, array_length);
@@ -631,11 +547,10 @@ void new_sort_test(void)
 	int list_length = get_num_array_elements();
 	printw("\nList will contain %d elements.\n\n", list_length);
 	List* int_list = init_list();
-	for(int i = 0; i < list_length; i++)
-	{
+	for (int i = 0; i < list_length; i++) {
 		int newInt = get_random_num(-1000, 1000);
 		Node* new_node = malloc(sizeof(Node));
-        newNode->data = newInt;
+        	newNode->data = newInt;
 		insertAtTail(int_list, new_node);
 	}
 	printIntListCurses(int_list);
@@ -669,12 +584,10 @@ void priority_queue_test(void)
 	int array_length = get_num_array_elements();
 	printw("\nArray will contain %d elements.\n\n", array_length);
 	int array[array_length];
-	for(int i = 0; i < array_length; i++)
-	{
+	for (int i = 0; i < array_length; i++) {
 		array[i] = get_random_num(-1000, 1000);
 	}
-	if(array_length < 1000)
-	{
+	if (array_length < 1000) {
 		printw("\nUnsorted Array:\n");
 		print_int_array_curses(array, array_length);
 	}
@@ -688,8 +601,7 @@ void priority_queue_test(void)
 	int usecPassed = timeDiff(start, stop);
 	printw("Time elapsed: %d us\n\n", usecPassed);
 
-	if(array_length < 1000)
-	{
+	if (array_length < 1000) {
 		printw("\nSorted Array:\n");
 		print_int_array_curses(array, array_length);
 	}
