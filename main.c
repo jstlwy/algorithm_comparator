@@ -27,13 +27,16 @@ instead of
 struct timeval
 */
 
+// Main program sections 
 void array_sort_test(void);
 void linked_list_sort_test(void);
-int get_num_elements(void);
-bool get_yes_or_no(void);
 void max_subarray_test(void);
 void union_find_test(void);
 void priority_queue_test(void);
+
+// Input retrieval functions
+int get_num_elements(void);
+bool get_yes_or_no(void);
 
 
 int main(int argc, char *argv[])
@@ -259,8 +262,8 @@ void linked_list_sort_test(void)
 			break;
 		}
 
-		const int time_elapsed_us = get_time_diff(start, stop);
-		printw("%d us\n", time_elapsed_us);
+		const int usec_elapsed = get_time_diff(start, stop);
+		printw("%d us\n", usec_elapsed);
 		refresh();
 		delete_list(new_list);
 	}
@@ -268,69 +271,6 @@ void linked_list_sort_test(void)
 	delete_list(int_list);
 	printw("\n");
 	wait_for_enter();
-}
-
-
-int get_num_elements(void)
-{
-	// Remember the coordinates so the cursor can be moved
-	// back repeatedly in case of invalid user input
-	int y;
-	int x;
-	getyx(stdscr, y, x);
-	x = 0;
-	
-	int array_length = 0;
-	while (array_length <= 0) {
-		move(y,x);
-		clrtobot();
-		printw("Enter your desired number of elements: ");
-		refresh();
-		array_length = get_int_input();
-	}
-
-	return array_length;
-}
-
-
-bool get_yes_or_no(void)
-{
-	int y;
-	int x;
-	getyx(stdscr, y, x);
-	x = 0;
-	int highlighted_option = 0;
-	bool user_pressed_enter = false;
-	bool user_choice;
-	while (!user_pressed_enter) {
-		move(y, x);
-		clrtobot();
-
-		if (highlighted_option == 0)
-			attron(A_STANDOUT);
-		printw("Yes\n");
-		if (highlighted_option == 0)
-			attroff(A_STANDOUT);
-
-		if (highlighted_option == 1)
-			attron(A_STANDOUT);
-		printw("No\n");
-		if (highlighted_option == 1)
-			attroff(A_STANDOUT);
-
-		refresh();
-
-		const int key_input = getch();
-		user_pressed_enter = (key_input == KEY_ENTER || key_input == 10);
-		if (user_pressed_enter)
-			user_choice = (highlighted_option == 0);
-		else if (key_input == KEY_UP && highlighted_option > 0)
-			highlighted_option--;
-		else if (key_input == KEY_DOWN && highlighted_option < 1)
-			highlighted_option++;
-	}
-	
-	return user_choice;
 }
 
 
@@ -391,7 +331,7 @@ void union_find_test(void)
 	int size = get_num_elements();
 	printw("\n%d-element weighted quick UF\n\n", size);
 	refresh();
-	struct wqunion* new_wqu = init_wqunion_of_size(size);
+	struct wqunion* wqu = init_wqunion_of_size(size);
 
 	int y;
 	int x;
@@ -415,48 +355,50 @@ void union_find_test(void)
 		if (key_input == KEY_ENTER || key_input == 10) {
 			switch (highlighted_option) {
 			case 0: {
-				printw("\nEnter a node number: ");
+				printw("\nEnter node number: ");
 				refresh();
 				int node = get_int_input();
-				if (node < 0 || node > new_wqu->count - 1) {
-					printw("Invalid input.\n");
+				if (node < 0 || node > wqu->count - 1) {
+					printw("\nInvalid input.\n\n");
 				}
 				else {
-					int root = get_node_root(new_wqu, node);
-					printw("Root of Node %d is %d.\n", node, root);
+					int root = get_node_root(wqu, node);
+					printw("\nRoot of %d: %d\n\n", node, root);
 				}
 				wait_for_enter();
 			} break;
 			case 1: {
-				printw("\nEnter the number of the first node: ");
+				printw("\nEnter number of first node:  ");
 				int node1 = get_int_input();
-				printw("Enter the number of the second node: ");
+				printw("Enter number of second node: ");
 				int node2 = get_int_input();
 				// Validate input
-				bool node1_invalid = (node1 < 0 || node1 > (new_wqu->count - 1));
-				bool node2_invalid = (node2 < 0 || node2 > (new_wqu->count - 1));
-				if (node1_invalid || node2_invalid)
-					printw("Invalid input.\n");
-				else if (pair_is_connected(new_wqu, node1, node2))
-					printw("Nodes %d and %d are connected.\n", node1, node2);
-				else
-					printw("Nodes %d and %d are not connected.\n", node1, node2);
+				bool node1_invalid = (node1 < 0 || node1 > (wqu->count - 1));
+				bool node2_invalid = (node2 < 0 || node2 > (wqu->count - 1));
+				if (node1_invalid || node2_invalid) {
+					printw("\nInvalid input.\n\n");
+				}
+				else {
+					printw("\nNodes %d and %d: ", node1, node2);
+					bool connected = pair_is_connected(wqu, node1, node2);
+					printw("%s\n\n", connected ? "connected" : "not connected");
+				}
 				wait_for_enter();
 			} break;
 			case 2: {
-				printw("\nEnter the number of the first node: ");
+				printw("\nEnter number of first node:  ");
 				int node1 = get_int_input();
-				printw("Enter the number of the second node: ");
+				printw("Enter number of second node: ");
 				int node2 = get_int_input();
 				// Validate input
-				bool node1_invalid = (node1 < 0 || node1 > (new_wqu->count - 1));
-				bool node2_invalid = (node2 < 0 || node2 > (new_wqu->count - 1));
+				bool node1_invalid = (node1 < 0 || node1 > (wqu->count - 1));
+				bool node2_invalid = (node2 < 0 || node2 > (wqu->count - 1));
 				if (node1_invalid || node2_invalid) {
-					printw("Invalid input.\n");
+					printw("\nInvalid input.\n\n");
 				}
 				else {
-					unify_nodes(new_wqu, node1, node2);
-					printw("Nodes %d and %d have been connected.\n", node1, node2);
+					unify_nodes(wqu, node1, node2);
+					printw("\nConnected nodes %d and %d.\n\n", node1, node2);
 				}
 				wait_for_enter();
 			} break;
@@ -475,12 +417,75 @@ void union_find_test(void)
 		}
 	}
 
-	delete_wqunion(new_wqu);
+	delete_wqunion(wqu);
 }
 
 
 void priority_queue_test(void)
 {
 
+}
+
+
+int get_num_elements(void)
+{
+	// Remember the coordinates so the cursor can be moved
+	// back repeatedly in case of invalid user input
+	int y;
+	int x;
+	getyx(stdscr, y, x);
+	x = 0;
+	
+	int array_length = 0;
+	while (array_length <= 0) {
+		move(y,x);
+		clrtobot();
+		printw("Enter desired number of elements: ");
+		refresh();
+		array_length = get_int_input();
+	}
+
+	return array_length;
+}
+
+
+bool get_yes_or_no(void)
+{
+	int y;
+	int x;
+	getyx(stdscr, y, x);
+	x = 0;
+	int highlighted_option = 0;
+	bool user_pressed_enter = false;
+	bool user_choice;
+	while (!user_pressed_enter) {
+		move(y, x);
+		clrtobot();
+
+		if (highlighted_option == 0)
+			attron(A_STANDOUT);
+		printw("Yes\n");
+		if (highlighted_option == 0)
+			attroff(A_STANDOUT);
+
+		if (highlighted_option == 1)
+			attron(A_STANDOUT);
+		printw("No\n");
+		if (highlighted_option == 1)
+			attroff(A_STANDOUT);
+
+		refresh();
+
+		const int key_input = getch();
+		user_pressed_enter = (key_input == KEY_ENTER || key_input == 10);
+		if (user_pressed_enter)
+			user_choice = (highlighted_option == 0);
+		else if (key_input == KEY_UP && highlighted_option > 0)
+			highlighted_option--;
+		else if (key_input == KEY_DOWN && highlighted_option < 1)
+			highlighted_option++;
+	}
+	
+	return user_choice;
 }
 
