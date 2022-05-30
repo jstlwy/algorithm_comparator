@@ -1,18 +1,18 @@
 #ifndef LISTSORT_H
 #define LISTSORT_H
-#include "linklist.h"
+#include "dllist.h"
 
 // Quadratic
-void selectionSortIntLL(List* list);
-List* selectionSortIntLLSedge(List* list);
-void insertionSortIntLL(List* list);
-void insertionSortIntLLSedge(List* list);
+void selection_sort_list(struct dllist *list);
+struct dllist* selection_sort_list_sw(struct dllist *list);
+void insertion_sort_list(struct dllist *list);
+void insertion_sort_list_sw(struct dllist *list);
 
 // Alternate directions in passes through the list?
-void shellSortIntLL(List* list);
+void shellsort_list(struct dllist *list);
 
 // Linearithmic
-Node* mergeIntLL(Node* a, Node *b);
-Node* mergeSortIntLL(Node* c);
+struct dlnode* merge_list(struct dlnode *a, struct dlnode *b);
+struct dlnode* merge_sort_list(struct dlnode *c);
 
 #endif

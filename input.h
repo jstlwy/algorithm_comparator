@@ -3,10 +3,9 @@
 
 /*
  * Keep the input retrieval process safe and robust
- * by using fgets, flushing the buffer to prevent overflow,
- * and checking whether the user entered anything other
- * than integers into the input field.
+ * by using getnstr, which prevents the user from entering
+ * more than the specified number of characters.
  */
-int getIntInput(int numDigits);
+int get_int_input();
 
 #endif

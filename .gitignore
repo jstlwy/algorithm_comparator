@@ -1,6 +1,6 @@
-# Binaries
+# Main binary
 test
 
-# Mostly empty files
-hashtable_linprobe.*
-redblackbst.*
+# Object files
+*.o
+

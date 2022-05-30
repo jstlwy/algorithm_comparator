@@ -4,71 +4,67 @@
 #include <time.h>
 #include <ncurses.h>
 
-int randomNum(int a, int b)
+int get_random_num(const int a, const int b)
 {
 	int low, high;
-	if(a < b)
-	{
+	if (a < b) {
 		low = a;
 		high = b;
 	}
-	else if(a > b)
-	{
+	else if (a > b) {
 		low = b;
 		high = a;
 	}
-	else
-	{
+	else {
 		return a;
 	}
 	int difference = high - low;
 	return (rand() % difference) + low;
 }
 
-void printIntArray(int *array, int arraySize)
+
+void print_int_array(int *array, const int array_size)
 {
-	for(int i = 0; i < arraySize; i = i + 1)
-	{
+	for (int i = 0; i < array_size; i++) {
 		printf("%d ", array[i]);
 	}
 }
 
-void printIntArrayCurses(int *array, int arraySize)
+
+void print_int_array_curses(int *array, const int array_size)
 {
-	for(int i = 0; i < arraySize; i = i + 1)
-	{
+	for (int i = 0; i < array_size; i++) {
 		printw("%d ", array[i]);
 	}
 }
 
-int* copyIntArray(int* oldArray, int arraySize)
+
+int* copy_int_array(int *original_array, const int original_array_size)
 {
-    int* newArray = malloc(arraySize * sizeof(int));
-    for(int i = 0; i < arraySize; i = i + 1)
-    {
-        newArray[i] = oldArray[i];
-    }
-    return newArray;
+	int* new_array = malloc(original_array_size * sizeof(int));
+	for (int i = 0; i < original_array_size; i++) {
+		new_array[i] = original_array[i];
+	}
+	return new_array;
 }
 
-int timeDiff(struct timeval start, struct timeval stop)
+
+int get_time_diff(struct timeval start, struct timeval stop)
 {
-	int start_usec;
-	int stop_usec;
-	int diff;
-	start_usec = start.tv_usec + start.tv_sec * 1000000;
-	stop_usec = stop.tv_usec + stop.tv_sec * 1000000; 
-	diff = stop_usec - start_usec;
+	int start_usec = start.tv_usec + (start.tv_sec * 1000000);
+	int stop_usec = stop.tv_usec + (stop.tv_sec * 1000000); 
+	int diff = stop_usec - start_usec;
 	return diff;
 }
 
-void waitForEnter()
+
+void wait_for_enter()
 {
-	printw("Press Enter to continue.");
+	printw("Press the enter key to continue.");
 	refresh();
-	int keyInput = 0;
-	while(keyInput != KEY_ENTER && keyInput != 10)
-	{
-		keyInput = getch();
+	int key_input = 0;
+	while (key_input != KEY_ENTER && key_input != 10) {
+		key_input = getch();
 	}
 }
+
