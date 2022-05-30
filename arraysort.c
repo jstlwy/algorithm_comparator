@@ -1,7 +1,7 @@
 #include "arraysort.h"
 #include <limits.h>
 
-void selection_sort(int* array, const int array_size)
+void selection_sort(int *array, const int array_size)
 {
 	int min;
 	int min_index;
@@ -19,7 +19,7 @@ void selection_sort(int* array, const int array_size)
 }
 
 
-void insertion_sort(int* array, const int array_size)
+void insertion_sort(int *array, const int array_size)
 {
 	int j;
 	for (int i = 1; i < array_size; i++) {
@@ -34,7 +34,7 @@ void insertion_sort(int* array, const int array_size)
 }
 
 
-void shellsort(int* array, const int array_size)
+void shellsort(int *array, const int array_size)
 {
 	// h = "gap"
 	int h = 1;
@@ -58,7 +58,7 @@ void shellsort(int* array, const int array_size)
 }
 
 
-void merge_sort_int_arr(int* array, const int array_size)
+void merge_sort_array(int* array, const int array_size)
 {
 	int aux[array_size];
 	merge_sort_td(array, aux, 0, array_size - 1);
@@ -163,31 +163,8 @@ int partition(int* array, int low, int high)
 	return j;
 }
 
-/*
-// From the Cormen text - much slower
-int partition2(int* array, int low, int high)
-{
-int x = array[high];
-int i = low - 1;
-int temp;
-for (int j = low; j < high; j = j + 1)
-{
-if (array[j] <= x)
-{
-i = i + 1;
-temp = array[i];
-array[i] = array[j];
-array[j] = temp;
-}
-}
-temp = array[i + 1];
-array[i + 1] = array[high];
-array[high] = temp;
-return i + 1;
-}
-*/
 
-void swim_up_array(int* arr, int k)
+void swim_up(int* arr, int k)
 {
 	while (k > 1 && arr[k/2] < arr[k]) {
 		int temp = arr[k/2];
@@ -198,7 +175,7 @@ void swim_up_array(int* arr, int k)
 }
 
 
-void sink_down_array(int* arr, int k, int size)
+void sink_down(int* arr, int k, int size)
 {
 	while (2*k <= size) {
 		int j = 2 * k;
@@ -219,67 +196,67 @@ void heapsort_array(int* arr, int l, int r)
 	int N = r - l + 1;
 	int* pq = arr + l - 1;
 	for (int k = N/2; k >= 1; k--) {
-		sink_down_array(pq, k, N);
+		sink_down(pq, k, N);
 	}
 	while (N > 1) {
 		int temp = pq[1];
 		pq[1] = pq[N];
 		pq[N] = temp;
 		N--;
-		sink_down_array(pq, 1, N);
+		sink_down(pq, 1, N);
 	}
 }
 
 
-MaxSA find_max_crossing_subarray(int* A, int low, int mid, int high)
+struct max_subarray find_max_crossing_subarray(int *array, int low, int mid, int high)
 {
-	MaxSA msdata;
+	struct max_subarray m;
 
-	int leftSum = INT_MIN;
+	int left_sum = INT_MIN;
 	int sum = 0;
 	for (int i = mid; i >= low; i--) {
-		sum = sum + A[i];
-		if (sum > leftSum) {
-			leftSum = sum;
-			msdata.lowIndex = i;
+		sum += array[i];
+		if (sum > left_sum) {
+			left_sum = sum;
+			m.low_index = i;
 		}
 	}
 
-	int rightSum = INT_MIN;
+	int right_sum = INT_MIN;
 	sum = 0;
 	for (int j = mid + 1; j <= high; j++) {
-		sum = sum + A[j];
-		if (sum > rightSum) {
-			rightSum = sum;
-			msdata.highIndex = j;
+		sum += array[j];
+		if (sum > right_sum) {
+			right_sum = sum;
+			m.high_index = j;
 		}
 	}
 
-	msdata.maxSum = leftSum + rightSum; 
-	return msdata;
+	m.max_sum = left_sum + right_sum; 
+	return m;
 }
 
 
-MaxSA find_max_subarray(int* A, int low, int high)
+struct max_subarray find_max_subarray(int *array, int low, int high)
 {
-	MaxSA leftms;
-	MaxSA rightms;
-	MaxSA crossms;
+	struct max_subarray leftms;
+	struct max_subarray rightms;
+	struct max_subarray crossms;
 
 	if (high == low) {
-		crossms.lowIndex = low;
-		crossms.highIndex = high;
-		crossms.maxSum = A[low];
+		crossms.low_index = low;
+		crossms.high_index = high;
+		crossms.max_sum = array[low];
 		return crossms;
 	}
 	else {
 		int mid = (low + high) / 2;
-		leftms = find_max_subarray(A, low, mid);
-		rightms = find_max_subarray(A, mid + 1, high);
-		crossms = find_max_crossing_subarray(A, low, mid, high);
-		if (leftms.maxSum >= rightms.maxSum && leftms.maxSum >= crossms.maxSum)
+		leftms = find_max_subarray(array, low, mid);
+		rightms = find_max_subarray(array, mid + 1, high);
+		crossms = find_max_crossing_subarray(array, low, mid, high);
+		if (leftms.max_sum >= rightms.max_sum && leftms.max_sum >= crossms.max_sum)
 			return leftms;
-		else if (rightms.maxSum >= leftms.maxSum && rightms.maxSum >= crossms.maxSum)
+		else if (rightms.max_sum >= leftms.max_sum && rightms.max_sum >= crossms.max_sum)
 			return rightms;
 		else
 			return crossms;

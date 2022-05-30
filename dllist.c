@@ -1,12 +1,12 @@
-#include "linklist.h"
+#include "dllist.h"
 #include "utils.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <ncurses.h>
 
-doubly_linked_list* init_list(void)
+struct dllist* init_list(void)
 {
-	doubly_linked_list* new_list = malloc(sizeof(doubly_linked_list));
+	struct dllist* new_list = malloc(sizeof(struct dllist));
 	new_list->size = 0;
 	new_list->first = NULL;
 	new_list->last = NULL;
@@ -14,7 +14,7 @@ doubly_linked_list* init_list(void)
 }
 
 
-int size_of_list(doubly_linked_list* list)
+int get_list_size(struct dllist* list)
 {
 	if (list == NULL)
 		return 0;
@@ -23,16 +23,16 @@ int size_of_list(doubly_linked_list* list)
 }
 
 
-doubly_linked_list* copy_int_list(doubly_linked_list* original_list)
+struct dllist* copy_int_list(struct dllist* original_list)
 {
-	doubly_linked_list* new_list = init_list();
+	struct dllist* new_list = init_list();
 
 	if (original_list == NULL)
 		return new_list;
 
-	doubly_linked_node* current_node = original_list->first;
+	struct dlnode* current_node = original_list->first;
 	while (current_node != NULL) {
-		doubly_linked_node* new_node = malloc(sizeof(doubly_linked_node));
+		struct dlnode* new_node = malloc(sizeof(struct dlnode));
 		new_node->data = current_node->data;
 		insert_at_tail(new_list, new_node);
 		current_node = current_node->next;
@@ -42,12 +42,12 @@ doubly_linked_list* copy_int_list(doubly_linked_list* original_list)
 }
 
 
-void print_int_list_curses(doubly_linked_list* list)
+void print_int_list_curses(struct dllist* list)
 {
 	if (list == NULL)
 		return;
 
-	doubly_linked_node* current_node = list->first;
+	struct dlnode* current_node = list->first;
 	while (current_node != NULL) {
 		printw("%d ", current_node->data);
 		current_node = current_node->next;
@@ -55,12 +55,12 @@ void print_int_list_curses(doubly_linked_list* list)
 }
 
 
-bool list_contains_node(doubly_linked_list* list, doubly_linked_node* node)
+bool list_contains_node(struct dllist* list, struct dlnode* node)
 {
 	if (list == NULL || node == NULL)
 		return false;
 
-	doubly_linked_node* current_node = list->first;
+	struct dlnode* current_node = list->first;
 	while (current_node != NULL) {
 		if (node == current_node)
 			return true;
@@ -71,13 +71,13 @@ bool list_contains_node(doubly_linked_list* list, doubly_linked_node* node)
 }
 
 
-doubly_linked_node* find_max_node(doubly_linked_list* list)
+struct dlnode* find_max_node(struct dllist* list)
 {
 	if (list == NULL)
 		return NULL;
 
-	doubly_linked_node* max_node = list->first;
-	doubly_linked_node* current_node = max_node->next;
+	struct dlnode* max_node = list->first;
+	struct dlnode* current_node = max_node->next;
 	while (current_node != NULL) {
 		if (current_node->data > max_node->data)
 			max_node = current_node;
@@ -88,13 +88,13 @@ doubly_linked_node* find_max_node(doubly_linked_list* list)
 }
 
 
-doubly_linked_node* find_min_node(doubly_linked_list* list)
+struct dlnode* find_min_node(struct dllist* list)
 {
 	if (list == NULL)
 		return NULL;
 
-	doubly_linked_node* min_node = list->first;
-	doubly_linked_node* current_node = min_node->next;
+	struct dlnode* min_node = list->first;
+	struct dlnode* current_node = min_node->next;
 	while (current_node != NULL) {
 		if (current_node->data < min_node->data)
 			min_node = current_node;
@@ -105,7 +105,7 @@ doubly_linked_node* find_min_node(doubly_linked_list* list)
 }
 
 
-void insert_at_head(doubly_linked_list* list, doubly_linked_node* new_node)
+void insert_at_head(struct dllist* list, struct dlnode* new_node)
 {
 	if (list == NULL)
 		return;
@@ -117,7 +117,7 @@ void insert_at_head(doubly_linked_list* list, doubly_linked_node* new_node)
 		list->last = new_node;
 	}
 	else {
-		doubly_linked_node* old_first_node = list->first;
+		struct dlnode* old_first_node = list->first;
 		new_node->next = old_first_node;
 		old_first_node->previous = new_node;   
 	}
@@ -127,7 +127,7 @@ void insert_at_head(doubly_linked_list* list, doubly_linked_node* new_node)
 }
 
 
-void insert_at_tail(doubly_linked_list* list, doubly_linked_node* new_node)
+void insert_at_tail(struct dllist* list, struct dlnode* new_node)
 {
 	if (list == NULL)
 		return;
@@ -139,7 +139,7 @@ void insert_at_tail(doubly_linked_list* list, doubly_linked_node* new_node)
 		new_node->previous = NULL;
 	}
 	else {
-		doubly_linked_node* old_last_node = list->last;
+		struct dlnode* old_last_node = list->last;
 		old_last_node->next = new_node;
 		new_node->previous = old_last_node;
 	}
@@ -149,12 +149,12 @@ void insert_at_tail(doubly_linked_list* list, doubly_linked_node* new_node)
 }
 
 
-void insert_before_index(doubly_linked_list* list, doubly_linked_node* new_node, const int index)
+void insert_before_index(struct dllist* list, struct dlnode* new_node, const int index)
 {
 	if (list == NULL || new_node == NULL)
 		return;
 
-	doubly_linked_node* current_node = list->first;
+	struct dlnode* current_node = list->first;
 	int current_index = 0;
 	while (current_node != NULL && current_index != index) {
 		current_node = current_node->next;
@@ -165,7 +165,7 @@ void insert_before_index(doubly_linked_list* list, doubly_linked_node* new_node,
 }
 
 
-void update_node(doubly_linked_node* node, const int new_data)
+void update_node(struct dlnode* node, const int new_data)
 {
 	if (node == NULL)
 		return;
@@ -174,19 +174,19 @@ void update_node(doubly_linked_node* node, const int new_data)
 }
 
 
-void delete_head(doubly_linked_list* list)
+void delete_head(struct dllist* list)
 {
 	if (list == NULL)
 		return;
 
-	doubly_linked_node* old_first_node = list->first;
+	struct dlnode* old_first_node = list->first;
 	if (old_first_node != NULL) {
 		if (old_first_node == list->last) {
 			list->first = NULL;
 			list->last = NULL;
 		}
 		else {
-			doubly_linked_node* new_first_node = old_first_node->next;
+			struct dlnode* new_first_node = old_first_node->next;
 			new_first_node->previous = NULL;
 			list->first = new_first_node;
 		}
@@ -196,29 +196,29 @@ void delete_head(doubly_linked_list* list)
 }
 
 
-void delete_tail(doubly_linked_list* list)
+void delete_tail(struct dllist* list)
 {
 	if (list == NULL)
 		return;
 
-	doubly_linked_node* old_last_node = list->last;
+	struct dlnode* old_last_node = list->last;
 	if (old_last_node != NULL) {
 		if (old_last_node == list->first) {
 			list->first = NULL;
 			list->last = NULL;
 		}
 		else {
-			doubly_linked_node* new_last_node = old_last_node->previous;
+			struct dlnode* new_last_node = old_last_node->previous;
 			new_last_node->next = NULL;
 			list->last = new_last_node;
 		}
 		free(old_last_node);
-		list->size = list->size - 1;
+		list->size -= 1;
 	}
 }
 
 
-void unlink_node(doubly_linked_list* list, doubly_linked_node* node)
+void unlink_node(struct dllist* list, struct dlnode* node)
 {
 	if (list == NULL || node == NULL)
 		return;
@@ -253,7 +253,7 @@ void unlink_node(doubly_linked_list* list, doubly_linked_node* node)
 }
 
 
-void delete_node(doubly_linked_list* list, doubly_linked_node* node)
+void delete_node(struct dllist* list, struct dlnode* node)
 {
 	if (list != NULL && node != NULL) {
 		unlink_node(list, node);
@@ -262,14 +262,14 @@ void delete_node(doubly_linked_list* list, doubly_linked_node* node)
 }
 
 
-void delete_list(doubly_linked_list* list)
+void delete_list(struct dllist* list)
 {
 	if (list == NULL)
 		return;
 
-	doubly_linked_node* current_node = list->first;
+	struct dlnode* current_node = list->first;
 	while (current_node != NULL) {
-		doubly_linked_node* next_node = current_node->next;
+		struct dlnode* next_node = current_node->next;
 		free(current_node);
 		current_node = next_node;
 	}

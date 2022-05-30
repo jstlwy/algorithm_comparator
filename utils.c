@@ -39,7 +39,7 @@ void print_int_array_curses(int *array, const int array_size)
 }
 
 
-int* copy_int_array(int* original_array, const int original_array_size)
+int* copy_int_array(int *original_array, const int original_array_size)
 {
 	int* new_array = malloc(original_array_size * sizeof(int));
 	for (int i = 0; i < original_array_size; i++) {
@@ -49,7 +49,7 @@ int* copy_int_array(int* original_array, const int original_array_size)
 }
 
 
-int time_diff(struct timeval start, struct timeval stop)
+int get_time_diff(struct timeval start, struct timeval stop)
 {
 	int start_usec = start.tv_usec + (start.tv_sec * 1000000);
 	int stop_usec = stop.tv_usec + (stop.tv_sec * 1000000); 
@@ -60,7 +60,7 @@ int time_diff(struct timeval start, struct timeval stop)
 
 void wait_for_enter()
 {
-	printw("Press Enter to continue.");
+	printw("Press the enter key to continue.");
 	refresh();
 	int key_input = 0;
 	while (key_input != KEY_ENTER && key_input != 10) {

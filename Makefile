@@ -1,7 +1,7 @@
 CC = gcc
 CFLAGS = -Wall -Werror -g
 LDFLAGS = -lncurses
-OBJFILES = input.o utils.o arraysort.o linklist.o listsort.o unionfind.o main.o
+OBJFILES = input.o utils.o arraysort.o dllist.o listsort.o wqunion.o main.o
 TARGET = test
 
 all: $(TARGET)

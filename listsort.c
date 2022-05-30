@@ -1,18 +1,18 @@
 #include "listsort.h"
 #include <stdlib.h>
 
-void selection_sort_list(doubly_linked_list* list)
+void selection_sort_list(struct dllist* list)
 {
 	if (list == NULL)
 		return;
 
-	doubly_linked_node* current_node = list->first;
-	while (main_node != NULL) {
+	struct dlnode* current_node = list->first;
+	while (current_node != NULL) {
 		// Start by assuming the current node has the smallest value
-		doubly_linked_node* min_node = current_node;
+		struct dlnode* min_node = current_node;
 		int min_value = current_node->data;
 		// Now look at every node after the current node.
-		doubly_linked_node* next_node = current_node->next;
+		struct dlnode* next_node = current_node->next;
 		while (next_node != NULL) {
 			// Check the value of each subsequent node.
 			// Keep updating the minimum node/value
@@ -34,16 +34,16 @@ void selection_sort_list(doubly_linked_list* list)
 }
 
 
-doubly_linked_list* selection_sort_list_sw(doubly_linked_list* list)
+struct dllist* selection_sort_list_sw(struct dllist* list)
 {
 	if (list == NULL)
 		return NULL;
 
 	// Create a new list
-	doubly_linked_list* new_list = init_list();
+	struct dllist* new_list = init_list();
 	while (list->first != NULL) {
 		// Find the largest node in the original list
-		doubly_linked_node* max_node = find_max_node(list);
+		struct dlnode* max_node = find_max_node(list);
 		// Remove it from the original list
 		unlink_node(list, max_node);
 		// Put it at the head of the new list.
@@ -58,17 +58,16 @@ doubly_linked_list* selection_sort_list_sw(doubly_linked_list* list)
 }
 
 
-void insertion_sort_list(doubly_linked_list* list)
+void insertion_sort_list(struct dllist* list)
 {
 	if (list == NULL)
 		return;
 
 	// Start at the second node
-	doubly_linked_node* current_node = list->first->next;
+	struct dlnode *current_node = list->first->next;
 	while (current_node != NULL) {
-		int current_value = current_node->data;
-		doubly_linked_node* prior_node = current_node->previous;
-		doubly_linked_node* prior_node_next = current_node;
+		struct dlnode* prior_node = current_node->previous;
+		struct dlnode* prior_node_next = current_node;
 		// As long as the prior nodes contain larger values than the current,
 		// keep moving the current value backward through the list
 		while (prior_node != NULL && prior_node->data > prior_node_next->data) {
@@ -85,14 +84,14 @@ void insertion_sort_list(doubly_linked_list* list)
 }
 
 
-void insertion_sort_list_sw(doubly_linked_list* list)
+void insertion_sort_list_sw(struct dllist *list)
 {
-	doubly_linked_node dummy;
-	doubly_linked_node* b = &dummy;
+	struct dlnode dummy;
+	struct dlnode *b = &dummy;
 	b->next = NULL;
-	doubly_linked_node* t;
-	doubly_linked_node* u; 
-	doubly_linked_node* x;
+	struct dlnode *t;
+	struct dlnode *u; 
+	struct dlnode *x;
 	for (t = list->first; t != NULL; t = u) {
 		u = t->next;
 		for (x = b; x->next != NULL; x = x->next) {
@@ -106,10 +105,10 @@ void insertion_sort_list_sw(doubly_linked_list* list)
 }
 
 
-doubly_linked_node* merge_list(doubly_linked_node* a, doubly_linked_node* b)
+struct dlnode* merge_list(struct dlnode *a, struct dlnode *b)
 {
-	doubly_linked_node head;
-	doubly_linked_node* c = &head;
+	struct dlnode head;
+	struct dlnode *c = &head;
 
 	while (a != NULL && b != NULL) {
 		if (a->data < b->data) {
@@ -131,10 +130,10 @@ doubly_linked_node* merge_list(doubly_linked_node* a, doubly_linked_node* b)
 }
 
 
-doubly_linked_node* merge_sort_list(doubly_linked_node* c)
+struct dlnode* merge_sort_list(struct dlnode *c)
 {
-	doubly_linked_node* a;
-	doubly_linked_node* b;
+	struct dlnode *a;
+	struct dlnode *b;
 
 	if (c == NULL || c->next == NULL)
 		return c;

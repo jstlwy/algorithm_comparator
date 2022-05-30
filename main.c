@@ -4,12 +4,13 @@
 #include <stdbool.h>
 #include <time.h>
 #include <sys/time.h>
+#include <limits.h>
 #include "input.h"
 #include "utils.h"
 #include "arraysort.h"
-#include "linklist.h"
+#include "dllist.h"
 #include "listsort.h"
-#include "unionfind.h"
+#include "wqunion.h"
 //#include "pqueue.h"
 
 /* 
@@ -28,11 +29,10 @@ struct timeval
 
 void array_sort_test(void);
 void linked_list_sort_test(void);
-int get_num_array_elements(void);
+int get_num_elements(void);
 bool get_yes_or_no(void);
 void max_subarray_test(void);
 void union_find_test(void);
-void new_sort_test(void);
 void priority_queue_test(void);
 
 
@@ -44,26 +44,25 @@ int main(int argc, char *argv[])
 	curs_set(0);
 	srand(time(0));
 
-	const int num_menu_options = 7;
-	const char* menu_options[num_menu_options] = {
+	const int num_options = 6;
+	const char* menu_options[num_options] = {
 		"Array Sorting Algorithms",
 		"Linked List Sorting Algorithms",
 		"Maximum Subarray",
 		"Union Find",
-		"New Sort Test",
 		"Priority Queue Test",
 		"Quit"
 	};
 
 	int key_input = 0;
 	int highlighted_option = 0;
-	bool user_selected_quit = false;
-	while (!user_selected_quit) {
+	bool exit_program = false;
+	while (!exit_program) {
 		erase();
 		attron(A_BOLD);
 		printw("DATA STRUCTURES AND ALGORITHMS TEST SUITE\n\n");
 		attroff(A_BOLD);
-		for (int i = 0; i < num_menu_options; i++) {
+		for (int i = 0; i < num_options; i++) {
 			if (i == highlighted_option)
 				attron(A_STANDOUT);
 			printw("%d. %s\n", i + 1, menu_options[i]);
@@ -88,13 +87,10 @@ int main(int argc, char *argv[])
 				union_find_test();
 				break;
 			case 4:
-				new_sort_test();
-				break;
-			case 5:
 				priority_queue_test();
 				break;
-			case 6:
-				user_selected_quit = true;
+			case 5:
+				exit_program = true;
 				break;
 			default:
 				break;
@@ -103,7 +99,7 @@ int main(int argc, char *argv[])
 		else if (key_input == KEY_UP && highlighted_option > 0) {
 			highlighted_option--;
 		}
-		else if (key_input == KEY_DOWN && highlighted_option < num_menu_options - 1) {
+		else if (key_input == KEY_DOWN && highlighted_option < num_options - 1) {
 			highlighted_option++;
 		}
 	}
@@ -119,79 +115,74 @@ void array_sort_test(void)
 	attron(A_BOLD);
 	printw("Array Sorting Algorithms\n\n");
 	attroff(A_BOLD);	
-	printw("Select number of elements to sort:\n");
-	refresh();
-	
-	const int array_length = get_num_array_elements();
+
+	int array_length = get_num_elements();
 	printw("\nArray will contain %d elements.\n\n", array_length);
+
 	int array[array_length];
 	for (int i = 0; i < array_length; i++) {
 		array[i] = get_random_num(-1000, 1000);
 	}
 
-	const int num_sort_algorithms = 6;
-	char* sort_algorithm_titles[num_sort_algorithms] = {
+	const int num_options = 6;
+	char* sort_algorithms[num_options] = {
 		"Selection Sort",
 		"Insertion Sort",
-		"Shell Sort",
-		"Heap Sort",
+		"Shellsort",
+		"Heapsort",
 		"Merge Sort",
-		"Quick Sort"
+		"Quicksort"
 	};
 	
 	struct timeval start, stop;		// start.tv_usec
 
 	printw("Skip quadratic algorithms?\n");
-	bool should_skip_quadratic = get_yes_or_no();
+	bool skip_quadratic = get_yes_or_no();
 	printw("\n\n");
-	const int menu_start_point = should_skip_quadratic ? 2 : 0;
+	const int start_point = skip_quadratic ? 2 : 0;
 
-	for (int i = menu_start_point; i < num_sort_algorithms; i++) {
-		printw("%s: ", sort_algorithm_titles[i]);
+	for (int i = start_point; i < num_options; i++) {
+		printw("%s: ", sort_algorithms[i]);
 		refresh();
 		int* new_array = copy_int_array(array, array_length);
-		//printf("\nUnsorted Array:\n");
-		//printIntArray(new_array, array_length);
 
 		switch (i) {
 		case 0: // SELECTION SORT
 			gettimeofday(&start, NULL);
-			selectionSort(new_array, array_length);
+			selection_sort(new_array, array_length);
 			gettimeofday(&stop, NULL);
 			break;
 		case 1: // INSERTION SORT
 			gettimeofday(&start, NULL);
-			insertionSort(new_array, array_length);
+			insertion_sort(new_array, array_length);
 			gettimeofday(&stop, NULL);
 			break;
 		case 2: // SHELLSORT
 			gettimeofday(&start, NULL);
-			shellSort(new_array, array_length);
+			shellsort(new_array, array_length);
 			gettimeofday(&stop, NULL);
 			break;
 		case 3: // HEAP SORT
 			gettimeofday(&start, NULL);
-			heapsortArray(new_array, 0, array_length - 1);
+			heapsort_array(new_array, 0, array_length - 1);
 			gettimeofday(&stop, NULL);
 			break;
 		case 4: // MERGE SORT
 			gettimeofday(&start, NULL);
-			mergeSortIntArr(new_array, array_length);
+			merge_sort_array(new_array, array_length);
 			gettimeofday(&stop, NULL);
 			break;
 		case 5: // QUICKSORT
 			gettimeofday(&start, NULL);
-			quickSort(new_array, 0, array_length - 1);
+			quicksort(new_array, 0, array_length - 1);
 			gettimeofday(&stop, NULL);
 			break;
 		default:
 			break;
 		}
 
-		//printf("\nSorted Array:\n");
-		//printIntArray(new_array, array_length);
-		int usecPassed = timeDiff(start, stop);
-		printw("%d us\n", usecPassed);
+		int usec_elapsed = get_time_diff(start, stop);
+		printw("%d us\n", usec_elapsed);
 		refresh();
 		free(new_array);
 	}
@@ -207,20 +198,19 @@ void linked_list_sort_test(void)
 	attron(A_BOLD);
 	printw("Linked List Sorting Algorithms\n\n");
 	attroff(A_BOLD);
-	printw("Select number of elements to sort:\n");
 	refresh();
 
-	const int list_length = get_num_array_elements();
+	int list_length = get_num_elements();
 	printw("\nList will contain %d elements.\n\n", list_length);
-	doubly_linked_list* int_list = init_list();
+	struct dllist *int_list = init_list();
 	for (int i = 0; i < list_length; i++) {
-		doubly_linked_node* new_node = malloc(sizeof(doubly_linked_node));
+		struct dlnode *new_node = malloc(sizeof(struct dlnode));
         	new_node->data = get_random_num(-1000, 1000);
 		insert_at_tail(int_list, new_node);
 	}
 
-	const int num_sort_algorithms = 5;
-	const char* sort_algorithm_titles[num_sort_algorithms] = {
+	const int num_options = 5;
+	const char *sort_algorithms[num_options] = {
 		"Selection Sort",
 		"Selection Sort (Sedgewick)",
 		"Insertion Sort",
@@ -230,15 +220,13 @@ void linked_list_sort_test(void)
 	struct timeval start, stop;		// start.tv_usec
 
 	printw("Skip quadratic algorithms?\n");
-	const bool should_skip_quadratic = get_yes_or_no();
+	const bool skip_quadratic = get_yes_or_no();
 	printw("\n\n");
-	const int start_point = should_skip_quadratic ? 4 : 0;
+	const int start_point = skip_quadratic ? 4 : 0;
 
-	for (int i = start_point; i < num_sort_algorithms; i++) {
-		doubly_linked_list* new_list = copy_int_list(int_list);
-		printw("%s: ", sort_algorithm_titles[i]);
-		//printf("\nUnsorted List:\n");
-		//printIntList(new_list);
+	for (int i = start_point; i < num_options; i++) {
+		struct dllist *new_list = copy_int_list(int_list);
+		printw("%s: ", sort_algorithms[i]);
 		refresh();
 
 		switch (i) {
@@ -271,9 +259,7 @@ void linked_list_sort_test(void)
 			break;
 		}
 
-		//printf("\nSorted List:\n");
-		//print_int_list(new_list);
-		const int time_elapsed_us = time_diff(start, stop);
+		const int time_elapsed_us = get_time_diff(start, stop);
 		printw("%d us\n", time_elapsed_us);
 		refresh();
 		delete_list(new_list);
@@ -285,53 +271,24 @@ void linked_list_sort_test(void)
 }
 
 
-int get_num_array_elements(void)
+int get_num_elements(void)
 {
-	int array_length = 10;
-	
-	const int num_array_sizes = 6;
-	const int array_sizes[num_array_sizes] = {
-		10,
-		100,
-		1000,
-		10000,
-		100000,
-		1000000
-	};
-	
+	// Remember the coordinates so the cursor can be moved
+	// back repeatedly in case of invalid user input
 	int y;
 	int x;
 	getyx(stdscr, y, x);
 	x = 0;
-	int highlighted_option = 0;
-	int key_input;
-	bool user_pressed_enter = false;
-	while (!user_pressed_enter) {
-		move(y, x);
-		clrtobot();
-
-		for (int i = 0; i < num_array_sizes; i++) {
-			if (i == highlighted_option)
-				attron(A_STANDOUT);
-			printw("%d\n", array_sizes[i]);
-			if (i == highlighted_option)
-				attroff(A_STANDOUT);
-		}
-		refresh();
-
-		key_input = getch();
-		user_pressed_enter = (key_input == KEY_ENTER || key_input == 10);
-		if (user_pressed_enter) {
-			array_length = array_sizes[highlighted_option];
-		}
-		else if (key_input == KEY_UP && highlighted_option > 0) {
-			highlighted_option--;
-		}
-		else if (key_input == KEY_DOWN && highlighted_option < num_array_sizes - 1) {
-			highlighted_option++;
-		}
-	}
 	
+	int array_length = 0;
+	while (array_length <= 0) {
+		move(y,x);
+		clrtobot();
+		printw("Enter your desired number of elements: ");
+		refresh();
+		array_length = get_int_input();
+	}
+
 	return array_length;
 }
 
@@ -365,15 +322,12 @@ bool get_yes_or_no(void)
 
 		const int key_input = getch();
 		user_pressed_enter = (key_input == KEY_ENTER || key_input == 10);
-		if (user_pressed_enter) {
+		if (user_pressed_enter)
 			user_choice = (highlighted_option == 0);
-		}
-		else if (key_input == KEY_UP && highlighted_option > 0) {
+		else if (key_input == KEY_UP && highlighted_option > 0)
 			highlighted_option--;
-		}
-		else if (key_input == KEY_DOWN && highlighted_option < 1) {
+		else if (key_input == KEY_DOWN && highlighted_option < 1)
 			highlighted_option++;
-		}
 	}
 	
 	return user_choice;
@@ -388,29 +342,29 @@ void max_subarray_test(void)
 	attroff(A_BOLD);
 	refresh();
 
-	int mstArrLen = 50;
-	int array[mstArrLen];
-	for (int i = 0; i < mstArrLen; i++) {
+	int array_len = get_num_elements();
+	int array[array_len];
+	for (int i = 0; i < array_len; i++) {
 		array[i] = get_random_num(-100, 100);
 	}
 	printw("Original Array:\n");
-	print_int_array_curses(array, mstArrLen);
+	print_int_array_curses(array, array_len);
 	refresh();
 
-	MaxSA msdata;
+	struct max_subarray ms;
 	struct timeval start, stop;		// start.tv_usec
 	gettimeofday(&start, NULL);
-	msdata = findMaxSubarray(array, 0, mstArrLen - 1);
+	ms = find_max_subarray(array, 0, array_len - 1);
 	gettimeofday(&stop, NULL);
 
 	printw("\n\nMax Subarray:\n");
-	for (int i = msdata.lowIndex; i <= msdata.highIndex; i++) {
+	for (int i = ms.low_index; i <= ms.high_index; i++) {
 		printw("%d ", array[i]);
 	}
-	printw("\n\nMax Subarray Sum: %d\n", msdata.maxSum);
+	printw("\n\nMax Subarray Sum: %d\n", ms.max_sum);
 
-	int usecPassed = timeDiff(start, stop);
-	printw("Time elapsed: %d us\n\n", usecPassed);
+	int usec_elapsed = get_time_diff(start, stop);
+	printw("Time elapsed: %d us\n\n", usec_elapsed);
 	refresh();
 
 	wait_for_enter();
@@ -421,8 +375,8 @@ void union_find_test(void)
 {
 	erase();
 	
-	const int num_menu_options = 4;	
-	const char* menu_options[num_menu_options] = {
+	const int num_options = 4;	
+	const char* menu_options[num_options] = {
 		"Find the root of a node",
 		"Check whether two nodes are connected",
 		"Connect two nodes",
@@ -432,27 +386,23 @@ void union_find_test(void)
 	attron(A_BOLD);
 	printw("UNION FIND TEST\n\n");
 	attroff(A_BOLD);
-	printw("How many elements?\n");
-	printw("Input: ");
 	refresh();
 
-	// Do something to get input
-	int numElements = 100;
-
-	printw("\n%d-element weighted quick UF\n\n", numElements);
+	int size = get_num_elements();
+	printw("\n%d-element weighted quick UF\n\n", size);
 	refresh();
-	WQuickUnion* newWQU = initWQuickUnionOfSize(numElements);
+	struct wqunion* new_wqu = init_wqunion_of_size(size);
 
 	int y;
 	int x;
 	getyx(stdscr, y, x);
 	x = 0;
 	int highlighted_option = 0;
-	bool userSelectedReturn = false;
-	while (!userSelectedReturn) {
+	bool return_to_main = false;
+	while (!return_to_main) {
 		move(y, x);
 		clrtobot();
-		for (int i = 0; i < num_menu_options; i++) {
+		for (int i = 0; i < num_options; i++) {
 			if (i == highlighted_option)
 				attron(A_STANDOUT);
 			printw("%d. %s\n", i + 1, menu_options[i]);
@@ -465,49 +415,53 @@ void union_find_test(void)
 		if (key_input == KEY_ENTER || key_input == 10) {
 			switch (highlighted_option) {
 			case 0: {
-				printf("\nEnter node number:\n");
-				int nodeNum = getIntInput(3);
-				if (nodeNum < 0 || nodeNum > newWQU->count - 1) {
-					printf("Invalid input.\n");
+				printw("\nEnter a node number: ");
+				refresh();
+				int node = get_int_input();
+				if (node < 0 || node > new_wqu->count - 1) {
+					printw("Invalid input.\n");
 				}
 				else {
-					int nodeRoot = findRootOfNode(newWQU, nodeNum);
-					printf("Root of Node %d is %d.\n", nodeNum, nodeRoot);
+					int root = get_node_root(new_wqu, node);
+					printw("Root of Node %d is %d.\n", node, root);
 				}
-				break;
-			}
+				wait_for_enter();
+			} break;
 			case 1: {
-				printf("\nEnter number of Node 1:\n");
-				int nodeNum1 = getIntInput(3);
-				printf("\nEnter number of Node 2:\n");
-				int nodeNum2 = getIntInput(3);
-
-				if (nodeNum1 < 0 || nodeNum2 < 0 || nodeNum1 > (newWQU->count - 1) || nodeNum2 > (newWQU->count - 1)) {
-					printf("Invalid input.\n");
+				printw("\nEnter the number of the first node: ");
+				int node1 = get_int_input();
+				printw("Enter the number of the second node: ");
+				int node2 = get_int_input();
+				// Validate input
+				bool node1_invalid = (node1 < 0 || node1 > (new_wqu->count - 1));
+				bool node2_invalid = (node2 < 0 || node2 > (new_wqu->count - 1));
+				if (node1_invalid || node2_invalid)
+					printw("Invalid input.\n");
+				else if (pair_is_connected(new_wqu, node1, node2))
+					printw("Nodes %d and %d are connected.\n", node1, node2);
+				else
+					printw("Nodes %d and %d are not connected.\n", node1, node2);
+				wait_for_enter();
+			} break;
+			case 2: {
+				printw("\nEnter the number of the first node: ");
+				int node1 = get_int_input();
+				printw("Enter the number of the second node: ");
+				int node2 = get_int_input();
+				// Validate input
+				bool node1_invalid = (node1 < 0 || node1 > (new_wqu->count - 1));
+				bool node2_invalid = (node2 < 0 || node2 > (new_wqu->count - 1));
+				if (node1_invalid || node2_invalid) {
+					printw("Invalid input.\n");
 				}
 				else {
-					bool isConnected = pairIsConnected(newWQU, nodeNum1, nodeNum2);
-					printf("Nodes %d and %d are ", nodeNum1, nodeNum2);
-					if (isConnected)
-						printf("connected.\n");
-					else
-						printf("not connected.\n");
+					unify_nodes(new_wqu, node1, node2);
+					printw("Nodes %d and %d have been connected.\n", node1, node2);
 				}
-				break;
-			}
-			case 2: {
-				printf("\nEnter number of Node 1:\n");
-				int nodeNum1 = getIntInput(3);
-				printf("\nEnter number of Node 2:\n");
-				int nodeNum2 = getIntInput(3);
-				if (nodeNum1 < 0 || nodeNum2 < 0 || nodeNum1 > (newWQU->count - 1) || nodeNum2 > (newWQU->count - 1)) 
-					printf("Invalid input.\n");
-				else
-					unionNodes(newWQU, nodeNum1, nodeNum2);
-				break;
-			}
+				wait_for_enter();
+			} break;
 			case 3:
-				userSelectedReturn = true;
+				return_to_main = true;
 				break;
 			default:
 				break;
@@ -516,96 +470,17 @@ void union_find_test(void)
 		else if (key_input == KEY_UP && highlighted_option > 0) {
 			highlighted_option--;
 		}
-		else if (key_input == KEY_DOWN && highlighted_option < num_menu_options - 1) {
+		else if (key_input == KEY_DOWN && highlighted_option < num_options - 1) {
 			highlighted_option++;
 		}
 	}
 
-	deleteWQuickUnion(newWQU);
-}
-
-
-void new_sort_test(void)
-{
-	erase();
-	attron(A_BOLD);
-	printw("List Selection Sort (Sedgewick) Test\n\n");
-	attroff(A_BOLD);	
-	printw("Select number of elements to sort:\n");
-	refresh();
-	
-	/*
-	const int array_length = get_num_array_elements();
-	printw("\nArray will contain %d elements.\n\n", array_length);
-	int array[array_length];
-	for (int i = 0; i < array_length; i++) {
-		array[i] = get_random_num(-1000, 1000);
-	}
-	print_int_array_curses(array, array_length);
-	*/
-
-	int list_length = get_num_array_elements();
-	printw("\nList will contain %d elements.\n\n", list_length);
-	List* int_list = init_list();
-	for (int i = 0; i < list_length; i++) {
-		int newInt = get_random_num(-1000, 1000);
-		Node* new_node = malloc(sizeof(Node));
-        	newNode->data = newInt;
-		insertAtTail(int_list, new_node);
-	}
-	printIntListCurses(int_list);
-	printw("\n\n");
-	refresh();
-
-	struct timeval start, stop;		// start.tv_usec
-	gettimeofday(&start, NULL);
-	// PUT SORT METHOD HERE
-	insertionSortIntLLSedge(int_list);
-	gettimeofday(&stop, NULL);
-	int usecPassed = timeDiff(start, stop);
-	printw("Time elapsed: %d us\n\n", usecPassed);
-
-	//print_int_array_curses(array, array_length);
-	printIntListCurses(int_list);
-	printw("\n\n");
-	wait_for_enter();
+	delete_wqunion(new_wqu);
 }
 
 
 void priority_queue_test(void)
 {
-	erase();
-	attron(A_BOLD);
-	printw("Heapsort Test\n\n");
-	attroff(A_BOLD);	
-	printw("Select number of elements to sort:\n");
-	refresh();
-	
-	int array_length = get_num_array_elements();
-	printw("\nArray will contain %d elements.\n\n", array_length);
-	int array[array_length];
-	for (int i = 0; i < array_length; i++) {
-		array[i] = get_random_num(-1000, 1000);
-	}
-	if (array_length < 1000) {
-		printw("\nUnsorted Array:\n");
-		print_int_array_curses(array, array_length);
-	}
-	printw("\n\n");
-	refresh();
 
-	struct timeval start, stop;		// start.tv_usec
-	gettimeofday(&start, NULL);
-	heapsortArray(array, 0, array_length-1);
-	gettimeofday(&stop, NULL);
-	int usecPassed = timeDiff(start, stop);
-	printw("Time elapsed: %d us\n\n", usecPassed);
-
-	if (array_length < 1000) {
-		printw("\nSorted Array:\n");
-		print_int_array_curses(array, array_length);
-	}
-	printw("\n\n");
-	wait_for_enter();
 }
 
