@@ -1,128 +1,116 @@
 #include "pqueue.h"
 #include <stdlib.h>
 
-MaxPQ* initMaxPQOfSize(int size)
+struct max_pqueue* init_max_pqueue_of_size(int size)
 {
-	MaxPQ* pq = malloc(sizeof(MaxPQ));
-	// MaxPQ array will be initialized with n slots,
+	struct max_pqueue* pq = malloc(sizeof(struct max_pqueue));
+	
+	// max_pqueue array will be initialized with n slots,
 	// n-1 of which can be used to hold keys.
 	// First slot will always be an empty sentinel.
-	int initArraySize = size + 1;
-	Key** newArray = malloc(initArraySize * sizeof(Key*));
-	for(int i = 0; i < initArraySize; i++)
-	{
-		newArray[i] = NULL;
+	key** new_array = malloc((size+1) * sizeof(struct key*));
+	for (int i = 0; i <= size; i++) {
+		new_array[i] = NULL;
 	}
-	pq->keys = newArray;
-	pq->numItems = 0;
-	pq->arraySize = initArraySize - 1;
+	pq->keys = new_array;
+	pq->num_items = 0;
+	pq->array_size = size;
 	return pq;
 }
 
-void insertIntoPQ(MaxPQ* pq, Key* key)
+void insert_into_pqueue(struct max_pqueue* pq, struct key* key)
 {
-	int n = pq->numItems + 1;
-	if(pq->arraySize == pq->numItems)
-	{
-		int newArraySize = (pq->arraySize * 2) + 1;
-		pq->arraySize = newArraySize;
-		Key** newArray = malloc(newArraySize * sizeof(Key*));
-		for(int i = 1; i <= pq->arraySize; i++)
-		{
-			newArray[i] = pq->keys[i];
+	int n = pq->num_items + 1;
+
+	// If necessary, dynamically resize array
+	if (pq->array_size == pq->num_items) {
+		int new_array_size = (pq->array_size * 2) + 1;
+		pq->array_size = new_array_size;
+		struct key** new_array = malloc(new_array_size * sizeof(struct key*));
+		new_array[0] = NULL;
+		for (int i = 1; i <= pq->array_size; i++) {
+			new_array[i] = pq->keys[i];
 		}
-		int* oldArray = pq->keys;
-		pq->keys = newArray;
-		free(oldArray);
+		// Make sure to free the old array
+		int* old_array = pq->keys;
+		pq->keys = new_array;
+		free(old_array);
 	}
+
 	pq->keys[n] = key;
-	swimUpPQ(pq->keys, n);
-	pq->numItems = n;
+	swim_up_pqueue(pq->keys, n);
+	pq->num_items = n;
 }
 
-Key* maxInPQ(MaxPQ* pq)
+struct key* get_max_in_pqueue(struct max_pqueue* pq)
 {
 	return pq->keys[1];
 }
 
-void deleteMaxInPQ(MaxPQ* pq)
+void delete_max_in_pqueue(struct max_pqueue* pq)
 {
-	Key* max = pq->keys[1];
+	struct key* max = pq->keys[1];
 	free(max);
-	pq->keys[1] = pq->keys[pq->numItems];
-	pq->numItems -= 1;
-	sinkDownPQ(pq->keys, pq->numItems, 1);
-	if(pq->numItems <= (pq->arraySize / 4))
-	{
-		int newArraySize = (pq->arraySize / 2) + 1;
-		pq->arraySize = newArraySize;
-		int* newArray = malloc(newArraySize * sizeof(Key));
-		for(int i = 1; i <= pq->arraySize; i++)
-		{
-			newArray[i] = pq->keys[i];
+	pq->keys[1] = pq->keys[pq->num_items];
+	pq->num_items -= 1;
+	sink_down_pqueue(pq->keys, pq->num_items, 1);
+	// Shrink the array if necessary to save memory
+	if (pq->num_items <= (pq->array_size / 4)) {
+		int new_array_size = (pq->array_size / 2) + 1;
+		pq->array_size = new_array_size;
+		int* new_array = malloc(new_array_size * sizeof(struct key));
+		for (int i = 1; i <= pq->array_size; i++) {
+			new_array[i] = pq->keys[i];
 		}
-		int* oldArray = pq->keys;
-		pq->keys = newArray;
-		free(oldArray);        
+		// Free the old array
+		int* old_array = pq->keys;
+		pq->keys = new_array;
+		free(old_array);        
 	}
 }
 
-void swimUpPQ(Key** array, int k)
+void swim_up_pqueue(struct key** array, int k)
 {
-	while(k > 1 && array[k/2]->value < array[k]->value)
-	{
-		Key* temp = array[k/2];
+	while (k > 1 && array[k/2]->value < array[k]->value) {
+		struct key* temp = array[k/2];
 		array[k/2] = array[k];
 		array[k] = temp;
 		k = k/2;
 	}
 }
 
-void sinkDownPQ(Key** array, int size, int k)
+void sink_down_pqueue(struct key** array, int size, int k)
 {
-	while(2*k <= size)
-	{
+	while (2*k <= size) {
 		int j = 2 * k;
-		if(j < size && array[j]->value < array[j+1]->value)
-		{
+		if (j < size && array[j]->value < array[j+1]->value)
 			j++;
-		}
-		if(array[k]->value >= array[j]->value)
-		{
+		if (array[k]->value >= array[j]->value)
 			break;
-		}
-		Key* temp = array[k];
+		struct key* temp = array[k];
 		array[k] = array[j];
 		array[j] = temp;
 		k = j;
 	}
 }
 
-bool isEmptyPQ(MaxPQ* pq)
+bool is_empty_pqueue(struct max_pqueue* pq)
 {
-	if(pq->numItems == 0)
-	{
-		return true;
-	}
-	else
-	{
-		return false;
-	}
+	return (pq->num_items == 0);
 }
 
-int sizeOfPQ(MaxPQ* pq)
+int size_of_pqueue(struct max_pqueue* pq)
 {
-	return pq->numItems;
+	return pq->num_items;
 }
 
 void heapsort(array, int size)
 {
-	for(int k = size / 2; k >= 1; k--)
-	{
+	for (int k = size / 2; k >= 1; k--) {
 
 	}
-	while(size > 1)
-	{
+	while (size > 1) {
 
 	}
 }
+
