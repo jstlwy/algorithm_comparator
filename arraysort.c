@@ -6,9 +6,8 @@ void selection_sort(int *array, const int array_size)
 	for (int i = 0; i < array_size; i++) {
 		int min = i;
 		for (int j = i + 1; j < array_size; j++) {
-			if (array[j] < array[min]) {
+			if (array[j] < array[min])
 				min = j;
-			}
 		}
 		int temp = array[i];
 		array[i] = array[min];
@@ -33,15 +32,16 @@ void insertion_sort(int *array, const int array_size)
 
 void shellsort(int *array, const int array_size)
 {
-	// h = "gap"
+	// First, find largest number at which to initialize the gap.
+	// On-Line Encyclopedia of Integer Sequences (OEIS) A003462:
+	// 0.5(3^n - 1) -> 0, 1, 4, 13, 40, 121, 364, 1093, 3280, ...
+	// Results in worst-case time complexity of Theta(N^1.5).
 	int h = 1;
-	// First, find largest number by which to divide array
-	// OEIS A003462: 0.5(3^k - 1) results in worst-case Theta(N^1.5)
 	while (h < array_size / 3) {
-		// 1, 4, 13, 40, 121, 364, 1093, ...
 		h = (3 * h) + 1;
 	}
-	// Now, commence h-sorting the array
+
+	// Now, begin sorting the array
 	while (h >= 1) {
 		for (int i = h; i < array_size; i++) {
 			for (int j = i; j >= h && array[j] < array[j - h]; j -= h) {
@@ -89,13 +89,12 @@ void merge_sort_bu(int* arr, int* aux, const int array_size)
 
 void merge(int* arr, int* aux, int low, int mid, int high)
 {
-	int i = low;
-	int j = mid + 1;
-
 	for (int k = low; k <= high; k++) {
 		aux[k] = arr[k];
 	}
 
+	int i = low;
+	int j = mid + 1;
 	for (int k = low; k <= high; k++) {
 		if (i > mid) {
 			arr[k] = aux[j];
@@ -132,7 +131,6 @@ int partition(int* array, int low, int high)
 	int i = low;
 	int j = high + 1;
 	int v = array[low];
-	int temp;
 	while (1) {
 		i++;
 		while (array[i] < v) {
@@ -148,12 +146,12 @@ int partition(int* array, int low, int high)
 		}
 		if (i >= j)
 			break;
-		temp = array[i];
+		int temp = array[i];
 		array[i] = array[j];
 		array[j] = temp;
 	}
 	if (low != j) {
-		temp = array[low];
+		int temp = array[low];
 		array[low] = array[j];
 		array[j] = temp;
 	}
