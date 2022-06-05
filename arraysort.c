@@ -32,10 +32,12 @@ void insertion_sort(int *array, const int array_size)
 
 void shellsort(int *array, const int array_size)
 {
-	// First, find largest number at which to initialize the gap.
-	// On-Line Encyclopedia of Integer Sequences (OEIS) A003462:
-	// 0.5(3^n - 1) -> 0, 1, 4, 13, 40, 121, 364, 1093, 3280, ...
+	// We'll use the OEIS A003462 integer sequence to sort:
+	// 0.5(3^n - 1) -> 1, 4, 13, 40, 121, 364, 1093, 3280, ...
 	// Results in worst-case time complexity of Theta(N^1.5).
+
+	// Start by setting h equal to largest increment
+	// less than array_size/3.
 	int h = 1;
 	while (h < array_size / 3) {
 		h = (3 * h) + 1;
@@ -97,10 +99,12 @@ void merge(int* arr, int* aux, int low, int mid, int high)
 	int j = mid + 1;
 	for (int k = low; k <= high; k++) {
 		if (i > mid) {
+			// Nothing left in the lower half
 			arr[k] = aux[j];
 			j++;
 		}
 		else if (j > high) {
+			// Nothing left in the upper half
 			arr[k] = aux[i];
 			i++;
 		}
