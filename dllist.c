@@ -115,8 +115,7 @@ void insert_at_head(struct dllist* list, struct dlnode* new_node)
 	if (list->first == NULL) {
 		new_node->next = NULL;
 		list->last = new_node;
-	}
-	else {
+	} else {
 		struct dlnode* old_first_node = list->first;
 		new_node->next = old_first_node;
 		old_first_node->previous = new_node;   
@@ -137,8 +136,7 @@ void insert_at_tail(struct dllist* list, struct dlnode* new_node)
 	if (list->last == NULL) {
 		list->first = new_node;
 		new_node->previous = NULL;
-	}
-	else {
+	} else {
 		struct dlnode* old_last_node = list->last;
 		old_last_node->next = new_node;
 		new_node->previous = old_last_node;
@@ -184,8 +182,7 @@ void delete_head(struct dllist* list)
 		if (old_first_node == list->last) {
 			list->first = NULL;
 			list->last = NULL;
-		}
-		else {
+		} else {
 			struct dlnode* new_first_node = old_first_node->next;
 			new_first_node->previous = NULL;
 			list->first = new_first_node;
@@ -206,8 +203,7 @@ void delete_tail(struct dllist* list)
 		if (old_last_node == list->first) {
 			list->first = NULL;
 			list->last = NULL;
-		}
-		else {
+		} else {
 			struct dlnode* new_last_node = old_last_node->previous;
 			new_last_node->next = NULL;
 			list->last = new_last_node;
@@ -230,20 +226,17 @@ void unlink_node(struct dllist* list, struct dlnode* node)
 		// The node doesn't link to anything.
 		list->first = NULL;
 		list->last = NULL;
-	}
-	else if (next_node_is_null) {
+	} else if (next_node_is_null) {
 		// The node only links to a preceding node.
 		// It must be the tail of the list.
 		list->last = node->previous;
 		node->previous->next = NULL;
-	}
-	else if (previous_node_is_null) {
+	} else if (previous_node_is_null) {
 		// The node only links to a succeeding node.
 		// It must be the head of the list.
 		list->first = node->next;
 		node->next->previous = NULL;
-	}
-	else {
+	} else {
 		// The node is between two other nodes.
 		node->previous->next = node->next;
 		node->next->previous = node->previous;

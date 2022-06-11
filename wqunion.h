@@ -3,6 +3,7 @@
 #include <stdbool.h>
 
 // Weighted quick union
+
 struct wqunion {
     int *id;
     int *sz;

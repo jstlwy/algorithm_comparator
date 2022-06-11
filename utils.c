@@ -10,12 +10,10 @@ int get_random_num(const int a, const int b)
 	if (a < b) {
 		low = a;
 		high = b;
-	}
-	else if (a > b) {
+	} else if (a > b) {
 		low = b;
 		high = a;
-	}
-	else {
+	} else {
 		return a;
 	}
 	int difference = high - low;

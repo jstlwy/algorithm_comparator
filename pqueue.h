@@ -2,6 +2,8 @@
 #define PQUEUE_H
 #include <stdbool.h>
 
+// Priority queue
+
 struct key {
     int value;
 };

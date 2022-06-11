@@ -1,20 +1,14 @@
 #ifndef ARRAYSORT_H
 #define ARRAYSORT_H
 
-/**
- * O(n^2) SORTING ALGORITHMS
- */
-
+// QUADRATIC SORTING ALGORITHMS
 void selection_sort(int* array, const int array_size); // Unstable (stable for LL)
 void insertion_sort(int* array, const int array_size); // Stable
-void shellsort(int* array, const int array_size);     // Unstable
+void shellsort(int* array, const int array_size);      // Unstable
 
 
-/**
- * LINEARITHMIC SORTING ALGORITHMS
- */
-
-void merge_sort_array(int* array, const int array_size);  // Stable
+// LINEARITHMIC SORTING ALGORITHMS
+void merge_sort_array(int* array, const int array_size);      // Stable
 void merge_sort_td(int* arr, int* aux, int low, int high);
 void merge_sort_bu(int* arr, int* aux, const int array_size);
 void merge(int* arr, int* aux, int low, int mid, int high);
@@ -27,10 +21,7 @@ void sink_down(int* arr, int k, int size);
 void heapsort_array(int* arr, int l, int r);
 
 
-/**
- * MAX SUBARRAY
- */
-
+// MAX SUBARRAY
 struct max_subarray {
     int low_index;
     int high_index;

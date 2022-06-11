@@ -2,6 +2,8 @@
 #define DLLIST_H
 #include <stdbool.h>
 
+// Doubly-linked list
+
 struct dlnode {
 	int data;
 	struct dlnode *previous;

@@ -18,8 +18,9 @@ struct wqunion* init_wqunion_of_size(int n)
 
 int get_node_root(struct wqunion* wqu, int p)
 {
-	while (p != wqu->id[p])
+	while (p != wqu->id[p]) {
 		p = wqu->id[p];
+	}
 
 	return p;
 }
@@ -39,8 +40,7 @@ void unify_nodes(struct wqunion* wqu, int p, int q)
 		if (wqu->sz[i] < wqu->sz[j]) {
 			wqu->id[i] = j;
 			wqu->sz[j] += wqu->sz[i];
-		}
-		else {
+		} else {
 			wqu->id[j] = i;
 			wqu->sz[i] += wqu->sz[j];
 		}

@@ -115,8 +115,7 @@ struct dlnode* merge_list(struct dlnode *a, struct dlnode *b)
 			c->next = a;
 			c = a;
 			a = a->next;
-		}
-		else {
+		} else {
 			c->next = b;
 			c = b;
 			b = b->next;

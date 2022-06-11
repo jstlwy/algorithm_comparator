@@ -98,11 +98,9 @@ int main(int argc, char *argv[])
 			default:
 				break;
 			}
-		}
-		else if (key_input == KEY_UP && highlighted_option > 0) {
+		} else if (key_input == KEY_UP && highlighted_option > 0) {
 			highlighted_option--;
-		}
-		else if (key_input == KEY_DOWN && highlighted_option < num_options - 1) {
+		} else if (key_input == KEY_DOWN && highlighted_option < num_options - 1) {
 			highlighted_option++;
 		}
 	}
@@ -360,8 +358,7 @@ void union_find_test(void)
 				int node = get_int_input();
 				if (node < 0 || node > wqu->count - 1) {
 					printw("\nInvalid input.\n\n");
-				}
-				else {
+				} else {
 					int root = get_node_root(wqu, node);
 					printw("\nRoot of %d: %d\n\n", node, root);
 				}
@@ -377,8 +374,7 @@ void union_find_test(void)
 				bool node2_invalid = (node2 < 0 || node2 > (wqu->count - 1));
 				if (node1_invalid || node2_invalid) {
 					printw("\nInvalid input.\n\n");
-				}
-				else {
+				} else {
 					printw("\nNodes %d and %d: ", node1, node2);
 					bool connected = pair_is_connected(wqu, node1, node2);
 					printw("%s\n\n", connected ? "connected" : "not connected");
@@ -395,8 +391,7 @@ void union_find_test(void)
 				bool node2_invalid = (node2 < 0 || node2 > (wqu->count - 1));
 				if (node1_invalid || node2_invalid) {
 					printw("\nInvalid input.\n\n");
-				}
-				else {
+				} else {
 					unify_nodes(wqu, node1, node2);
 					printw("\nConnected nodes %d and %d.\n\n", node1, node2);
 				}
@@ -408,11 +403,9 @@ void union_find_test(void)
 			default:
 				break;
 			}
-		}
-		else if (key_input == KEY_UP && highlighted_option > 0) {
+		} else if (key_input == KEY_UP && highlighted_option > 0) {
 			highlighted_option--;
-		}
-		else if (key_input == KEY_DOWN && highlighted_option < num_options - 1) {
+		} else if (key_input == KEY_DOWN && highlighted_option < num_options - 1) {
 			highlighted_option++;
 		}
 	}

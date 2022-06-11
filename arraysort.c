@@ -32,12 +32,12 @@ void insertion_sort(int *array, const int array_size)
 
 void shellsort(int *array, const int array_size)
 {
-	// We'll use the OEIS A003462 integer sequence to sort:
+	// Using the OEIS A003462 integer sequence to sort:
 	// 0.5(3^n - 1) -> 1, 4, 13, 40, 121, 364, 1093, 3280, ...
 	// Results in worst-case time complexity of Theta(N^1.5).
 
-	// Start by setting h equal to largest increment
-	// less than array_size/3.
+	// Start by setting h equal to the largest number
+	// in that sequence that is less than 1/3 of the array size.
 	int h = 1;
 	while (h < array_size / 3) {
 		h = (3 * h) + 1;
@@ -102,17 +102,14 @@ void merge(int* arr, int* aux, int low, int mid, int high)
 			// Nothing left in the lower half
 			arr[k] = aux[j];
 			j++;
-		}
-		else if (j > high) {
+		} else if (j > high) {
 			// Nothing left in the upper half
 			arr[k] = aux[i];
 			i++;
-		}
-		else if (aux[j] < aux[i]) {
+		} else if (aux[j] < aux[i]) {
 			arr[k] = aux[j];
 			j++;
-		}
-		else {
+		} else {
 			arr[k] = aux[i];
 			i++;
 		}
@@ -247,8 +244,7 @@ struct max_subarray find_max_subarray(int *array, int low, int high)
 		crossms.high_index = high;
 		crossms.max_sum = array[low];
 		return crossms;
-	}
-	else {
+	} else {
 		int mid = (low + high) / 2;
 		leftms = find_max_subarray(array, low, mid);
 		rightms = find_max_subarray(array, mid + 1, high);
