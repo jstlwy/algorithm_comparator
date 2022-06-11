@@ -265,7 +265,11 @@ void linked_list_sort_test(void)
 		}
 
 		const int usec_elapsed = get_time_diff(start, stop);
-		printw("%d us\n", usec_elapsed);
+		printw("%d us", usec_elapsed);
+		if (list_is_sorted(new_list))
+			printw(" (successful)\n");
+		else
+			printw(" (unsuccessful)\n");
 		refresh();
 		delete_list(new_list);
 	}

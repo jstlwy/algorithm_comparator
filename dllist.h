@@ -22,6 +22,7 @@ struct dllist* copy_int_list(struct dllist *original_list);
 
 void print_int_list_curses(struct dllist *list);
 bool list_contains_node(struct dllist *list, struct dlnode *node);
+bool list_is_sorted(struct dllist *list);
 struct dlnode* find_max_node(struct dllist *list);
 struct dlnode* find_min_node(struct dllist *list);
 
