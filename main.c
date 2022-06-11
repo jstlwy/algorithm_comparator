@@ -143,7 +143,7 @@ void array_sort_test(void)
 	const int start_point = skip_quadratic ? 2 : 0;
 
 	for (int i = start_point; i < num_options; i++) {
-		printw("%s: ", sort_algorithms[i]);
+		printw("%s:\t", sort_algorithms[i]);
 		refresh();
 		int* new_array = copy_int_array(array, array_length);
 
@@ -183,7 +183,11 @@ void array_sort_test(void)
 		}
 
 		int usec_elapsed = get_time_diff(start, stop);
-		printw("%d us\n", usec_elapsed);
+		printw("%d us", usec_elapsed);
+		if (array_is_sorted(new_array, array_length))
+			printw(" (successful)\n");
+		else
+			printw(" (unsuccessful)\n");
 		refresh();
 		free(new_array);
 	}

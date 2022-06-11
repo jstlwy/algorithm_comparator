@@ -1,6 +1,20 @@
 #include "arraysort.h"
 #include <limits.h>
 
+bool array_is_sorted(int *array, const int array_size)
+{
+	if (array_size <= 1)
+		return true;
+
+	for (int i = 1; i < array_size; i++) {
+		if (array[i] < array[i-1])
+			return false;
+	}
+
+	return true;
+}
+
+
 void selection_sort(int *array, const int array_size)
 {
 	for (int i = 0; i < array_size; i++) {
