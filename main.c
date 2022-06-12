@@ -191,12 +191,11 @@ void array_sort_test(void)
 		else
 			printw("%10d  s", time_elapsed / 1000000);
 
-		// Check whether array sort actually worked
-		if (array_is_sorted(new_array, array_length))
-			printw(" (successful)\n");
-		else
-			printw(" (unsuccessful)\n");
-
+		// Check whether sort operation was successful
+		if (!array_is_sorted(new_array, array_length))
+			printw(" (failed)");
+		
+		printw("\n");
 		refresh();
 		free(new_array);
 	}
@@ -282,12 +281,11 @@ void linked_list_sort_test(void)
 		else
 			printw("%10d  s", time_elapsed / 1000000);
 		
-		// Check whether list sort actually worked
-		if (list_is_sorted(new_list))
-			printw(" (successful)\n");
-		else
-			printw(" (unsuccessful)\n");
-		
+		// Check whether sort operation was successful
+		if (!list_is_sorted(new_list))
+			printw(" (failed)");
+
+		printw("\n");
 		refresh();
 		delete_list(new_list);
 	}
