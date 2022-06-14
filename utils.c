@@ -20,12 +20,12 @@ int get_random_num(const int a, const int b)
 }
 
 
-int get_time_diff(struct timeval start, struct timeval stop)
+long get_time_diff(struct timespec start, struct timespec stop)
 {
-	int start_usec = start.tv_usec + (start.tv_sec * 1000000);
-	int stop_usec = stop.tv_usec + (stop.tv_sec * 1000000); 
-	int diff = stop_usec - start_usec;
-	return diff;
+	long start_nsec = start.tv_nsec + (start.tv_sec * 1000000000);
+	long stop_nsec = stop.tv_nsec + (stop.tv_sec * 1000000000);
+	long diff_nsec = stop_nsec - start_nsec;
+	return diff_nsec;
 }
 
 

@@ -3,7 +3,7 @@
 #include <sys/time.h>
 
 int get_random_num(const int a, const int b);
-int get_time_diff(struct timeval start, struct timeval stop);
+long get_time_diff(struct timespec start, struct timespec stop);
 void wait_for_enter();
 
 #endif

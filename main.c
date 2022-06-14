@@ -15,18 +15,20 @@
 #include "wqunion.h"
 //#include "pqueue.h"
 
-/* 
-To count in nanoseconds:
-struct timespec start, stop;
-clock_gettime(CLOCK_MONOTONIC, &start);
-do_something();
-clock_gettime(CLOCK_MONOTONIC, &stop);
-printf("\nTime elapsed: %ld ns\n\n", stop.tv_nsec - start.tv_nsec);
+const long SI_h = 100;
+const long SI_k = 1000;
+const long SI_M = 1000000;
+const long SI_G = 1000000000;
+const long SI_hk = SI_h * SI_k;
+const long SI_hM = SI_h * SI_M;
+const long SI_hG = SI_h * SI_G;
 
-Note: 
-struct timespec
-instead of
-struct timeval
+// This way of measuring time deprecated in POSIX.1-2008:
+/*
+struct timeval start, stop;
+gettimeofday(&start, NULL);
+foo();
+gettimeofday(&stop, NULL);
 */
 
 // Main program sections 
@@ -36,9 +38,10 @@ void max_subarray_test(void);
 void union_find_test(void);
 void priority_queue_test(void);
 
-// Input retrieval functions
+// Helper functions
 int get_num_elements(void);
 bool get_yes_or_no(void);
+void print_time_elapsed(long time_elapsed);
 
 
 int main(int argc, char *argv[])
@@ -136,7 +139,7 @@ void array_sort_test(void)
 		"Quicksort"
 	};
 	
-	struct timeval start, stop;		// start.tv_usec
+	struct timespec start, stop;
 
 	printw("Skip quadratic algorithms?\n");
 	bool skip_quadratic = get_yes_or_no();
@@ -148,49 +151,34 @@ void array_sort_test(void)
 		refresh();
 		int* new_array = copy_int_array(array, array_length);
 
+		clock_gettime(CLOCK_MONOTONIC, &start);
 		switch (i) {
 		case 0:
-			gettimeofday(&start, NULL);
 			selection_sort(new_array, array_length);
-			gettimeofday(&stop, NULL);
 			break;
 		case 1:
-			gettimeofday(&start, NULL);
 			insertion_sort(new_array, array_length);
-			gettimeofday(&stop, NULL);
 			break;
 		case 2:
-			gettimeofday(&start, NULL);
 			shellsort(new_array, array_length);
-			gettimeofday(&stop, NULL);
 			break;
 		case 3:
-			gettimeofday(&start, NULL);
 			heapsort_array(new_array, 0, array_length - 1);
-			gettimeofday(&stop, NULL);
 			break;
 		case 4:
-			gettimeofday(&start, NULL);
 			merge_sort_array(new_array, array_length);
-			gettimeofday(&stop, NULL);
 			break;
 		case 5:
-			gettimeofday(&start, NULL);
 			quicksort(new_array, 0, array_length - 1);
-			gettimeofday(&stop, NULL);
 			break;
 		default:
 			break;
 		}
+		clock_gettime(CLOCK_MONOTONIC, &stop);
 
-		// Time returned in us
-		int time_elapsed = get_time_diff(start, stop);
-		if (time_elapsed < 100000)
-			printw("%10d us", time_elapsed);
-		else if (time_elapsed < 100000000)
-			printw("%10d ms", time_elapsed / 1000);
-		else
-			printw("%10d  s", time_elapsed / 1000000);
+		// Time returned in ns
+		long time_elapsed = get_time_diff(start, stop);
+		print_time_elapsed(time_elapsed);
 
 		// Check whether sort operation was successful
 		if (!array_is_sorted(new_array, array_length))
@@ -231,56 +219,43 @@ void linked_list_sort_test(void)
 		"Insertion Sort (Sedgewick)",
 		"Merge Sort (Sedgewick)"
 	};
-	struct timeval start, stop;		// start.tv_usec
 
 	printw("Skip quadratic algorithms?\n");
 	const bool skip_quadratic = get_yes_or_no();
 	printw("\n\n");
 	const int start_point = skip_quadratic ? 4 : 0;
+	struct timespec start, stop;
 
 	for (int i = start_point; i < num_options; i++) {
 		struct dllist *new_list = copy_int_list(int_list);
 		printw("%-26s: ", sort_algorithms[i]);
 		refresh();
 
+		clock_gettime(CLOCK_MONOTONIC, &start);
 		switch (i) {
 		case 0:
-			gettimeofday(&start, NULL);
 			selection_sort_list(new_list);
-			gettimeofday(&stop, NULL);
 			break;
 		case 1:
-			gettimeofday(&start, NULL);
 			new_list = selection_sort_list_sw(new_list);
-			gettimeofday(&stop, NULL);
 			break;
 		case 2:
-			gettimeofday(&start, NULL);
 			insertion_sort_list(new_list);
-			gettimeofday(&stop, NULL);
 			break;
 		case 3:
-			gettimeofday(&start, NULL);
 			insertion_sort_list_sw(new_list);
-			gettimeofday(&stop, NULL);
 			break;
 		case 4:
-			gettimeofday(&start, NULL);
 			new_list->first = merge_sort_list(new_list->first);
-			gettimeofday(&stop, NULL);
 			break;
 		default:
 			break;
 		}
+		clock_gettime(CLOCK_MONOTONIC, &stop);
 
-		// Time returned in us
-		int time_elapsed = get_time_diff(start, stop);
-		if (time_elapsed < 100000)
-			printw("%10d us", time_elapsed);
-		else if (time_elapsed < 100000000)
-			printw("%10d ms", time_elapsed / 1000);
-		else
-			printw("%10d  s", time_elapsed / 1000000);
+		// Time returned in ns
+		long time_elapsed = get_time_diff(start, stop);
+		print_time_elapsed(time_elapsed);
 		
 		// Check whether sort operation was successful
 		if (!list_is_sorted(new_list))
@@ -315,10 +290,10 @@ void max_subarray_test(void)
 	refresh();
 
 	struct max_subarray ms;
-	struct timeval start, stop;		// start.tv_usec
-	gettimeofday(&start, NULL);
+	struct timespec start, stop;
+	clock_gettime(CLOCK_MONOTONIC, &start);
 	ms = find_max_subarray(array, 0, array_len - 1);
-	gettimeofday(&stop, NULL);
+	clock_gettime(CLOCK_MONOTONIC, &stop);
 
 	printw("\n\nMax Subarray:\n");
 	for (int i = ms.low_index; i <= ms.high_index; i++) {
@@ -326,10 +301,11 @@ void max_subarray_test(void)
 	}
 	printw("\n\nMax Subarray Sum: %d\n", ms.max_sum);
 
-	int usec_elapsed = get_time_diff(start, stop);
-	printw("Time elapsed: %d us\n\n", usec_elapsed);
+	printw("Time elapsed: ");
+	long time_elapsed = get_time_diff(start, stop);
+	print_time_elapsed(time_elapsed);
+	printw("\n\n");
 	refresh();
-
 	wait_for_enter();
 }
 
@@ -493,5 +469,18 @@ bool get_yes_or_no(void)
 	}
 	
 	return user_choice;
+}
+
+
+void print_time_elapsed(long time_elapsed)
+{
+	if (time_elapsed < SI_hk)
+		printw("%10d ns", time_elapsed);
+	else if (time_elapsed < SI_hM)
+		printw("%10d us", time_elapsed / SI_k);
+	else if (time_elapsed < SI_hG)
+		printw("%10d ms", time_elapsed / SI_M);
+	else
+		printw("%10d  s", time_elapsed / SI_G);
 }
 
