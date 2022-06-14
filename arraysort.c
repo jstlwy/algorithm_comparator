@@ -112,7 +112,7 @@ void merge(int *arr, int *helper_arr, int first, int mid, int last)
 	while (l <= mid) {
 		arr[i++] = helper_arr[l++];
 	}
-	while (r <= mid) {
+	while (r <= last) {
 		arr[i++] = helper_arr[r++];
 	}
 }
