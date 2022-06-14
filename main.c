@@ -7,9 +7,11 @@
 #include <limits.h>
 #include "input.h"
 #include "utils.h"
+#include "arrayutils.h"
 #include "arraysort.h"
 #include "dllist.h"
 #include "listsort.h"
+#include "maxsubarray.h"
 #include "wqunion.h"
 //#include "pqueue.h"
 
@@ -119,8 +121,7 @@ void array_sort_test(void)
 
 	int array_length = get_num_elements();
 	printw("\nArray will contain %d elements.\n\n", array_length);
-
-	int array[array_length];
+	int *array = malloc(array_length * sizeof(int));
 	for (int i = 0; i < array_length; i++) {
 		array[i] = get_random_num(-1000, 1000);
 	}
@@ -148,32 +149,32 @@ void array_sort_test(void)
 		int* new_array = copy_int_array(array, array_length);
 
 		switch (i) {
-		case 0: // SELECTION SORT
+		case 0:
 			gettimeofday(&start, NULL);
 			selection_sort(new_array, array_length);
 			gettimeofday(&stop, NULL);
 			break;
-		case 1: // INSERTION SORT
+		case 1:
 			gettimeofday(&start, NULL);
 			insertion_sort(new_array, array_length);
 			gettimeofday(&stop, NULL);
 			break;
-		case 2: // SHELLSORT
+		case 2:
 			gettimeofday(&start, NULL);
 			shellsort(new_array, array_length);
 			gettimeofday(&stop, NULL);
 			break;
-		case 3: // HEAP SORT
+		case 3:
 			gettimeofday(&start, NULL);
 			heapsort_array(new_array, 0, array_length - 1);
 			gettimeofday(&stop, NULL);
 			break;
-		case 4: // MERGE SORT
+		case 4:
 			gettimeofday(&start, NULL);
 			merge_sort_array(new_array, array_length);
 			gettimeofday(&stop, NULL);
 			break;
-		case 5: // QUICKSORT
+		case 5:
 			gettimeofday(&start, NULL);
 			quicksort(new_array, 0, array_length - 1);
 			gettimeofday(&stop, NULL);
@@ -243,27 +244,27 @@ void linked_list_sort_test(void)
 		refresh();
 
 		switch (i) {
-		case 0: // SELECTION SORT
+		case 0:
 			gettimeofday(&start, NULL);
 			selection_sort_list(new_list);
 			gettimeofday(&stop, NULL);
 			break;
-		case 1: // SELECTION SORT (SEDGEWICK & WAYNE)
+		case 1:
 			gettimeofday(&start, NULL);
 			new_list = selection_sort_list_sw(new_list);
 			gettimeofday(&stop, NULL);
 			break;
-		case 2: // INSERTION SORT
+		case 2:
 			gettimeofday(&start, NULL);
 			insertion_sort_list(new_list);
 			gettimeofday(&stop, NULL);
 			break;
-		case 3: // INSERTION SORT (SEDGEWICK & WAYNE)
+		case 3:
 			gettimeofday(&start, NULL);
 			insertion_sort_list_sw(new_list);
 			gettimeofday(&stop, NULL);
 			break;
-		case 4: // MERGE SORT (SEDGEWICK & WAYNE)
+		case 4:
 			gettimeofday(&start, NULL);
 			new_list->first = merge_sort_list(new_list->first);
 			gettimeofday(&stop, NULL);
@@ -305,7 +306,7 @@ void max_subarray_test(void)
 	refresh();
 
 	int array_len = get_num_elements();
-	int array[array_len];
+	int *array = malloc(array_len * sizeof(int));
 	for (int i = 0; i < array_len; i++) {
 		array[i] = get_random_num(-100, 100);
 	}
@@ -376,7 +377,7 @@ void union_find_test(void)
 		int key_input = getch();
 		if (key_input == KEY_ENTER || key_input == 10) {
 			switch (highlighted_option) {
-			case 0: {
+			case 0:
 				printw("\nEnter node number: ");
 				refresh();
 				int node = get_int_input();
@@ -387,8 +388,9 @@ void union_find_test(void)
 					printw("\nRoot of %d: %d\n\n", node, root);
 				}
 				wait_for_enter();
-			} break;
-			case 1: {
+				break;
+			case 1:
+			case 2:
 				printw("\nEnter number of first node:  ");
 				int node1 = get_int_input();
 				printw("Enter number of second node: ");
@@ -398,29 +400,16 @@ void union_find_test(void)
 				bool node2_invalid = (node2 < 0 || node2 > (wqu->count - 1));
 				if (node1_invalid || node2_invalid) {
 					printw("\nInvalid input.\n\n");
-				} else {
+				} else if (highlighted_option == 1) {
 					printw("\nNodes %d and %d: ", node1, node2);
 					bool connected = pair_is_connected(wqu, node1, node2);
 					printw("%s\n\n", connected ? "connected" : "not connected");
-				}
-				wait_for_enter();
-			} break;
-			case 2: {
-				printw("\nEnter number of first node:  ");
-				int node1 = get_int_input();
-				printw("Enter number of second node: ");
-				int node2 = get_int_input();
-				// Validate input
-				bool node1_invalid = (node1 < 0 || node1 > (wqu->count - 1));
-				bool node2_invalid = (node2 < 0 || node2 > (wqu->count - 1));
-				if (node1_invalid || node2_invalid) {
-					printw("\nInvalid input.\n\n");
 				} else {
 					unify_nodes(wqu, node1, node2);
 					printw("\nConnected nodes %d and %d.\n\n", node1, node2);
 				}
 				wait_for_enter();
-			} break;
+				break;
 			case 3:
 				return_to_main = true;
 				break;
