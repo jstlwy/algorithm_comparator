@@ -19,31 +19,31 @@ $(BINARY): $(OBJFILES)
 	$(CC) $(CFLAGS) $(OBJFILES) $(LDFLAGS) -o $(BINARY)
 
 main.o: main.c $(HEADERS)
-	$(CC) -c main.c
+	$(CC) -c $<
 
 utils.o: utils.c
-	$(CC) -c utils.c
+	$(CC) -c $<
 
 input.o: input.c
-	$(CC) -c input.c
+	$(CC) -c $<
 
 wqunion.o: wqunion.c
-	$(CC) -c wqunion.c
+	$(CC) -c $<
 
 maxsubarray.o: maxsubarray.c
-	$(CC) -c maxsubarray.c
+	$(CC) -c $<
 
 arrayutils.o: arrayutils.c
-	$(CC) -c arrayutils.c
+	$(CC) -c $<
 
 arraysort.o: arraysort.c
-	$(CC) -c arraysort.c
+	$(CC) -c $<
 
 listsort.o: listsort.c dllist.h
-	$(CC) -c listsort.c
+	$(CC) -c $<
 
 dllist.o: dllist.c
-	$(CC) -c dllist.c
+	$(CC) -c $<
 
 clean:
 	rm -f $(OBJFILES) $(BINARY)
