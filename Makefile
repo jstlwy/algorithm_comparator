@@ -26,16 +26,16 @@ $(binary): $(obj)
 $(objdir)/%.o: $(srcdir)/%.c
 	$(CC) -c $< -o $@
 
-# Individual file dependencies
-$(objdir)/main.o: $(srcdir)/main.c $(headers)
-$(objdir)/utils.o: $(srcdir)/utils.c $(srcdir)/utils.h
-$(objdir)/input.o: $(srcdir)/input.c $(srcdir)/input.h
-$(objdir)/wqunion.o: $(srcdir)/wqunion.c $(srcdir)/wqunion.h
-$(objdir)/maxsubarray.o: $(srcdir)/maxsubarray.c $(srcdir)/maxsubarray.h
-$(objdir)/arrayutils.o: $(srcdir)/arrayutils.c $(srcdir)/arrayutils.h
-$(objdir)/arraysort.o: $(srcdir)/arraysort.c $(srcdir)/arraysort.h
-$(objdir)/listsort.o: $(srcdir)/listsort.c $(srcdir)/listsort.h $(srcdir)/dllist.h
-$(objdir)/dllist.o: $(srcdir)/dllist.c $(srcdir)/dllist.h
+# Individual file prerequisites
+$(objdir)/main.o: $(headers)
+$(objdir)/utils.o: $(srcdir)/utils.h
+$(objdir)/input.o: $(srcdir)/input.h
+$(objdir)/wqunion.o: $(srcdir)/wqunion.h
+$(objdir)/maxsubarray.o: $(srcdir)/maxsubarray.h
+$(objdir)/arrayutils.o: $(srcdir)/arrayutils.h
+$(objdir)/arraysort.o: $(srcdir)/arraysort.h
+$(objdir)/listsort.o: $(srcdir)/listsort.h $(srcdir)/dllist.h
+$(objdir)/dllist.o: $(srcdir)/dllist.h
 
 clean:
 	rm -f $(obj) $(binary)
