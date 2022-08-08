@@ -107,6 +107,8 @@ int main(int argc, char *argv[])
 			highlighted_option--;
 		} else if (key_input == KEY_DOWN && highlighted_option < num_options - 1) {
 			highlighted_option++;
+		} else if (key_input >= '1' && key_input <= '6') {
+			highlighted_option = ((int) key_input) - 49;
 		}
 	}
 
@@ -396,6 +398,8 @@ void union_find_test(void)
 			highlighted_option--;
 		} else if (key_input == KEY_DOWN && highlighted_option < num_options - 1) {
 			highlighted_option++;
+		} else if (key_input >= '1' && key_input <= '4') {
+			highlighted_option = ((int) key_input) - 49;
 		}
 	}
 

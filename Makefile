@@ -1,49 +1,41 @@
-CC = gcc
-CFLAGS = -Wall -Wextra -Werror
-LDFLAGS = -l ncurses
-FILENAMES = arraysort arrayutils dllist listsort maxsubarray wqunion input utils
-OBJFILES = main.o $(foreach name, $(FILENAMES), $(name).o)
-HEADERS = $(foreach name, $(FILENAMES), $(name).h)
-BINARY = algorithm_comparator
-
+CC := gcc
+CFLAGS := -Wall -Wextra -Werror
+LDFLAGS := -lncurses
 # ncurses used in:
 # main
 # utils
 # input
 # arrayutils
 # dllist
+.PHONY: all clean
 
-all: $(BINARY)
+srcdir := ./src
+objdir := ./obj
+exclude := $(srcdir)/pqueue.c
+src := $(filter-out $(exclude), $(wildcard $(srcdir)/*.c))
+headers := $(filter-out $(srcdir)/main.h, $(patsubst %.c, %.h, $(src)))
+obj := $(patsubst $(srcdir)/%.c, $(objdir)/%.o, $(src))
+binary := algorithm_comparator
 
-$(BINARY): $(OBJFILES)
-	$(CC) $(CFLAGS) $(OBJFILES) $(LDFLAGS) -o $(BINARY)
+all: $(binary)
 
-main.o: main.c $(HEADERS)
-	$(CC) -c $<
+$(binary): $(obj)
+	$(CC) $(CFLAGS) $(LDFLAGS) $^ -o $@
 
-utils.o: utils.c
-	$(CC) -c $<
+# Generic object file creation rule
+$(objdir)/%.o: $(srcdir)/%.c
+	$(CC) -c $< -o $@
 
-input.o: input.c
-	$(CC) -c $<
-
-wqunion.o: wqunion.c
-	$(CC) -c $<
-
-maxsubarray.o: maxsubarray.c
-	$(CC) -c $<
-
-arrayutils.o: arrayutils.c
-	$(CC) -c $<
-
-arraysort.o: arraysort.c
-	$(CC) -c $<
-
-listsort.o: listsort.c dllist.h
-	$(CC) -c $<
-
-dllist.o: dllist.c
-	$(CC) -c $<
+# Individual file dependencies
+$(objdir)/main.o: $(srcdir)/main.c $(headers)
+$(objdir)/utils.o: $(srcdir)/utils.c $(srcdir)/utils.h
+$(objdir)/input.o: $(srcdir)/input.c $(srcdir)/input.h
+$(objdir)/wqunion.o: $(srcdir)/wqunion.c $(srcdir)/wqunion.h
+$(objdir)/maxsubarray.o: $(srcdir)/maxsubarray.c $(srcdir)/maxsubarray.h
+$(objdir)/arrayutils.o: $(srcdir)/arrayutils.c $(srcdir)/arrayutils.h
+$(objdir)/arraysort.o: $(srcdir)/arraysort.c $(srcdir)/arraysort.h
+$(objdir)/listsort.o: $(srcdir)/listsort.c $(srcdir)/listsort.h $(srcdir)/dllist.h
+$(objdir)/dllist.o: $(srcdir)/dllist.c $(srcdir)/dllist.h
 
 clean:
-	rm -f $(OBJFILES) $(BINARY)
+	rm -f $(obj) $(binary)
