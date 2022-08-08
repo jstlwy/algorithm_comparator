@@ -20,11 +20,11 @@ binary := algorithm_comparator
 all: $(binary)
 
 $(binary): $(obj)
-	$(CC) $(CFLAGS) $(LDFLAGS) $^ -o $@
+	$(CC) $(LDFLAGS) $^ -o $@
 
 # Generic object file creation rule
 $(objdir)/%.o: $(srcdir)/%.c
-	$(CC) -c $< -o $@
+	$(CC) $(CFLAGS) -c $< -o $@
 
 # Individual file prerequisites
 $(objdir)/main.o: $(headers)

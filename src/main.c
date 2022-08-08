@@ -44,7 +44,7 @@ bool get_yes_or_no(void);
 void print_time_elapsed(long time_elapsed);
 
 
-int main(int argc, char *argv[])
+int main()
 {
 	initscr();
 	keypad(stdscr, true);
