@@ -14,8 +14,10 @@ int get_int_input()
 	noecho();
 
 	// Check whether all of the chars are numbers
-	for (int i = 0; user_input[i] != '\0'; i++) {
-		if (user_input[i] < 48 || user_input[i] > 57) {
+	for (int i = 0; user_input[i] != '\0'; i++)
+	{
+		if (user_input[i] < 48 || user_input[i] > 57)
+		{
 			return INT_MIN;
 		}
 	}

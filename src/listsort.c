@@ -3,23 +3,27 @@
 
 void selection_sort_list(struct dllist* list)
 {
-	if (list == NULL) {
+	if (list == NULL)
+	{
 		return;
 	}
 
 	struct dlnode* current_node = list->first;
-	while (current_node != NULL) {
+	while (current_node != NULL)
+	{
 		// Start by assuming the current node has the smallest value
 		struct dlnode* min_node = current_node;
 		int min_value = current_node->data;
 		// Now look at every node after the current node.
 		struct dlnode* next_node = current_node->next;
-		while (next_node != NULL) {
+		while (next_node != NULL)
+		{
 			// Check the value of each subsequent node.
 			// Keep updating the minimum node/value
 			// as smaller values are discovered.
 			int next_node_value = next_node->data;
-			if (next_node_value < min_value) {
+			if (next_node_value < min_value)
+			{
 				min_value = next_node_value;
 				min_node = next_node;
 			}
@@ -37,13 +41,15 @@ void selection_sort_list(struct dllist* list)
 
 struct dllist* selection_sort_list_sw(struct dllist* list)
 {
-	if (list == NULL) {
+	if (list == NULL)
+	{
 		return NULL;
 	}
 
 	// Create a new list
 	struct dllist* new_list = init_list();
-	while (list->first != NULL) {
+	while (list->first != NULL)
+	{
 		// Find the largest node in the original list
 		struct dlnode* max_node = find_max_node(list);
 		// Remove it from the original list
@@ -62,18 +68,21 @@ struct dllist* selection_sort_list_sw(struct dllist* list)
 
 void insertion_sort_list(struct dllist* list)
 {
-	if (list == NULL) {
+	if (list == NULL)
+	{
 		return;
 	}
 
 	// Start at the second node
 	struct dlnode *current_node = list->first->next;
-	while (current_node != NULL) {
+	while (current_node != NULL)
+	{
 		struct dlnode* prior_node = current_node->previous;
 		struct dlnode* prior_node_next = current_node;
 		// As long as the prior nodes contain larger values than the current,
 		// keep moving the current value backward through the list
-		while (prior_node != NULL && prior_node->data > prior_node_next->data) {
+		while (prior_node != NULL && prior_node->data > prior_node_next->data)
+		{
 			// Swap the values of the current pair
 			int temp = prior_node->data;
 			prior_node->data = prior_node_next->data;
@@ -95,10 +104,13 @@ void insertion_sort_list_sw(struct dllist *list)
 	struct dlnode *t;
 	struct dlnode *u; 
 	struct dlnode *x;
-	for (t = list->first; t != NULL; t = u) {
+	for (t = list->first; t != NULL; t = u)
+	{
 		u = t->next;
-		for (x = b; x->next != NULL; x = x->next) {
-			if (x->next->data > t->data) {
+		for (x = b; x->next != NULL; x = x->next)
+		{
+			if (x->next->data > t->data)
+			{
 				break;
 			}
 		}
@@ -114,12 +126,16 @@ struct dlnode* merge_list(struct dlnode *a, struct dlnode *b)
 	struct dlnode head;
 	struct dlnode *c = &head;
 
-	while (a != NULL && b != NULL) {
-		if (a->data < b->data) {
+	while (a != NULL && b != NULL)
+	{
+		if (a->data < b->data)
+		{
 			c->next = a;
 			c = a;
 			a = a->next;
-		} else {
+		}
+		else
+		{
 			c->next = b;
 			c = b;
 			b = b->next;
@@ -138,14 +154,16 @@ struct dlnode* merge_sort_list(struct dlnode *c)
 	struct dlnode *a;
 	struct dlnode *b;
 
-	if (c == NULL || c->next == NULL) {
+	if (c == NULL || c->next == NULL)
+	{
 		return c;
 	}
 
 	a = c;
 	b = c->next;
 
-	while (b != NULL && b->next != NULL) {
+	while (b != NULL && b->next != NULL)
+	{
 		c = c->next;
 		b = b->next->next;
 	}
