@@ -36,6 +36,7 @@ void array_sort_test(void);
 void linked_list_sort_test(void);
 void max_subarray_test(void);
 void union_find_test(void);
+void exercise_wqunion(struct wqunion * const wqu, const int option);
 void priority_queue_test(void);
 
 // Helper functions
@@ -384,74 +385,95 @@ void union_find_test(void)
 		refresh();
 
 		int key_input = getch();
-		if (key_input == KEY_ENTER || key_input == 10)
+		switch (key_input)
 		{
-			switch (highlighted_option)
+		case KEY_ENTER:
+		case 10:
+			if (highlighted_option == num_options - 1)
 			{
-			case 0:
-				printw("\nEnter node number: ");
-				refresh();
-				const int node = get_int_input();
-				if (node < 0 || node > wqu->count - 1)
-				{
-					printw("\nInvalid input.\n\n");
-				}
-				else
-				{
-					const int root = get_node_root(wqu, node);
-					printw("\nRoot of %d: %d\n\n", node, root);
-				}
-				wait_for_enter();
-				break;
-			case 1:
-			case 2:
-				printw("\nEnter number of first node:  ");
-				const int node1 = get_int_input();
-				printw("Enter number of second node: ");
-				const int node2 = get_int_input();
-				// Validate input
-				const int last_node = wqu->count - 1;
-				const bool node1_invalid = (node1 < 0 || node1 > last_node);
-				const bool node2_invalid = (node2 < 0 || node2 > last_node);
-				if (node1_invalid || node2_invalid)
-				{
-					printw("\nInvalid input.\n\n");
-				}
-				else if (highlighted_option == 1)
-				{
-					printw("\nNodes %d and %d: ", node1, node2);
-					const bool connected = pair_is_connected(wqu, node1, node2);
-					printw("%s\n\n", connected ? "connected" : "not connected");
-				}
-				else
-				{
-					unify_nodes(wqu, node1, node2);
-					printw("\nConnected nodes %d and %d.\n\n", node1, node2);
-				}
-				wait_for_enter();
-				break;
-			case 3:
 				return_to_main = true;
-				break;
-			default:
-				break;
+			}	
+			else
+			{
+				exercise_wqunion(wqu, highlighted_option);
 			}
-		}
-		else if (key_input == KEY_UP && highlighted_option > 0)
-		{
-			highlighted_option--;
-		}
-		else if (key_input == KEY_DOWN && highlighted_option < num_options - 1)
-		{
-			highlighted_option++;
-		}
-		else if (key_input >= '1' && key_input <= '4')
-		{
+			break;
+		case KEY_UP:
+			if (highlighted_option > 0)
+			{
+				highlighted_option--;
+			}
+			break;
+		case KEY_DOWN:
+			if (highlighted_option < num_options - 1)
+			{
+				highlighted_option++;
+			}
+			break;
+		case '1':
+		case '2':
+		case '3':
+		case '4':
 			highlighted_option = ((int) key_input) - 49;
+			break;
+		default:
+			break;
 		}
 	}
 
 	delete_wqunion(wqu);
+}
+
+
+void exercise_wqunion(struct wqunion * const wqu, const int option)
+{
+	switch (option)
+	{
+	case 0: // Find root of a node
+		printw("\nEnter node number: ");
+		refresh();
+		const int node = get_int_input();
+		if (node < 0 || node > wqu->count - 1)
+		{
+			printw("\nInvalid input.\n\n");
+		}
+		else
+		{
+			const int root = get_node_root(wqu, node);
+			printw("\nRoot of %d: %d\n\n", node, root);
+		}
+		wait_for_enter();
+		break;
+	case 1: // Check if two nodes are connected
+	case 2: // Connect two nodes
+		printw("\nEnter number of first node:  ");
+		const int node1 = get_int_input();
+		printw("Enter number of second node: ");
+		const int node2 = get_int_input();
+		// Validate input
+		const int last_node = wqu->count - 1;
+		const bool node1_invalid = (node1 < 0 || node1 > last_node);
+		const bool node2_invalid = (node2 < 0 || node2 > last_node);
+		if (node1_invalid || node2_invalid)
+		{
+			printw("\nInvalid input.\n\n");
+		}
+		else if (option == 1)
+		{
+			printw("\nNodes %d and %d: ", node1, node2);
+			const bool connected = pair_is_connected(wqu, node1, node2);
+			printw("%s\n\n", connected ? "connected" : "not connected");
+		}
+		else
+		{
+			unify_nodes(wqu, node1, node2);
+			printw("\nConnected nodes %d and %d.\n\n", node1, node2);
+		}
+		wait_for_enter();
+		break;
+	default:
+		break;
+	}
 }
 
 
