@@ -6,7 +6,7 @@
 
 struct dllist* init_list(void)
 {
-	struct dllist *new_list = malloc(sizeof(struct dllist));
+	struct dllist * const new_list = malloc(sizeof(struct dllist));
 	new_list->size = 0;
 	new_list->first = NULL;
 	new_list->last = NULL;
@@ -14,7 +14,7 @@ struct dllist* init_list(void)
 }
 
 
-int get_list_size(struct dllist *list)
+int get_list_size(struct dllist * const list)
 {
 	if (list == NULL)
 	{
@@ -25,9 +25,9 @@ int get_list_size(struct dllist *list)
 }
 
 
-struct dllist* copy_int_list(struct dllist *original_list)
+struct dllist* copy_int_list(struct dllist * const original_list)
 {
-	struct dllist *new_list = init_list();
+	struct dllist * const new_list = init_list();
 
 	if (original_list == NULL)
 	{
@@ -37,7 +37,7 @@ struct dllist* copy_int_list(struct dllist *original_list)
 	struct dlnode *current_node = original_list->first;
 	while (current_node != NULL)
 	{
-		struct dlnode *new_node = malloc(sizeof(struct dlnode));
+		struct dlnode * const new_node = malloc(sizeof(struct dlnode));
 		new_node->data = current_node->data;
 		insert_at_tail(new_list, new_node);
 		current_node = current_node->next;
@@ -47,7 +47,7 @@ struct dllist* copy_int_list(struct dllist *original_list)
 }
 
 
-void print_int_list_curses(struct dllist *list)
+void print_int_list_curses(struct dllist * const list)
 {
 	if (list == NULL)
 	{
@@ -63,7 +63,7 @@ void print_int_list_curses(struct dllist *list)
 }
 
 
-bool list_contains_node(struct dllist *list, struct dlnode* node)
+bool list_contains_node(struct dllist * const list, struct dlnode * const node)
 {
 	if (list == NULL || node == NULL)
 	{
@@ -84,7 +84,7 @@ bool list_contains_node(struct dllist *list, struct dlnode* node)
 }
 
 
-bool list_is_sorted(struct dllist *list)
+bool list_is_sorted(struct dllist * const list)
 {
 	if (list == NULL || list->first == NULL)
 	{
@@ -105,7 +105,7 @@ bool list_is_sorted(struct dllist *list)
 }
 
 
-struct dlnode* find_max_node(struct dllist *list)
+struct dlnode* find_max_node(struct dllist * const list)
 {
 	if (list == NULL)
 	{
@@ -127,7 +127,7 @@ struct dlnode* find_max_node(struct dllist *list)
 }
 
 
-struct dlnode* find_min_node(struct dllist *list)
+struct dlnode* find_min_node(struct dllist * const list)
 {
 	if (list == NULL)
 	{
@@ -149,7 +149,7 @@ struct dlnode* find_min_node(struct dllist *list)
 }
 
 
-void insert_at_head(struct dllist *list, struct dlnode *new_node)
+void insert_at_head(struct dllist * const list, struct dlnode * const new_node)
 {
 	if (list == NULL)
 	{
@@ -175,7 +175,7 @@ void insert_at_head(struct dllist *list, struct dlnode *new_node)
 }
 
 
-void insert_at_tail(struct dllist *list, struct dlnode *new_node)
+void insert_at_tail(struct dllist * const list, struct dlnode * const new_node)
 {
 	if (list == NULL)
 	{
@@ -191,7 +191,7 @@ void insert_at_tail(struct dllist *list, struct dlnode *new_node)
 	}
 	else
 	{
-		struct dlnode *old_last_node = list->last;
+		struct dlnode * const old_last_node = list->last;
 		old_last_node->next = new_node;
 		new_node->previous = old_last_node;
 	}
@@ -201,7 +201,8 @@ void insert_at_tail(struct dllist *list, struct dlnode *new_node)
 }
 
 
-void insert_before_index(struct dllist *list, struct dlnode *new_node, const int index)
+void insert_before_index(struct dllist * const list,
+                         struct dlnode * const new_node, const int index)
 {
 	if (list == NULL || new_node == NULL)
 	{
@@ -220,7 +221,7 @@ void insert_before_index(struct dllist *list, struct dlnode *new_node, const int
 }
 
 
-void update_node(struct dlnode *node, const int new_data)
+void update_node(struct dlnode * const node, const int new_data)
 {
 	if (node == NULL)
 	{
@@ -231,14 +232,14 @@ void update_node(struct dlnode *node, const int new_data)
 }
 
 
-void delete_head(struct dllist *list)
+void delete_head(struct dllist * const list)
 {
 	if (list == NULL)
 	{
 		return;
 	}
 
-	struct dlnode *old_first_node = list->first;
+	struct dlnode * const old_first_node = list->first;
 	if (old_first_node != NULL)
 	{
 		if (old_first_node == list->last)
@@ -248,7 +249,7 @@ void delete_head(struct dllist *list)
 		}
 		else
 		{
-			struct dlnode *new_first_node = old_first_node->next;
+			struct dlnode * const new_first_node = old_first_node->next;
 			new_first_node->previous = NULL;
 			list->first = new_first_node;
 		}
@@ -258,14 +259,14 @@ void delete_head(struct dllist *list)
 }
 
 
-void delete_tail(struct dllist *list)
+void delete_tail(struct dllist * const list)
 {
 	if (list == NULL)
 	{
 		return;
 	}
 
-	struct dlnode *old_last_node = list->last;
+	struct dlnode * const old_last_node = list->last;
 	if (old_last_node != NULL)
 	{
 		if (old_last_node == list->first)
@@ -275,7 +276,7 @@ void delete_tail(struct dllist *list)
 		}
 		else
 		{
-			struct dlnode *new_last_node = old_last_node->previous;
+			struct dlnode * const new_last_node = old_last_node->previous;
 			new_last_node->next = NULL;
 			list->last = new_last_node;
 		}
@@ -285,7 +286,7 @@ void delete_tail(struct dllist *list)
 }
 
 
-void unlink_node(struct dllist *list, struct dlnode *node)
+void unlink_node(struct dllist * const list, struct dlnode * const node)
 {
 	if (list == NULL || node == NULL)
 	{
@@ -326,7 +327,7 @@ void unlink_node(struct dllist *list, struct dlnode *node)
 }
 
 
-void delete_node(struct dllist *list, struct dlnode *node)
+void delete_node(struct dllist * const list, struct dlnode * const node)
 {
 	if (list != NULL && node != NULL)
 	{
@@ -336,7 +337,7 @@ void delete_node(struct dllist *list, struct dlnode *node)
 }
 
 
-void delete_list(struct dllist *list)
+void delete_list(struct dllist * const list)
 {
 	if (list == NULL)
 	{

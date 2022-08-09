@@ -1,7 +1,7 @@
 #include "listsort.h"
 #include <stdlib.h>
 
-void selection_sort_list(struct dllist* list)
+void selection_sort_list(struct dllist * const list)
 {
 	if (list == NULL)
 	{
@@ -39,7 +39,7 @@ void selection_sort_list(struct dllist* list)
 }
 
 
-struct dllist* selection_sort_list_sw(struct dllist* list)
+struct dllist* selection_sort_list_sw(struct dllist * const list)
 {
 	if (list == NULL)
 	{
@@ -66,7 +66,7 @@ struct dllist* selection_sort_list_sw(struct dllist* list)
 }
 
 
-void insertion_sort_list(struct dllist* list)
+void insertion_sort_list(struct dllist * const list)
 {
 	if (list == NULL)
 	{
@@ -96,7 +96,7 @@ void insertion_sort_list(struct dllist* list)
 }
 
 
-void insertion_sort_list_sw(struct dllist *list)
+void insertion_sort_list_sw(struct dllist * const list)
 {
 	struct dlnode dummy;
 	struct dlnode *b = &dummy;

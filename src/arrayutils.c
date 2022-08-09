@@ -4,7 +4,7 @@
 #include <stdlib.h>
 #include <ncurses.h>
 
-bool array_is_sorted(int *array, const int array_size)
+bool array_is_sorted(int * const array, const int array_size)
 {
 	if (array_size <= 1)
 	{
@@ -24,7 +24,7 @@ bool array_is_sorted(int *array, const int array_size)
 
 
 // Returns index of sought-after number
-int binary_search(int array[], int first, int last, int target)
+int binary_search(int * const array, int first, int last, const int target)
 {
 	// Return -1 if the index isn't found
 	int soln_index = -1;
@@ -51,7 +51,7 @@ int binary_search(int array[], int first, int last, int target)
 }
 
 
-void print_int_array(int *array, const int array_size)
+void print_int_array(int * const array, const int array_size)
 {
 	for (int i = 0; i < array_size; i++)
 	{
@@ -60,7 +60,7 @@ void print_int_array(int *array, const int array_size)
 }
 
 
-void print_int_array_curses(int *array, const int array_size)
+void print_int_array_curses(int * const array, const int array_size)
 {
 	for (int i = 0; i < array_size; i++)
 	{
@@ -69,9 +69,9 @@ void print_int_array_curses(int *array, const int array_size)
 }
 
 
-int* copy_int_array(int *original_array, const int original_array_size)
+int* copy_int_array(int * const original_array, const int original_array_size)
 {
-	int* new_array = malloc(original_array_size * sizeof(int));
+	int * const new_array = malloc(original_array_size * sizeof(int));
 	for (int i = 0; i < original_array_size; i++)
 	{
 		new_array[i] = original_array[i];

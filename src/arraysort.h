@@ -2,23 +2,24 @@
 #define ARRAYSORT_H
 
 // QUADRATIC SORTING ALGORITHMS
-void selection_sort(int *array, const int array_size); // Unstable (stable for LL)
-void insertion_sort(int *array, const int array_size); // Stable
-void shellsort(int *array, const int array_size);      // Unstable
+void selection_sort(int * const array, const int array_size); // Unstable (stable for LL)
+void insertion_sort(int * const array, const int array_size); // Stable
+void shellsort(int * const array, const int array_size);      // Unstable
 
 
 // LINEARITHMIC SORTING ALGORITHMS
-void merge_sort_array(int *array, const int array_size);           // Stable
-void merge_sort_td(int *arr, int *aux, int low, int high);
-void merge_sort_bu(int *arr, int *aux, const int array_size);
-void merge(int *arr, int *temp_arr, int first, int mid, int last);
+// Merge sort is stable
+void merge_sort_array(int * const array, const int array_size); 
+void merge_sort_td(int * const arr, int * const aux, const int low, const int high);
+void merge_sort_bu(int * const arr, int * const aux, const int array_size);
+void merge(int * const arr, int * const temp_arr, const int first, const int mid, const int last);
 
-void quicksort(int *array, int low, int high);
-int partition(int *array, int low, int high);
+void quicksort(int * const array, const int low, const int high);
+int partition(int * const array, const int low, const int high);
 
-void swim_up(int *arr, int k);
-void sink_down(int *arr, int k, int size);
-void heapsort_array(int *arr, int l, int r);
+void swim_up(int * const arr, int k);
+void sink_down(int * const arr, int k, const int size);
+void heapsort_array(int * const arr, const int l, const int r);
 
 
 #endif

@@ -1,7 +1,7 @@
 #include "arraysort.h"
 #include <stdlib.h>
 
-void selection_sort(int *array, const int array_size)
+void selection_sort(int * const array, const int array_size)
 {
 	for (int i = 0; i < array_size; i++)
 	{
@@ -20,7 +20,7 @@ void selection_sort(int *array, const int array_size)
 }
 
 
-void insertion_sort(int *array, const int array_size)
+void insertion_sort(int * const array, const int array_size)
 {
 	for (int i = 1; i < array_size; i++)
 	{
@@ -36,7 +36,7 @@ void insertion_sort(int *array, const int array_size)
 }
 
 
-void shellsort(int *array, const int array_size)
+void shellsort(int * const array, const int array_size)
 {
 	// Using the OEIS A003462 integer sequence to sort:
 	// 0.5(3^n - 1) -> 1, 4, 13, 40, 121, 364, 1093, 3280, ...
@@ -67,7 +67,7 @@ void shellsort(int *array, const int array_size)
 }
 
 
-void merge_sort_array(int *array, const int array_size)
+void merge_sort_array(int * const array, const int array_size)
 {
 	int *helper_arr = malloc(array_size * sizeof(int));
 	merge_sort_td(array, helper_arr, 0, array_size - 1);
@@ -75,7 +75,8 @@ void merge_sort_array(int *array, const int array_size)
 }
 
 
-void merge_sort_td(int *arr, int *helper_arr, int low, int high)
+void merge_sort_td(int * const arr, int * const helper_arr,
+                   const int low, const int high)
 {
 	if (low < high)
 	{
@@ -87,22 +88,23 @@ void merge_sort_td(int *arr, int *helper_arr, int low, int high)
 }
 
 
-void merge_sort_bu(int *arr, int *helper_arr, const int array_size)
+void merge_sort_bu(int * const arr, int * const helper_arr, const int array_size)
 {
 	for (int size = 1; size < array_size; size = size + size)
 	{
 		for (int low = 0; low < array_size - size; low = low + size + size)
 		{
-			int value1 = low + size + size - 1;
-			int value2 = array_size - 1;
-			int min = (value1 < value2) ? value1 : value2;
+			const int value1 = low + size + size - 1;
+			const int value2 = array_size - 1;
+			const int min = (value1 < value2) ? value1 : value2;
 			merge(arr, helper_arr, low, low + size - 1, min);
 		}
 	}
 }
 
 
-void merge(int *arr, int *helper_arr, int first, int mid, int last)
+void merge(int * const arr, int * const helper_arr,
+           const int first, const int mid, const int last)
 {
 	// Copy the contents of the original array to the helper array
 	for (int i = first; i <= last; i++)
@@ -139,7 +141,7 @@ void merge(int *arr, int *helper_arr, int first, int mid, int last)
 }
 
 
-void quicksort(int *array, int low, int high)
+void quicksort(int * const array, const int low, const int high)
 {
 	if (low < high)
 	{
@@ -150,7 +152,7 @@ void quicksort(int *array, int low, int high)
 }
 
 
-int partition(int *array, int low, int high)
+int partition(int * const array, const int low, const int high)
 {
 	int i = low;
 	int j = high + 1;
@@ -199,7 +201,7 @@ int partition(int *array, int low, int high)
 }
 
 
-void swim_up(int *arr, int k)
+void swim_up(int * const arr, int k)
 {
 	while (k > 1 && arr[k/2] < arr[k])
 	{
@@ -211,7 +213,7 @@ void swim_up(int *arr, int k)
 }
 
 
-void sink_down(int *arr, int k, int size)
+void sink_down(int * const arr, int k, const int size)
 {
 	while (2*k <= size)
 	{
@@ -232,7 +234,7 @@ void sink_down(int *arr, int k, int size)
 }
 
 
-void heapsort_array(int *arr, int l, int r)
+void heapsort_array(int * const arr, const int l, const int r)
 {
 	int N = r - l + 1;
 	int* pq = arr + l - 1;

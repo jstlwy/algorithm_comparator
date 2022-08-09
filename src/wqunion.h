@@ -10,7 +10,7 @@ struct wqunion {
     int count;
 };
 
-struct wqunion* init_wqunion_of_size(int n);
+struct wqunion* init_wqunion_of_size(const int n);
 int get_node_root(struct wqunion *wqu, int p);
 bool pair_is_connected(struct wqunion *wqu, int p, int q);
 void unify_nodes(struct wqunion *wqu, int p, int q);
