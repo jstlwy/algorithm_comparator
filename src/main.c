@@ -41,7 +41,7 @@ void priority_queue_test(void);
 // Helper functions
 int get_num_elements(void);
 bool get_yes_or_no(void);
-void print_time_elapsed(long time_elapsed);
+void print_time_elapsed(const long time_elapsed);
 
 
 int main()
@@ -521,26 +521,35 @@ bool get_yes_or_no(void)
 		refresh();
 
 		const int key_input = getch();
-		user_pressed_enter = (key_input == KEY_ENTER || key_input == 10);
-		if (user_pressed_enter)
+		switch (key_input)
 		{
+		case KEY_ENTER:
+		case 10:
+			user_pressed_enter = true;
 			user_choice = (highlighted_option == 0);
-		}
-		else if (key_input == KEY_UP && highlighted_option > 0)
-		{
-			highlighted_option--;
-		}
-		else if (key_input == KEY_DOWN && highlighted_option < 1)
-		{
-			highlighted_option++;
-		}
-		else if (key_input == 'Y' || key_input == 'y')
-		{
+			break;
+		case KEY_UP:
+			if (highlighted_option > 0)
+			{
+				highlighted_option--;
+			}
+			break;
+		case KEY_DOWN:
+			if (highlighted_option < 1)
+			{
+				highlighted_option++;
+			}
+			break;
+		case 'Y':
+		case 'y':
 			highlighted_option = 0;
-		}
-		else if (key_input == 'N' || key_input == 'n')
-		{
+			break;
+		case 'N':
+		case 'n':
 			highlighted_option = 1;
+			break;
+		default:
+			break;
 		}
 	}
 	
@@ -548,7 +557,7 @@ bool get_yes_or_no(void)
 }
 
 
-void print_time_elapsed(long time_elapsed)
+void print_time_elapsed(const long time_elapsed)
 {
 	if (time_elapsed < SI_hk)
 	{
