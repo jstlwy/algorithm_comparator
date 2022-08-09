@@ -3,8 +3,9 @@
 
 void selection_sort_list(struct dllist* list)
 {
-	if (list == NULL)
+	if (list == NULL) {
 		return;
+	}
 
 	struct dlnode* current_node = list->first;
 	while (current_node != NULL) {
@@ -36,8 +37,9 @@ void selection_sort_list(struct dllist* list)
 
 struct dllist* selection_sort_list_sw(struct dllist* list)
 {
-	if (list == NULL)
+	if (list == NULL) {
 		return NULL;
+	}
 
 	// Create a new list
 	struct dllist* new_list = init_list();
@@ -60,8 +62,9 @@ struct dllist* selection_sort_list_sw(struct dllist* list)
 
 void insertion_sort_list(struct dllist* list)
 {
-	if (list == NULL)
+	if (list == NULL) {
 		return;
+	}
 
 	// Start at the second node
 	struct dlnode *current_node = list->first->next;
@@ -95,8 +98,9 @@ void insertion_sort_list_sw(struct dllist *list)
 	for (t = list->first; t != NULL; t = u) {
 		u = t->next;
 		for (x = b; x->next != NULL; x = x->next) {
-			if (x->next->data > t->data)
+			if (x->next->data > t->data) {
 				break;
+			}
 		}
 		t->next = x->next;
 		x->next = t;
@@ -134,8 +138,9 @@ struct dlnode* merge_sort_list(struct dlnode *c)
 	struct dlnode *a;
 	struct dlnode *b;
 
-	if (c == NULL || c->next == NULL)
+	if (c == NULL || c->next == NULL) {
 		return c;
+	}
 
 	a = c;
 	b = c->next;

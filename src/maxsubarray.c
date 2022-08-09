@@ -46,12 +46,13 @@ struct max_subarray find_max_subarray(int *array, int low, int high)
 		leftms = find_max_subarray(array, low, mid);
 		rightms = find_max_subarray(array, mid + 1, high);
 		crossms = find_max_crossing_subarray(array, low, mid, high);
-		if (leftms.max_sum >= rightms.max_sum && leftms.max_sum >= crossms.max_sum)
+		if (leftms.max_sum >= rightms.max_sum && leftms.max_sum >= crossms.max_sum) {
 			return leftms;
-		else if (rightms.max_sum >= leftms.max_sum && rightms.max_sum >= crossms.max_sum)
+		} else if (rightms.max_sum >= leftms.max_sum && rightms.max_sum >= crossms.max_sum) {
 			return rightms;
-		else
+		} else {
 			return crossms;
+		}
 	}
 }
 

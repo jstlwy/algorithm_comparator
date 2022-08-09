@@ -6,10 +6,11 @@ void selection_sort(int *array, const int array_size)
 	for (int i = 0; i < array_size; i++) {
 		int min = i;
 		for (int j = i + 1; j < array_size; j++) {
-			if (array[j] < array[min])
+			if (array[j] < array[min]) {
 				min = j;
+			}
 		}
-		int temp = array[i];
+		const int temp = array[i];
 		array[i] = array[min];
 		array[min] = temp;
 	}
@@ -19,7 +20,7 @@ void selection_sort(int *array, const int array_size)
 void insertion_sort(int *array, const int array_size)
 {
 	for (int i = 1; i < array_size; i++) {
-		int key = array[i];
+		const int key = array[i];
 		int j = i - 1;
 		while (j >= 0 && array[j] > key) {
 			array[j + 1] = array[j];
@@ -47,7 +48,7 @@ void shellsort(int *array, const int array_size)
 	while (h >= 1) {
 		for (int i = h; i < array_size; i++) {
 			for (int j = i; j >= h && array[j] < array[j - h]; j -= h) {
-				int temp = array[j];
+				const int temp = array[j];
 				array[j] = array[j - h];
 				array[j - h] = temp;
 			}
@@ -102,10 +103,11 @@ void merge(int *arr, int *helper_arr, int first, int mid, int last)
 	int l = first;
 	int r = mid + 1;
 	while (l <= mid && r <= last) {
-		if (helper_arr[l] <= helper_arr[r])
+		if (helper_arr[l] <= helper_arr[r]) {
 			arr[i++] = helper_arr[l++];
-		else
-			arr[i++] = helper_arr[r++];	
+		} else {
+			arr[i++] = helper_arr[r++];
+		}
 	}
 
 	// Copy anything left in either half
@@ -136,24 +138,27 @@ int partition(int *array, int low, int high)
 	while (1) {
 		i++;
 		while (array[i] < v) {
-			if (i == high)
+			if (i == high) {
 				break;
+			}
 			i++;
 		}
 		j--;
 		while (v < array[j]) {
-			if (j == low)
+			if (j == low) {
 				break;
+			}
 			j--;
 		}
-		if (i >= j)
+		if (i >= j) {
 			break;
-		int temp = array[i];
+		}
+		const int temp = array[i];
 		array[i] = array[j];
 		array[j] = temp;
 	}
 	if (low != j) {
-		int temp = array[low];
+		const int temp = array[low];
 		array[low] = array[j];
 		array[j] = temp;
 	}
@@ -176,11 +181,13 @@ void sink_down(int *arr, int k, int size)
 {
 	while (2*k <= size) {
 		int j = 2 * k;
-		if (j < size && arr[j] < arr[j+1])
+		if (j < size && arr[j] < arr[j+1]) {
 			j++;
-		if (arr[k] >= arr[j])
+		}
+		if (arr[k] >= arr[j]) {
 			break;
-		int temp = arr[k];
+		}
+		const int temp = arr[k];
 		arr[k] = arr[j];
 		arr[j] = temp;
 		k = j;
@@ -196,7 +203,7 @@ void heapsort_array(int *arr, int l, int r)
 		sink_down(pq, k, N);
 	}
 	while (N > 1) {
-		int temp = pq[1];
+		const int temp = pq[1];
 		pq[1] = pq[N];
 		pq[N] = temp;
 		N--;

@@ -6,12 +6,14 @@
 
 bool array_is_sorted(int *array, const int array_size)
 {
-	if (array_size <= 1)
+	if (array_size <= 1) {
 		return true;
+	}
 
 	for (int i = 1; i < array_size; i++) {
-		if (array[i] < array[i-1])
+		if (array[i] < array[i-1]) {
 			return false;
+		}
 	}
 
 	return true;

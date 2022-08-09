@@ -71,11 +71,13 @@ int main()
 		printw("DATA STRUCTURES AND ALGORITHMS TEST SUITE\n\n");
 		attroff(A_BOLD);
 		for (int i = 0; i < num_options; i++) {
-			if (i == highlighted_option)
+			if (i == highlighted_option) {
 				attron(A_STANDOUT);
+			}
 			printw("%d. %s\n", i + 1, menu_options[i]);
-			if (i == highlighted_option)
+			if (i == highlighted_option) {
 				attroff(A_STANDOUT);
+			}
 		}
 		refresh();
 
@@ -183,8 +185,9 @@ void array_sort_test(void)
 		print_time_elapsed(time_elapsed);
 
 		// Check whether sort operation was successful
-		if (!array_is_sorted(new_array, array_length))
+		if (!array_is_sorted(new_array, array_length)) {
 			printw(" (failed)");
+		}
 		
 		printw("\n");
 		refresh();
@@ -260,8 +263,9 @@ void linked_list_sort_test(void)
 		print_time_elapsed(time_elapsed);
 		
 		// Check whether sort operation was successful
-		if (!list_is_sorted(new_list))
+		if (!list_is_sorted(new_list)) {
 			printw(" (failed)");
+		}
 
 		printw("\n");
 		refresh();
@@ -344,11 +348,13 @@ void union_find_test(void)
 		move(y, x);
 		clrtobot();
 		for (int i = 0; i < num_options; i++) {
-			if (i == highlighted_option)
+			if (i == highlighted_option) {
 				attron(A_STANDOUT);
+			}
 			printw("%d. %s\n", i + 1, menu_options[i]);
-			if (i == highlighted_option)
+			if (i == highlighted_option) {
 				attroff(A_STANDOUT);
+			}
 		}
 		refresh();
 
@@ -448,28 +454,33 @@ bool get_yes_or_no(void)
 		move(y, x);
 		clrtobot();
 
-		if (highlighted_option == 0)
+		if (highlighted_option == 0) {
 			attron(A_STANDOUT);
+		}
 		printw("Yes\n");
-		if (highlighted_option == 0)
+		if (highlighted_option == 0) {
 			attroff(A_STANDOUT);
+		}
 
-		if (highlighted_option == 1)
+		if (highlighted_option == 1) {
 			attron(A_STANDOUT);
+		}
 		printw("No\n");
-		if (highlighted_option == 1)
+		if (highlighted_option == 1) {
 			attroff(A_STANDOUT);
+		}
 
 		refresh();
 
 		const int key_input = getch();
 		user_pressed_enter = (key_input == KEY_ENTER || key_input == 10);
-		if (user_pressed_enter)
+		if (user_pressed_enter) {
 			user_choice = (highlighted_option == 0);
-		else if (key_input == KEY_UP && highlighted_option > 0)
+		} else if (key_input == KEY_UP && highlighted_option > 0) {
 			highlighted_option--;
-		else if (key_input == KEY_DOWN && highlighted_option < 1)
+		} else if (key_input == KEY_DOWN && highlighted_option < 1) {
 			highlighted_option++;
+		}
 	}
 	
 	return user_choice;
@@ -478,13 +489,14 @@ bool get_yes_or_no(void)
 
 void print_time_elapsed(long time_elapsed)
 {
-	if (time_elapsed < SI_hk)
+	if (time_elapsed < SI_hk) {
 		printw("%10d ns", time_elapsed);
-	else if (time_elapsed < SI_hM)
+	} else if (time_elapsed < SI_hM) {
 		printw("%10d us", time_elapsed / SI_k);
-	else if (time_elapsed < SI_hG)
+	} else if (time_elapsed < SI_hG) {
 		printw("%10d ms", time_elapsed / SI_M);
-	else
+	} else {
 		printw("%10d  s", time_elapsed / SI_G);
+	}
 }
 
