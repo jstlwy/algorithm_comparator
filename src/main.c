@@ -53,7 +53,7 @@ int main()
 	srand(time(0));
 
 	const int num_options = 6;
-	const char* menu_options[num_options] = {
+	const char * const menu_options[num_options] = {
 		"Array Sorting Algorithms",
 		"Linked List Sorting Algorithms",
 		"Maximum Subarray",
@@ -137,16 +137,16 @@ void array_sort_test(void)
 	printw("Array Sorting Algorithms\n\n");
 	attroff(A_BOLD);	
 
-	int array_length = get_num_elements();
+	const int array_length = get_num_elements();
 	printw("\nArray will contain %d elements.\n\n", array_length);
-	int *array = malloc(array_length * sizeof(int));
+	int * const array = malloc(array_length * sizeof(int));
 	for (int i = 0; i < array_length; i++)
 	{
 		array[i] = get_random_num(-1000, 1000);
 	}
 
 	const int num_options = 6;
-	char* sort_algorithms[num_options] = {
+	const char * const sort_algorithms[num_options] = {
 		"Selection Sort",
 		"Insertion Sort",
 		"Shellsort",
@@ -166,7 +166,7 @@ void array_sort_test(void)
 	{
 		printw("%-14s: ", sort_algorithms[i]);
 		refresh();
-		int* new_array = copy_int_array(array, array_length);
+		int * const new_array = copy_int_array(array, array_length);
 
 		clock_gettime(CLOCK_MONOTONIC, &start);
 		switch (i)
@@ -195,7 +195,7 @@ void array_sort_test(void)
 		clock_gettime(CLOCK_MONOTONIC, &stop);
 
 		// Time returned in ns
-		long time_elapsed = get_time_diff(start, stop);
+		const long time_elapsed = get_time_diff(start, stop);
 		print_time_elapsed(time_elapsed);
 
 		// Check whether sort operation was successful
@@ -222,18 +222,18 @@ void linked_list_sort_test(void)
 	attroff(A_BOLD);
 	refresh();
 
-	int list_length = get_num_elements();
+	const int list_length = get_num_elements();
 	printw("\nList will contain %d elements.\n\n", list_length);
-	struct dllist *int_list = init_list();
+	struct dllist * const int_list = init_list();
 	for (int i = 0; i < list_length; i++)
 	{
-		struct dlnode *new_node = malloc(sizeof(struct dlnode));
+		struct dlnode * const new_node = malloc(sizeof(struct dlnode));
         	new_node->data = get_random_num(-1000, 1000);
 		insert_at_tail(int_list, new_node);
 	}
 
 	const int num_options = 5;
-	const char *sort_algorithms[num_options] = {
+	const char * const sort_algorithms[num_options] = {
 		"Selection Sort",
 		"Selection Sort (Sedgewick)",
 		"Insertion Sort",
@@ -249,7 +249,7 @@ void linked_list_sort_test(void)
 
 	for (int i = start_point; i < num_options; i++)
 	{
-		struct dllist *new_list = copy_int_list(int_list);
+		struct dllist * new_list = copy_int_list(int_list);
 		printw("%-26s: ", sort_algorithms[i]);
 		refresh();
 
@@ -277,7 +277,7 @@ void linked_list_sort_test(void)
 		clock_gettime(CLOCK_MONOTONIC, &stop);
 
 		// Time returned in ns
-		long time_elapsed = get_time_diff(start, stop);
+		const long time_elapsed = get_time_diff(start, stop);
 		print_time_elapsed(time_elapsed);
 		
 		// Check whether sort operation was successful
@@ -305,8 +305,8 @@ void max_subarray_test(void)
 	attroff(A_BOLD);
 	refresh();
 
-	int array_len = get_num_elements();
-	int *array = malloc(array_len * sizeof(int));
+	const int array_len = get_num_elements();
+	int * const array = malloc(array_len * sizeof(int));
 	for (int i = 0; i < array_len; i++)
 	{
 		array[i] = get_random_num(-100, 100);
@@ -329,7 +329,7 @@ void max_subarray_test(void)
 	printw("\n\nMax Subarray Sum: %d\n", ms.max_sum);
 
 	printw("Time elapsed: ");
-	long time_elapsed = get_time_diff(start, stop);
+	const long time_elapsed = get_time_diff(start, stop);
 	print_time_elapsed(time_elapsed);
 	printw("\n\n");
 	refresh();
@@ -342,7 +342,7 @@ void union_find_test(void)
 	erase();
 	
 	const int num_options = 4;	
-	const char* menu_options[num_options] = {
+	const char * const menu_options[num_options] = {
 		"Find the root of a node",
 		"Check whether two nodes are connected",
 		"Connect two nodes",
@@ -354,10 +354,10 @@ void union_find_test(void)
 	attroff(A_BOLD);
 	refresh();
 
-	int size = get_num_elements();
+	const int size = get_num_elements();
 	printw("\n%d-element weighted quick UF\n\n", size);
 	refresh();
-	struct wqunion* wqu = init_wqunion_of_size(size);
+	struct wqunion * const wqu = init_wqunion_of_size(size);
 
 	int y;
 	int x;
@@ -391,14 +391,14 @@ void union_find_test(void)
 			case 0:
 				printw("\nEnter node number: ");
 				refresh();
-				int node = get_int_input();
+				const int node = get_int_input();
 				if (node < 0 || node > wqu->count - 1)
 				{
 					printw("\nInvalid input.\n\n");
 				}
 				else
 				{
-					int root = get_node_root(wqu, node);
+					const int root = get_node_root(wqu, node);
 					printw("\nRoot of %d: %d\n\n", node, root);
 				}
 				wait_for_enter();
@@ -406,12 +406,13 @@ void union_find_test(void)
 			case 1:
 			case 2:
 				printw("\nEnter number of first node:  ");
-				int node1 = get_int_input();
+				const int node1 = get_int_input();
 				printw("Enter number of second node: ");
-				int node2 = get_int_input();
+				const int node2 = get_int_input();
 				// Validate input
-				bool node1_invalid = (node1 < 0 || node1 > (wqu->count - 1));
-				bool node2_invalid = (node2 < 0 || node2 > (wqu->count - 1));
+				const int last_node = wqu->count - 1;
+				const bool node1_invalid = (node1 < 0 || node1 > last_node);
+				const bool node2_invalid = (node2 < 0 || node2 > last_node);
 				if (node1_invalid || node2_invalid)
 				{
 					printw("\nInvalid input.\n\n");
@@ -419,7 +420,7 @@ void union_find_test(void)
 				else if (highlighted_option == 1)
 				{
 					printw("\nNodes %d and %d: ", node1, node2);
-					bool connected = pair_is_connected(wqu, node1, node2);
+					const bool connected = pair_is_connected(wqu, node1, node2);
 					printw("%s\n\n", connected ? "connected" : "not connected");
 				}
 				else
@@ -532,6 +533,14 @@ bool get_yes_or_no(void)
 		else if (key_input == KEY_DOWN && highlighted_option < 1)
 		{
 			highlighted_option++;
+		}
+		else if (key_input == 'Y' || key_input == 'y')
+		{
+			highlighted_option = 0;
+		}
+		else if (key_input == 'N' || key_input == 'n')
+		{
+			highlighted_option = 1;
 		}
 	}
 	
