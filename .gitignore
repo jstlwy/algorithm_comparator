@@ -3,6 +3,8 @@ algorithm_comparator
 
 # Object files
 *.o
+# Dependency files
+*.d
 
-# macOS
+# macOS-specific files
 .DS_Store

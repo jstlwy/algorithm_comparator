@@ -1,12 +1,8 @@
 CC := gcc
 CFLAGS := -Wall -Wextra -Werror
 LDFLAGS := -lncurses
-# ncurses used in:
-# main
-# utils
-# input
-# arrayutils
-# dllist
+
+# Declare names that indicate recipes, not files 
 .PHONY: all clean
 
 srcdir := ./src
@@ -24,18 +20,12 @@ $(binary): $(obj)
 
 # Generic object file creation rule
 $(objdir)/%.o: $(srcdir)/%.c
-	$(CC) $(CFLAGS) -c $< -o $@
+	$(CC) $(CFLAGS) -MMD -c $< -o $@
 
-# Individual file prerequisites
-$(objdir)/main.o: $(headers)
-$(objdir)/utils.o: $(srcdir)/utils.h
-$(objdir)/input.o: $(srcdir)/input.h
-$(objdir)/wqunion.o: $(srcdir)/wqunion.h
-$(objdir)/maxsubarray.o: $(srcdir)/maxsubarray.h
-$(objdir)/arrayutils.o: $(srcdir)/arrayutils.h
-$(objdir)/arraysort.o: $(srcdir)/arraysort.h
-$(objdir)/listsort.o: $(srcdir)/listsort.h $(srcdir)/dllist.h
-$(objdir)/dllist.o: $(srcdir)/dllist.h
+# If not using -MMD to automatically generate dependencies,
+# the dependencies can be manually specified as follows:
+#$(objdir)/main.o: $(headers)
+#$(objdir)/listsort.o: $(srcdir)/listsort.h $(srcdir)/dllist.h
 
 clean:
 	rm -f $(obj) $(binary)
