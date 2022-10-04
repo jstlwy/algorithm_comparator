@@ -5,6 +5,7 @@
 #include <time.h>
 #include <sys/time.h>
 #include <limits.h>
+#include <pthread.h>
 #include "input.h"
 #include "utils.h"
 #include "arrayutils.h"
@@ -13,7 +14,6 @@
 #include "listsort.h"
 #include "maxsubarray.h"
 #include "wqunion.h"
-//#include "pqueue.h"
 
 const long SI_h = 100;
 const long SI_k = 1000;
@@ -33,11 +33,11 @@ gettimeofday(&stop, NULL);
 
 // Main program sections 
 void array_sort_test(void);
+void *array_sort_test_runner(void *arg);
 void linked_list_sort_test(void);
 void max_subarray_test(void);
 void union_find_test(void);
 void exercise_wqunion(struct wqunion * const wqu, const int option);
-void priority_queue_test(void);
 
 // Helper functions
 int get_num_elements(void);
@@ -53,13 +53,12 @@ int main()
 	curs_set(0);
 	srand(time(0));
 
-	const int num_options = 6;
+	const int num_options = 5;
 	const char * const menu_options[num_options] = {
 		"Array Sorting Algorithms",
 		"Linked List Sorting Algorithms",
 		"Maximum Subarray",
 		"Union Find",
-		"Priority Queue Test",
 		"Quit"
 	};
 
@@ -103,9 +102,6 @@ int main()
 				union_find_test();
 				break;
 			case 4:
-				priority_queue_test();
-				break;
-			case 5:
 				exit_program = true;
 				break;
 			default:
@@ -120,7 +116,7 @@ int main()
 		{
 			highlighted_option++;
 		}
-		else if (key_input >= '1' && key_input <= '6')
+		else if (key_input >= '1' && key_input <= '5')
 		{
 			highlighted_option = ((int) key_input) - 49;
 		}
@@ -129,6 +125,15 @@ int main()
 	endwin();
 	return 0;
 }
+
+
+struct array_sort_test_runner_vars {
+	unsigned int sort_algo_num;
+	int* original_array;
+	int array_length;
+	int time_elapsed_ns;
+	bool was_successful;
+};
 
 
 void array_sort_test(void)
@@ -156,62 +161,89 @@ void array_sort_test(void)
 		"Quicksort"
 	};
 	
-	struct timespec start, stop;
-
 	printw("Skip quadratic algorithms?\n");
 	bool skip_quadratic = get_yes_or_no();
 	printw("\n\n");
 	const int start_point = skip_quadratic ? 2 : 0;
+	printw("Please wait...");
+	refresh();
 
-	for (int i = start_point; i < num_options; i++)
+	const int num_threads = num_options - start_point;
+	pthread_t threads[num_threads];
+	pthread_attr_t attr;
+	pthread_attr_init(&attr);
+	struct array_sort_test_runner_vars vars[num_threads];
+
+	for (int i = 0; i < num_threads; i++)
 	{
-		printw("%-14s: ", sort_algorithms[i]);
-		refresh();
-		int * const new_array = copy_int_array(array, array_length);
-
-		clock_gettime(CLOCK_MONOTONIC, &start);
-		switch (i)
-		{
-		case 0:
-			selection_sort(new_array, array_length);
-			break;
-		case 1:
-			insertion_sort(new_array, array_length);
-			break;
-		case 2:
-			shellsort(new_array, array_length);
-			break;
-		case 3:
-			heapsort_array(new_array, 0, array_length - 1);
-			break;
-		case 4:
-			merge_sort_array(new_array, array_length);
-			break;
-		case 5:
-			quicksort(new_array, 0, array_length - 1);
-			break;
-		default:
-			break;
-		}
-		clock_gettime(CLOCK_MONOTONIC, &stop);
-
-		// Time returned in ns
-		const long time_elapsed = get_time_diff(start, stop);
-		print_time_elapsed(time_elapsed);
-
-		// Check whether sort operation was successful
-		if (!array_is_sorted(new_array, array_length))
-		{
-			printw(" (failed)");
-		}
-		
-		printw("\n");
-		refresh();
-		free(new_array);
+		vars[i].sort_algo_num = i + start_point;
+		vars[i].original_array = array;
+		vars[i].array_length = array_length;
+		pthread_create(&threads[i], &attr, array_sort_test_runner, &vars[i]);
 	}
+
+	for (int i = 0; i < num_threads; i++)
+	{
+		pthread_join(threads[i], NULL);
+	}
+	
+	clear();
+	printw("When sorting %d elements:\n\n", array_length);
+	for (int i = 0; i < num_threads; i++)
+	{
+		printw("%-14s: ", sort_algorithms[i + start_point]);
+		print_time_elapsed(vars[i].time_elapsed_ns);
+		if (!vars[i].was_successful)
+			printw(" (failed)");
+		printw("\n");
+	}
+	refresh();
 
 	printw("\n");
 	wait_for_enter();
+}
+
+
+void *array_sort_test_runner(void *arg)
+{	
+	struct array_sort_test_runner_vars *vars = arg;
+	printw("Testing sort algorithm %d\n", vars->sort_algo_num);
+
+	int *new_array = copy_int_array(vars->original_array, vars->array_length);
+
+	struct timespec start, stop;
+	clock_gettime(CLOCK_MONOTONIC, &start);
+	switch (vars->sort_algo_num)
+	{
+	case 0:
+		selection_sort(new_array, vars->array_length);
+		break;
+	case 1:
+		insertion_sort(new_array, vars->array_length);
+		break;
+	case 2:
+		shellsort(new_array, vars->array_length);
+		break;
+	case 3:
+		heapsort_array(new_array, 0, vars->array_length - 1);
+		break;
+	case 4:
+		merge_sort_array(new_array, vars->array_length);
+		break;
+	case 5:
+		quicksort(new_array, 0, vars->array_length - 1);
+		break;
+	default:
+		break;
+	}
+	clock_gettime(CLOCK_MONOTONIC, &stop);
+
+	vars->time_elapsed_ns = get_time_diff(start, stop);
+	vars->was_successful = array_is_sorted(new_array, vars->array_length);
+	
+	free(new_array);
+
+	return 0;
 }
 
 
@@ -452,9 +484,8 @@ void exercise_wqunion(struct wqunion * const wqu, const int option)
 		const int node2 = get_int_input();
 		// Validate input
 		const int last_node = wqu->count - 1;
-		const bool node1_invalid = (node1 < 0 || node1 > last_node);
-		const bool node2_invalid = (node2 < 0 || node2 > last_node);
-		if (node1_invalid || node2_invalid)
+		if (node1 < 0 || node1 > last_node ||
+		    node2 < 0 || node2 > last_node)
 		{
 			printw("\nInvalid input.\n\n");
 		}
@@ -474,12 +505,6 @@ void exercise_wqunion(struct wqunion * const wqu, const int option)
 	default:
 		break;
 	}
-}
-
-
-void priority_queue_test(void)
-{
-
 }
 
 
