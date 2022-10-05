@@ -31,18 +31,32 @@ foo();
 gettimeofday(&stop, NULL);
 */
 
-// Main program sections 
+struct array_sort_test_runner_vars {
+	unsigned int sort_algo_num;
+	int* original_array;
+	int array_length;
+	unsigned long long time_elapsed_ns;
+	bool was_successful;
+};
 void array_sort_test(void);
 void *array_sort_test_runner(void *arg);
+
+struct list_sort_test_runner_vars {
+	unsigned int sort_algo_num;
+	struct dllist * original_list;
+	unsigned long long time_elapsed_ns;
+	bool was_successful;
+};
 void linked_list_sort_test(void);
+void *list_sort_test_runner(void *arg);
+
 void max_subarray_test(void);
 void union_find_test(void);
 void exercise_wqunion(struct wqunion * const wqu, const int option);
 
-// Helper functions
 int get_num_elements(void);
 bool get_yes_or_no(void);
-void print_time_elapsed(const long time_elapsed);
+void print_time_elapsed(const unsigned long long time_elapsed);
 
 
 int main()
@@ -127,15 +141,6 @@ int main()
 }
 
 
-struct array_sort_test_runner_vars {
-	unsigned int sort_algo_num;
-	int* original_array;
-	int array_length;
-	int time_elapsed_ns;
-	bool was_successful;
-};
-
-
 void array_sort_test(void)
 {
 	erase();
@@ -207,7 +212,6 @@ void array_sort_test(void)
 void *array_sort_test_runner(void *arg)
 {	
 	struct array_sort_test_runner_vars *vars = arg;
-	printw("Testing sort algorithm %d\n", vars->sort_algo_num);
 
 	int *new_array = copy_int_array(vars->original_array, vars->array_length);
 
@@ -276,57 +280,101 @@ void linked_list_sort_test(void)
 
 	printw("Skip quadratic algorithms?\n");
 	const bool skip_quadratic = get_yes_or_no();
-	printw("\n\n");
-	const int start_point = skip_quadratic ? 4 : 0;
-	struct timespec start, stop;
+	printw("\n\nPlease wait...");
+	refresh();
 
-	for (int i = start_point; i < num_options; i++)
+	if (skip_quadratic)
 	{
 		struct dllist * new_list = copy_int_list(int_list);
-		printw("%-26s: ", sort_algorithms[i]);
-		refresh();
-
+		struct timespec start, stop;
 		clock_gettime(CLOCK_MONOTONIC, &start);
-		switch (i)
-		{
-		case 0:
-			selection_sort_list(new_list);
-			break;
-		case 1:
-			new_list = selection_sort_list_sw(new_list);
-			break;
-		case 2:
-			insertion_sort_list(new_list);
-			break;
-		case 3:
-			insertion_sort_list_sw(new_list);
-			break;
-		case 4:
-			new_list->first = merge_sort_list(new_list->first);
-			break;
-		default:
-			break;
-		}
+		new_list->first = merge_sort_list(new_list->first);
 		clock_gettime(CLOCK_MONOTONIC, &stop);
 
 		// Time returned in ns
 		const long time_elapsed = get_time_diff(start, stop);
+		printw("Merge sort: ");
 		print_time_elapsed(time_elapsed);
-		
-		// Check whether sort operation was successful
 		if (!list_is_sorted(new_list))
-		{
 			printw(" (failed)");
-		}
-
 		printw("\n");
 		refresh();
 		delete_list(new_list);
+	}
+	else
+	{
+		pthread_t threads[num_options];
+		pthread_attr_t attr;
+		pthread_attr_init(&attr);
+		struct list_sort_test_runner_vars vars[num_options];
+
+		for (int i = 0; i < num_options; i++)
+		{
+			vars[i].sort_algo_num = i;
+			vars[i].original_list = int_list;
+			pthread_create(&threads[i], &attr, list_sort_test_runner, &vars[i]);
+		}
+
+		for (int i = 0; i < num_options; i++)
+		{
+			pthread_join(threads[i], NULL);
+		}
+		
+		clear();
+		printw("When sorting %d elements:\n\n", list_length);
+		for (int i = 0; i < num_options; i++)
+		{
+			printw("%-26s: ", sort_algorithms[i]);
+			print_time_elapsed(vars[i].time_elapsed_ns);
+			if (!vars[i].was_successful)
+				printw(" (failed)");
+			printw("\n");
+		}
+		refresh();
 	}
 
 	delete_list(int_list);
 	printw("\n");
 	wait_for_enter();
+}
+
+
+void *list_sort_test_runner(void *arg)
+{	
+	struct list_sort_test_runner_vars *vars = arg;
+
+	struct dllist * new_list = copy_int_list(vars->original_list);
+
+	struct timespec start, stop;
+	clock_gettime(CLOCK_MONOTONIC, &start);
+	switch (vars->sort_algo_num)
+	{
+	case 0:
+		selection_sort_list(new_list);
+		break;
+	case 1:
+		new_list = selection_sort_list_sw(new_list);
+		break;
+	case 2:
+		insertion_sort_list(new_list);
+		break;
+	case 3:
+		insertion_sort_list_sw(new_list);
+		break;
+	case 4:
+		new_list->first = merge_sort_list(new_list->first);
+		break;
+	default:
+		break;
+	}
+	clock_gettime(CLOCK_MONOTONIC, &stop);
+
+	vars->time_elapsed_ns = get_time_diff(start, stop);
+	vars->was_successful = list_is_sorted(new_list);
+	
+	delete_list(new_list);
+
+	return 0;
 }
 
 
@@ -604,23 +652,23 @@ bool get_yes_or_no(void)
 }
 
 
-void print_time_elapsed(const long time_elapsed)
+void print_time_elapsed(const unsigned long long time_elapsed)
 {
 	if (time_elapsed < SI_hk)
 	{
-		printw("%10d ns", time_elapsed);
+		printw("%10lu ns", time_elapsed);
 	}
 	else if (time_elapsed < SI_hM)
 	{
-		printw("%10d us", time_elapsed / SI_k);
+		printw("%10lu us", time_elapsed / SI_k);
 	}
 	else if (time_elapsed < SI_hG)
 	{
-		printw("%10d ms", time_elapsed / SI_M);
+		printw("%10lu ms", time_elapsed / SI_M);
 	}
 	else
 	{
-		printw("%10d  s", time_elapsed / SI_G);
+		printw("%10lu  s", time_elapsed / SI_G);
 	}
 }
 
