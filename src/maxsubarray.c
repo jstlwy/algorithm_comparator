@@ -1,14 +1,14 @@
 #include "maxsubarray.h"
 #include <limits.h>
 
-struct max_subarray find_max_crossing_subarray(int * const array,
-	const int low, const int mid, const int high)
+struct max_subarray find_max_crossing_subarray(int* const array,
+	size_t const low, size_t const mid, size_t const high)
 {
 	struct max_subarray m;
 
 	int left_sum = INT_MIN;
 	int sum = 0;
-	for (int i = mid; i >= low; i--)
+	for (size_t i = mid; i >= low; i--)
 	{
 		sum += array[i];
 		if (sum > left_sum)
@@ -20,7 +20,7 @@ struct max_subarray find_max_crossing_subarray(int * const array,
 
 	int right_sum = INT_MIN;
 	sum = 0;
-	for (int j = mid + 1; j <= high; j++)
+	for (size_t j = mid + 1; j <= high; j++)
 	{
 		sum += array[j];
 		if (sum > right_sum)
@@ -35,8 +35,8 @@ struct max_subarray find_max_crossing_subarray(int * const array,
 }
 
 
-struct max_subarray find_max_subarray(int * const array,
-	const int low, const int high)
+struct max_subarray find_max_subarray(int* const array,
+	size_t const low, size_t const high)
 {
 	struct max_subarray leftms;
 	struct max_subarray rightms;
@@ -51,7 +51,7 @@ struct max_subarray find_max_subarray(int * const array,
 	}
 	else
 	{
-		const int mid = (low + high) / 2;
+		size_t const mid = (low + high) / 2;
 		leftms = find_max_subarray(array, low, mid);
 		rightms = find_max_subarray(array, mid + 1, high);
 		crossms = find_max_crossing_subarray(array, low, mid, high);

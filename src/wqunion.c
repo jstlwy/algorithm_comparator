@@ -1,12 +1,12 @@
 #include "wqunion.h"
 #include <stdlib.h>
 
-struct wqunion* init_wqunion_of_size(int n)
+struct wqunion* init_wqunion_of_size(size_t const n)
 {
-	struct wqunion *new_wqu = malloc(sizeof(struct wqunion));
+	struct wqunion* new_wqu = malloc(sizeof(struct wqunion));
 	int* id_array = malloc(n * sizeof(int));
 	int* sz_array = malloc(n * sizeof(int));
-	for (int i = 0; i < n; i++)
+	for (size_t i = 0; i < n; i++)
 	{
 		id_array[i] = i;
 		sz_array[i] = 1;

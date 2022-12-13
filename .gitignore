@@ -1,10 +1,5 @@
-# Main binary
-algorithm_comparator
-
-# Object files
-*.o
-# Dependency files
-*.d
-
 # macOS-specific files
 .DS_Store
+
+# Main binary
+algorithm_comparator

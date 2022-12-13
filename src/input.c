@@ -3,26 +3,23 @@
 #include <limits.h>
 #include <stdlib.h>
 
-
-int get_int_input()
+size_t get_size_t()
 {
 	// Get user input
-	const int n = 7;
+	size_t const n = 7;
 	char user_input[n+1];
 	echo();
 	getnstr(user_input, n);
 	noecho();
 
 	// Check whether all of the chars are numbers
-	for (int i = 0; user_input[i] != '\0'; i++)
+	for (size_t i = 0; user_input[i] != '\0'; i++)
 	{
-		if (user_input[i] < 48 || user_input[i] > 57)
-		{
-			return INT_MIN;
-		}
+		if (user_input[i] < '0' || user_input[i] > '9')
+			return 0;
 	}
 
-	return atoi(user_input);
+	return (size_t) atoi(user_input);
 }
 
 
@@ -53,37 +50,45 @@ int get_int_input(int num_digits)
 
 	// The buffer must be flushed if the user entered too many characters.
 	// First, check whether user_input contains a newline char.
-	int terminus = -1;
-	for (int i = 0; i < num_digits; i++) {	
-		if (user_input[i] == '\n') {
+	size_t terminus = -1;
+	for (size_t i = 0; i < num_digits; i++)
+	{	
+		if (user_input[i] == '\n')
+		{
 			terminus = i;
 			break;
 		}
 	}
 
-	if (terminus < 0) {
+	if (terminus < 0)
+	{
 		// If no newline char found, input was too long.
 		// Set terminus to last char and clear input buffer.
 		terminus = num_digits - 1;
 		int c = getchar();
-		while (c != '\n' && c != EOF) {
+		while (c != '\n' && c != EOF)
+		{
 			c = getchar();
 		}
-	} else if (terminus == 0) {
+	}
+	else if (terminus == 0)
+	{
 		// Return -1 if the user just hit enter
 		return INT_MIN;
 	}
 
-	int user_int = -1;
-	for (int i = 0; i < terminus; i++) {
-		char num_char = user_input[i];
+	int user_int = 0;
+	for (size_t i = 0; i < terminus; i++)
+	{
 		// Make sure that each char is a number
-		if (num_char < 48 || num_char > 57) {
+		char num_char = user_input[i];
+		if (num_char < '0' || num_char > '9')
 			return INT_MIN;
-		}
+
 		int num = num_char - '0';
 		int power = terminus - 1 - i;
-		while (power > 0) {
+		while (power > 0)
+		{
 			num *= 10;
 			power--;
 		}
@@ -93,4 +98,3 @@ int get_int_input(int num_digits)
 	return user_int;
 }
 */
-

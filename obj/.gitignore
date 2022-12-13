@@ -1,0 +1,7 @@
+# macOS-specific files
+.DS_Store
+
+# Object files
+*.o
+# Dependency files
+*.d

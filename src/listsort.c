@@ -1,12 +1,10 @@
 #include "listsort.h"
 #include <stdlib.h>
 
-void selection_sort_list(struct dllist * const list)
+void selection_sort_list(struct dllist* const list)
 {
 	if (list == NULL)
-	{
 		return;
-	}
 
 	struct dlnode* current_node = list->first;
 	while (current_node != NULL)
@@ -39,12 +37,10 @@ void selection_sort_list(struct dllist * const list)
 }
 
 
-struct dllist* selection_sort_list_sw(struct dllist * const list)
+struct dllist* selection_sort_list_sw(struct dllist* const list)
 {
 	if (list == NULL)
-	{
 		return NULL;
-	}
 
 	// Create a new list
 	struct dllist* new_list = init_list();
@@ -66,12 +62,10 @@ struct dllist* selection_sort_list_sw(struct dllist * const list)
 }
 
 
-void insertion_sort_list(struct dllist * const list)
+void insertion_sort_list(struct dllist* const list)
 {
 	if (list == NULL)
-	{
 		return;
-	}
 
 	// Start at the second node
 	struct dlnode *current_node = list->first->next;
@@ -96,23 +90,21 @@ void insertion_sort_list(struct dllist * const list)
 }
 
 
-void insertion_sort_list_sw(struct dllist * const list)
+void insertion_sort_list_sw(struct dllist* const list)
 {
 	struct dlnode dummy;
-	struct dlnode *b = &dummy;
+	struct dlnode* b = &dummy;
 	b->next = NULL;
-	struct dlnode *t;
-	struct dlnode *u; 
-	struct dlnode *x;
+	struct dlnode* t;
+	struct dlnode* u; 
+	struct dlnode* x;
 	for (t = list->first; t != NULL; t = u)
 	{
 		u = t->next;
 		for (x = b; x->next != NULL; x = x->next)
 		{
 			if (x->next->data > t->data)
-			{
 				break;
-			}
 		}
 		t->next = x->next;
 		x->next = t;
@@ -121,10 +113,10 @@ void insertion_sort_list_sw(struct dllist * const list)
 }
 
 
-struct dlnode* merge_list(struct dlnode *a, struct dlnode *b)
+struct dlnode* merge_list(struct dlnode* a, struct dlnode* b)
 {
 	struct dlnode head;
-	struct dlnode *c = &head;
+	struct dlnode* c = &head;
 
 	while (a != NULL && b != NULL)
 	{
@@ -149,15 +141,13 @@ struct dlnode* merge_list(struct dlnode *a, struct dlnode *b)
 }
 
 
-struct dlnode* merge_sort_list(struct dlnode *c)
+struct dlnode* merge_sort_list(struct dlnode* c)
 {
-	struct dlnode *a;
-	struct dlnode *b;
+	struct dlnode* a;
+	struct dlnode* b;
 
 	if (c == NULL || c->next == NULL)
-	{
 		return c;
-	}
 
 	a = c;
 	b = c->next;

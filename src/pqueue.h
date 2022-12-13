@@ -9,19 +9,19 @@ struct key {
 };
 
 struct max_pqueue {
-    int array_size;
-    int num_items;
-    key** keys;
+    size_t array_size;
+    size_t num_items;
+    struct key** keys;
 };
 
-struct max_pqueue* init_max_pqueue_of_size(int size);
-void insert_into_pqueue(struct max_pqueue* pq, key* k);
-key* get_max_in_pqueue(struct max_pqueue* pq);
+struct max_pqueue* init_max_pqueue_of_size(size_t n);
+void insert_into_pqueue(struct max_pqueue* pq, struct key* k);
+struct key* get_max_in_pqueue(struct max_pqueue* pq);
 void delete_max_in_pqueue(struct max_pqueue* pq);
-void swim_up_pqueue(key* array, int k);
-void sink_down_pqueue(key* array, int size, int k);
+void swim_up_pqueue(struct key** array, size_t k);
+void sink_down_pqueue(struct key** array, size_t size, size_t k);
 bool is_empty_pqueue(struct max_pqueue* pq);
 int size_of_pqueue(struct max_pqueue* pq);
-void heapsort(key* array, int size);
+void heapsort(size_t n, struct key* array[n]);
 
 #endif

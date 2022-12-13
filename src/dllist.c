@@ -6,7 +6,7 @@
 
 struct dllist* init_list(void)
 {
-	struct dllist * const new_list = malloc(sizeof(struct dllist));
+	struct dllist* const new_list = malloc(sizeof(struct dllist));
 	new_list->size = 0;
 	new_list->first = NULL;
 	new_list->last = NULL;
@@ -14,30 +14,26 @@ struct dllist* init_list(void)
 }
 
 
-int get_list_size(struct dllist * const list)
+int get_list_size(struct dllist* const list)
 {
 	if (list == NULL)
-	{
 		return 0;
-	}
 
 	return list->size;
 }
 
 
-struct dllist* copy_int_list(struct dllist * const original_list)
+struct dllist* copy_int_list(struct dllist* const original_list)
 {
-	struct dllist * const new_list = init_list();
+	struct dllist* const new_list = init_list();
 
 	if (original_list == NULL)
-	{
 		return new_list;
-	}
 
-	struct dlnode *current_node = original_list->first;
+	struct dlnode* current_node = original_list->first;
 	while (current_node != NULL)
 	{
-		struct dlnode * const new_node = malloc(sizeof(struct dlnode));
+		struct dlnode* const new_node = malloc(sizeof(struct dlnode));
 		new_node->data = current_node->data;
 		insert_at_tail(new_list, new_node);
 		current_node = current_node->next;
@@ -47,14 +43,12 @@ struct dllist* copy_int_list(struct dllist * const original_list)
 }
 
 
-void print_int_list_curses(struct dllist * const list)
+void print_int_list_curses(struct dllist* const list)
 {
 	if (list == NULL)
-	{
 		return;
-	}
 
-	struct dlnode *current_node = list->first;
+	struct dlnode* current_node = list->first;
 	while (current_node != NULL)
 	{
 		printw("%d ", current_node->data);
@@ -63,20 +57,16 @@ void print_int_list_curses(struct dllist * const list)
 }
 
 
-bool list_contains_node(struct dllist * const list, struct dlnode * const node)
+bool list_contains_node(struct dllist* const list, struct dlnode* const node)
 {
 	if (list == NULL || node == NULL)
-	{
 		return false;
-	}
 
-	struct dlnode *current_node = list->first;
+	struct dlnode* current_node = list->first;
 	while (current_node != NULL)
 	{
 		if (node == current_node)
-		{
 			return true;
-		}
 		current_node = current_node->next;
 	}
 
@@ -84,20 +74,16 @@ bool list_contains_node(struct dllist * const list, struct dlnode * const node)
 }
 
 
-bool list_is_sorted(struct dllist * const list)
+bool list_is_sorted(struct dllist* const list)
 {
 	if (list == NULL || list->first == NULL)
-	{
 		return false;
-	}
 	
-	struct dlnode *current_node = list->first;
+	struct dlnode* current_node = list->first;
 	while (current_node->next != NULL)
 	{
 		if (current_node->next->data < current_node->data)
-		{
 			return false;
-		}
 		current_node = current_node->next;
 	}
 
@@ -105,21 +91,17 @@ bool list_is_sorted(struct dllist * const list)
 }
 
 
-struct dlnode* find_max_node(struct dllist * const list)
+struct dlnode* find_max_node(struct dllist* const list)
 {
 	if (list == NULL)
-	{
 		return NULL;
-	}
 
-	struct dlnode *max_node = list->first;
-	struct dlnode *current_node = max_node->next;
+	struct dlnode* max_node = list->first;
+	struct dlnode* current_node = max_node->next;
 	while (current_node != NULL)
 	{
 		if (current_node->data > max_node->data)
-		{
 			max_node = current_node;
-		}
 		current_node = current_node->next;
 	}
 
@@ -127,21 +109,17 @@ struct dlnode* find_max_node(struct dllist * const list)
 }
 
 
-struct dlnode* find_min_node(struct dllist * const list)
+struct dlnode* find_min_node(struct dllist* const list)
 {
 	if (list == NULL)
-	{
 		return NULL;
-	}
 
-	struct dlnode *min_node = list->first;
-	struct dlnode *current_node = min_node->next;
+	struct dlnode* min_node = list->first;
+	struct dlnode* current_node = min_node->next;
 	while (current_node != NULL)
 	{
 		if (current_node->data < min_node->data)
-		{
 			min_node = current_node;
-		}
 		current_node = current_node->next;
 	}
 
@@ -149,12 +127,10 @@ struct dlnode* find_min_node(struct dllist * const list)
 }
 
 
-void insert_at_head(struct dllist * const list, struct dlnode * const new_node)
+void insert_at_head(struct dllist* const list, struct dlnode* const new_node)
 {
 	if (list == NULL)
-	{
 		return;
-	}
 
 	new_node->previous = NULL;
 
@@ -165,7 +141,7 @@ void insert_at_head(struct dllist * const list, struct dlnode * const new_node)
 	}
 	else
 	{
-		struct dlnode *old_first_node = list->first;
+		struct dlnode* old_first_node = list->first;
 		new_node->next = old_first_node;
 		old_first_node->previous = new_node;   
 	}
@@ -175,12 +151,10 @@ void insert_at_head(struct dllist * const list, struct dlnode * const new_node)
 }
 
 
-void insert_at_tail(struct dllist * const list, struct dlnode * const new_node)
+void insert_at_tail(struct dllist* const list, struct dlnode* const new_node)
 {
 	if (list == NULL)
-	{
 		return;
-	}
 
 	new_node->next = NULL;
 
@@ -191,7 +165,7 @@ void insert_at_tail(struct dllist * const list, struct dlnode * const new_node)
 	}
 	else
 	{
-		struct dlnode * const old_last_node = list->last;
+		struct dlnode* const old_last_node = list->last;
 		old_last_node->next = new_node;
 		new_node->previous = old_last_node;
 	}
@@ -201,15 +175,13 @@ void insert_at_tail(struct dllist * const list, struct dlnode * const new_node)
 }
 
 
-void insert_before_index(struct dllist * const list,
-                         struct dlnode * const new_node, const int index)
+void insert_before_index(struct dllist* const list,
+                         struct dlnode* const new_node, const int index)
 {
 	if (list == NULL || new_node == NULL)
-	{
 		return;
-	}
 
-	struct dlnode *current_node = list->first;
+	struct dlnode* current_node = list->first;
 	int current_index = 0;
 	while (current_node != NULL && current_index != index)
 	{
@@ -221,25 +193,21 @@ void insert_before_index(struct dllist * const list,
 }
 
 
-void update_node(struct dlnode * const node, const int new_data)
+void update_node(struct dlnode* const node, int const new_data)
 {
 	if (node == NULL)
-	{
 		return;
-	}
 
 	node->data = new_data;
 }
 
 
-void delete_head(struct dllist * const list)
+void delete_head(struct dllist* const list)
 {
 	if (list == NULL)
-	{
 		return;
-	}
 
-	struct dlnode * const old_first_node = list->first;
+	struct dlnode* const old_first_node = list->first;
 	if (old_first_node != NULL)
 	{
 		if (old_first_node == list->last)
@@ -249,7 +217,7 @@ void delete_head(struct dllist * const list)
 		}
 		else
 		{
-			struct dlnode * const new_first_node = old_first_node->next;
+			struct dlnode* const new_first_node = old_first_node->next;
 			new_first_node->previous = NULL;
 			list->first = new_first_node;
 		}
@@ -259,14 +227,12 @@ void delete_head(struct dllist * const list)
 }
 
 
-void delete_tail(struct dllist * const list)
+void delete_tail(struct dllist* const list)
 {
 	if (list == NULL)
-	{
 		return;
-	}
 
-	struct dlnode * const old_last_node = list->last;
+	struct dlnode* const old_last_node = list->last;
 	if (old_last_node != NULL)
 	{
 		if (old_last_node == list->first)
@@ -276,7 +242,7 @@ void delete_tail(struct dllist * const list)
 		}
 		else
 		{
-			struct dlnode * const new_last_node = old_last_node->previous;
+			struct dlnode* const new_last_node = old_last_node->previous;
 			new_last_node->next = NULL;
 			list->last = new_last_node;
 		}
@@ -286,12 +252,10 @@ void delete_tail(struct dllist * const list)
 }
 
 
-void unlink_node(struct dllist * const list, struct dlnode * const node)
+void unlink_node(struct dllist* const list, struct dlnode* const node)
 {
 	if (list == NULL || node == NULL)
-	{
 		return;
-	}
 
 	bool previous_node_is_null = (node->previous == NULL);
 	bool next_node_is_null = (node->next == NULL);
@@ -327,7 +291,7 @@ void unlink_node(struct dllist * const list, struct dlnode * const node)
 }
 
 
-void delete_node(struct dllist * const list, struct dlnode * const node)
+void delete_node(struct dllist* const list, struct dlnode* const node)
 {
 	if (list != NULL && node != NULL)
 	{
@@ -337,21 +301,18 @@ void delete_node(struct dllist * const list, struct dlnode * const node)
 }
 
 
-void delete_list(struct dllist * const list)
+void delete_list(struct dllist* const list)
 {
 	if (list == NULL)
-	{
 		return;
-	}
 
-	struct dlnode *current_node = list->first;
+	struct dlnode* current_node = list->first;
 	while (current_node != NULL)
 	{
-		struct dlnode *next_node = current_node->next;
+		struct dlnode* next_node = current_node->next;
 		free(current_node);
 		current_node = next_node;
 	}
 
 	free(list);
 }
-
