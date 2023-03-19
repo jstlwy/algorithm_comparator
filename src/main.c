@@ -15,13 +15,13 @@
 #include "maxsubarray.h"
 #include "wqunion.h"
 
-const long SI_h = 100;
-const long SI_k = 1000;
-const long SI_M = 1000000;
-const long SI_G = 1000000000;
-const long SI_hk = SI_h * SI_k;
-const long SI_hM = SI_h * SI_M;
-const long SI_hG = SI_h * SI_G;
+const unsigned long SI_h = 100;
+const unsigned long SI_k = 1000;
+const unsigned long SI_M = 1000000;
+const unsigned long SI_G = 1000000000;
+const unsigned long SI_hk = SI_h * SI_k;
+const unsigned long SI_hM = SI_h * SI_M;
+const unsigned long SI_hG = SI_h * SI_G;
 
 // This way of measuring time deprecated in POSIX.1-2008:
 /*
@@ -68,7 +68,7 @@ int main()
 	srand(time(0));
 
 	size_t const num_options = 5;
-	char const* const menu_options[num_options] = {
+	char const* const menu_options[] = {
 		"Array Sorting Algorithms",
 		"Linked List Sorting Algorithms",
 		"Maximum Subarray",
@@ -153,7 +153,7 @@ void array_sort_test(void)
 	}
 
 	size_t const num_options = 6;
-	char const* const sort_algorithms[num_options] = {
+	char const* const sort_algorithms[] = {
 		"Selection Sort",
 		"Insertion Sort",
 		"Shellsort",
@@ -267,7 +267,7 @@ void linked_list_sort_test(void)
 	}
 
 	size_t const num_options = 5;
-	char const* const sort_algorithms[num_options] = {
+	char const* const sort_algorithms[] = {
 		"Selection Sort",
 		"Selection Sort (Sedgewick)",
 		"Insertion Sort",
@@ -423,7 +423,7 @@ void union_find_test(void)
 	erase();
 	
 	size_t const num_options = 4;	
-	char const* const menu_options[num_options] = {
+	char const* const menu_options[] = {
 		"Find the root of a node",
 		"Check whether two nodes are connected",
 		"Connect two nodes",
@@ -501,7 +501,7 @@ void exercise_wqunion(struct wqunion* const wqu, int const option)
 		printw("\nEnter node number: ");
 		refresh();
 		size_t const node = get_size_t();
-		if (node < 0 || node > wqu->count - 1)
+		if (node > wqu->count - 1)
 		{
 			printw("\nInvalid input.\n\n");
 		}
@@ -520,8 +520,7 @@ void exercise_wqunion(struct wqunion* const wqu, int const option)
 		size_t const node2 = get_size_t();
 		// Validate input
 		size_t const last_node = wqu->count - 1;
-		if (node1 < 0 || node1 > last_node ||
-		    node2 < 0 || node2 > last_node)
+		if (node1 > last_node || node2 > last_node)
 		{
 			printw("\nInvalid input.\n\n");
 		}

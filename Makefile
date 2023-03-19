@@ -16,7 +16,7 @@ binary := algorithm_comparator
 all: $(binary)
 
 $(binary): $(obj)
-	$(CC) $(LDFLAGS) $^ -o $@
+	$(CC) $^ -o $@ $(LDFLAGS)
 
 # Generic object file creation rule
 $(objdir)/%.o: $(srcdir)/%.c
