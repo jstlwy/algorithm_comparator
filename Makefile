@@ -1,6 +1,11 @@
 CC := gcc
 CFLAGS := -Wall -Wextra -Werror
+
+ifeq ($(OS), Darwin)
 LDFLAGS := -lncurses
+else
+LDFLAGS := -lncurses -lpthread
+endif
 
 # Declare names that indicate recipes, not files 
 .PHONY: all clean
