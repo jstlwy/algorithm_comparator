@@ -1,10 +1,11 @@
 CC := gcc
 CFLAGS := -Wall -Wextra -Werror
 
+OS := $(shell uname)
 ifeq ($(OS), Darwin)
 LDFLAGS := -lncurses
 else
-LDFLAGS := -lncurses -lpthread
+LDFLAGS := -lncurses -lpthread -lbsd
 endif
 
 # Declare names that indicate recipes, not files 

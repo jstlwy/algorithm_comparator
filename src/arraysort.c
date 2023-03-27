@@ -70,6 +70,7 @@ void merge_sort_array(size_t const n, int array[n])
 	int* helper_arr = malloc(n * sizeof(int));
 	merge_sort_td(array, helper_arr, 0, n - 1);
 	//merge_sort_bu(n, array, helper_arr);
+	free(helper_arr);
 }
 
 

@@ -1,28 +1,20 @@
 #include "utils.h"
-#include <stdlib.h>
-#include <time.h>
 #include <ncurses.h>
+#include <stdlib.h>
+#ifdef __linux__
+#include <bsd/stdlib.h>
+#endif
+#include <time.h>
 
 int get_random_num(int const a, int const b)
 {
-	int low;
-	int high;
-	if (a < b)
-	{
-		low = a;
-		high = b;
-	}
-	else if (a > b)
-	{
-		low = b;
-		high = a;
-	}
-	else
-	{
+	if (a == b)
 		return a;
-	}
-	int const difference = high - low;
-	return (rand() % difference) + low;
+
+	if (a > b)
+		return b + arc4random_uniform(a + 1);
+
+	return a + arc4random_uniform(b + 1);
 }
 
 
