@@ -8,30 +8,38 @@ else
 LDFLAGS := -lncurses -lpthread -lbsd
 endif
 
-# Declare names that indicate recipes, not files 
-.PHONY: all clean
+.PHONY: all clean print
 
 srcdir := ./src
 objdir := ./obj
 exclude := $(srcdir)/pqueue.c
 src := $(filter-out $(exclude), $(wildcard $(srcdir)/*.c))
-headers := $(filter-out $(srcdir)/main.h, $(patsubst %.c, %.h, $(src)))
+headers := $(patsubst %.c, %.h, $(filter-out $(srcdir)/main.c, $(src)))
 obj := $(patsubst $(srcdir)/%.c, $(objdir)/%.o, $(src))
 binary := algorithm_comparator
 
 all: $(binary)
 
 $(binary): $(obj)
-	$(CC) $^ -o $@ $(LDFLAGS)
+	$(CC) $(LDFLAGS) $^ -o $@
 
-# Generic object file creation rule
-$(objdir)/%.o: $(srcdir)/%.c
-	$(CC) $(CFLAGS) -MMD -c $< -o $@
-
-# If not using -MMD to automatically generate dependencies,
-# the dependencies can be manually specified as follows:
-#$(objdir)/main.o: $(headers)
-#$(objdir)/listsort.o: $(srcdir)/listsort.h $(srcdir)/dllist.h
+$(objdir)/main.o: $(srcdir)/main.c $(headers)
+$(objdir)/arraysort.o: $(srcdir)/arraysort.c
+$(objdir)/arrayutils.o: $(srcdir)/arrayutils.c
+$(objdir)/dllist.o: $(srcdir)/dllist.c $(srcdir)/utils.h
+$(objdir)/input.o: $(srcdir)/input.c
+$(objdir)/listsort.o: $(srcdir)/listsort.c $(srcdir)/dllist.h
+$(objdir)/maxsubarray.o: $(srcdir)/maxsubarray.c
+$(objdir)/pqueue.o: $(srcdir)/pqueue.c
+$(objdir)/utils.o: $(srcdir)/utils.c
+$(objdir)/wqunion.o: $(srcdir)/wqunion.c
+$(obj):
+	$(CC) -c $(CFLAGS) $< -o $@
 
 clean:
 	rm -f $(obj) $(binary)
+
+print:
+	@echo src: $(src)
+	@echo headers: $(headers)
+	@echo obj: $(obj)

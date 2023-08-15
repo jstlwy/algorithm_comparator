@@ -23,14 +23,6 @@ const unsigned long SI_hk = SI_h * SI_k;
 const unsigned long SI_hM = SI_h * SI_M;
 const unsigned long SI_hG = SI_h * SI_G;
 
-// This way of measuring time deprecated in POSIX.1-2008:
-/*
-struct timeval start, stop;
-gettimeofday(&start, NULL);
-foo();
-gettimeofday(&stop, NULL);
-*/
-
 struct array_sort_test_runner_vars {
 	unsigned int sort_algo_num;
 	int* original_array;
@@ -58,6 +50,14 @@ size_t get_num_elements(void);
 bool get_yes_or_no(void);
 void print_time_elapsed(unsigned long const time_elapsed);
 
+enum main_menu_options {
+	ARRAY_SORT = 0,
+	LIST_SORT,
+	MAX_SUBARRAY,
+	UNION_FIND,
+	QUIT,
+	NUM_MAIN_MENU_OPTIONS
+};
 
 int main()
 {
@@ -67,13 +67,12 @@ int main()
 	curs_set(0);
 	srand(time(0));
 
-	size_t const num_options = 5;
-	char const* const menu_options[] = {
-		"Array Sorting Algorithms",
-		"Linked List Sorting Algorithms",
-		"Maximum Subarray",
-		"Union Find",
-		"Quit"
+	char const* const menu_options[NUM_MAIN_MENU_OPTIONS] = {
+		[ARRAY_SORT]   = "Array Sorting Algorithms",
+		[LIST_SORT]    = "Linked List Sorting Algorithms",
+		[MAX_SUBARRAY] = "Maximum Subarray",
+		[UNION_FIND]   = "Union Find",
+		[QUIT]         = "Quit"
 	};
 
 	int key_input = 0;
@@ -85,8 +84,7 @@ int main()
 		attron(A_BOLD);
 		printw("DATA STRUCTURES AND ALGORITHMS TEST SUITE\n\n");
 		attroff(A_BOLD);
-		for (size_t i = 0; i < num_options; i++)
-		{
+		for (size_t i = 0; i < NUM_MAIN_MENU_OPTIONS; i++) {
 			if (i == highlighted_option)
 				attron(A_STANDOUT);
 			printw("%zu. %s\n", i + 1, menu_options[i]);
@@ -96,38 +94,31 @@ int main()
 		refresh();
 
 		key_input = getch();
-		if (key_input == KEY_ENTER || key_input == 10)
-		{
+		if (key_input == KEY_ENTER || key_input == 10) {
 			switch (highlighted_option) {
-			case 0:
+			case ARRAY_SORT:
 				array_sort_test();
 				break;
-			case 1:
+			case LIST_SORT:
 				linked_list_sort_test();
 				break;
-			case 2:
+			case MAX_SUBARRAY:
 				max_subarray_test();
 				break;
-			case 3:
+			case UNION_FIND:
 				union_find_test();
 				break;
-			case 4:
+			case QUIT:
 				exit_program = true;
 				break;
 			default:
 				break;
 			}
-		}
-		else if (key_input == KEY_UP && highlighted_option > 0)
-		{
+		} else if (key_input == KEY_UP && highlighted_option > 0) {
 			highlighted_option--;
-		}
-		else if (key_input == KEY_DOWN && highlighted_option < num_options - 1)
-		{
+		} else if (key_input == KEY_DOWN && highlighted_option < NUM_MAIN_MENU_OPTIONS - 1) {
 			highlighted_option++;
-		}
-		else if (key_input >= '1' && key_input <= '5')
-		{
+		} else if (key_input >= '1' && key_input <= '5') {
 			highlighted_option = ((int) key_input) - 49;
 		}
 	}
@@ -136,6 +127,15 @@ int main()
 	return 0;
 }
 
+enum array_sorts {
+	SELECTION_SORT = 0,
+	INSERTION_SORT,
+	SHELLSORT,
+	HEAPSORT,
+	MERGE_SORT,
+	QUICKSORT,
+	NUM_ARRAY_SORTS
+};
 
 void array_sort_test(void)
 {
@@ -147,19 +147,17 @@ void array_sort_test(void)
 	size_t const array_length = get_num_elements();
 	printw("\nArray will contain %zu elements.\n\n", array_length);
 	int* const array = malloc(array_length * sizeof(int));
-	for (size_t i = 0; i < array_length; i++)
-	{
+	for (size_t i = 0; i < array_length; i++) {
 		array[i] = get_random_num(-1000, 1000);
 	}
 
-	size_t const num_options = 6;
-	char const* const sort_algorithms[] = {
-		"Selection Sort",
-		"Insertion Sort",
-		"Shellsort",
-		"Heapsort",
-		"Merge Sort",
-		"Quicksort"
+	char const* const sort_algorithms[NUM_ARRAY_SORTS] = {
+		[SELECTION_SORT] = "Selection Sort",
+		[INSERTION_SORT] = "Insertion Sort",
+		[SHELLSORT]      = "Shellsort",
+		[HEAPSORT]       = "Heapsort",
+		[MERGE_SORT]     = "Merge Sort",
+		[QUICKSORT]      = "Quicksort"
 	};
 	
 	printw("Skip quadratic algorithms?\n");
@@ -169,29 +167,26 @@ void array_sort_test(void)
 	printw("Please wait...");
 	refresh();
 
-	size_t const num_threads = num_options - start_point;
+	size_t const num_threads = NUM_ARRAY_SORTS - start_point;
 	pthread_t threads[num_threads];
 	pthread_attr_t attr;
 	pthread_attr_init(&attr);
 	struct array_sort_test_runner_vars vars[num_threads];
 
-	for (size_t i = 0; i < num_threads; i++)
-	{
+	for (size_t i = 0; i < num_threads; i++) {
 		vars[i].sort_algo_num = i + start_point;
 		vars[i].original_array = array;
 		vars[i].array_length = array_length;
 		pthread_create(&threads[i], &attr, array_sort_test_runner, &vars[i]);
 	}
 
-	for (size_t i = 0; i < num_threads; i++)
-	{
+	for (size_t i = 0; i < num_threads; i++) {
 		pthread_join(threads[i], NULL);
 	}
 	
 	clear();
 	printw("When sorting %zu elements:\n\n", array_length);
-	for (size_t i = 0; i < num_threads; i++)
-	{
+	for (size_t i = 0; i < num_threads; i++) {
 		printw("%-14s: ", sort_algorithms[i + start_point]);
 		print_time_elapsed(vars[i].time_elapsed_ns);
 		if (!vars[i].was_successful)
@@ -207,31 +202,30 @@ void array_sort_test(void)
 
 void *array_sort_test_runner(void* arg)
 {	
-	struct array_sort_test_runner_vars* vars = arg;
+	struct array_sort_test_runner_vars* const vars = arg;
 
-	int* new_array = copy_int_array(vars->array_length, vars->original_array);
+	int* const new_array = copy_int_array(vars->array_length, vars->original_array);
 
 	struct timespec start;
 	struct timespec stop;
 	clock_gettime(CLOCK_MONOTONIC, &start);
-	switch (vars->sort_algo_num)
-	{
-	case 0:
+	switch (vars->sort_algo_num) {
+	case SELECTION_SORT:
 		selection_sort(vars->array_length, new_array);
 		break;
-	case 1:
+	case INSERTION_SORT:
 		insertion_sort(vars->array_length, new_array);
 		break;
-	case 2:
+	case SHELLSORT:
 		shellsort(vars->array_length, new_array);
 		break;
-	case 3:
+	case HEAPSORT:
 		heapsort_array(new_array, 0, vars->array_length - 1);
 		break;
-	case 4:
+	case MERGE_SORT:
 		merge_sort_array(vars->array_length, new_array);
 		break;
-	case 5:
+	case QUICKSORT:
 		quicksort(new_array, 0, vars->array_length - 1);
 		break;
 	default:
@@ -243,10 +237,17 @@ void *array_sort_test_runner(void* arg)
 	vars->was_successful = array_is_sorted(vars->array_length, new_array);
 	
 	free(new_array);
-
 	return 0;
 }
 
+enum list_sorts {
+	LIST_SELECTION_SORT = 0,
+	LIST_SELECTION_SORT_SEDGE,
+	LIST_INSERTION_SORT,
+	LIST_INSERTION_SORT_SEDGE,
+	LIST_MERGE_SORT_SEDGE,
+	NUM_LIST_SORTS
+};
 
 void linked_list_sort_test(void)
 {
@@ -259,20 +260,18 @@ void linked_list_sort_test(void)
 	size_t const list_length = get_num_elements();
 	printw("\nList will contain %zu elements.\n\n", list_length);
 	struct dllist* const int_list = init_list();
-	for (size_t i = 0; i < list_length; i++)
-	{
+	for (size_t i = 0; i < list_length; i++) {
 		struct dlnode* const new_node = malloc(sizeof(struct dlnode));
-        new_node->data = get_random_num(-1000, 1000);
+        	new_node->data = get_random_num(-1000, 1000);
 		insert_at_tail(int_list, new_node);
 	}
 
-	size_t const num_options = 5;
-	char const* const sort_algorithms[] = {
-		"Selection Sort",
-		"Selection Sort (Sedgewick)",
-		"Insertion Sort",
-		"Insertion Sort (Sedgewick)",
-		"Merge Sort (Sedgewick)"
+	char const* const sort_algorithms[NUM_LIST_SORTS] = {
+		[LIST_SELECTION_SORT]       = "Selection Sort",
+		[LIST_SELECTION_SORT_SEDGE] = "Selection Sort (Sedgewick)",
+		[LIST_INSERTION_SORT]       = "Insertion Sort",
+		[LIST_INSERTION_SORT_SEDGE] = "Insertion Sort (Sedgewick)",
+		[LIST_MERGE_SORT_SEDGE]     = "Merge Sort (Sedgewick)"
 	};
 
 	printw("Skip quadratic algorithms?\n");
@@ -280,8 +279,7 @@ void linked_list_sort_test(void)
 	printw("\n\nPlease wait...");
 	refresh();
 
-	if (skip_quadratic)
-	{
+	if (skip_quadratic) {
 		struct dllist* new_list = copy_int_list(int_list);
 		struct timespec start;
 		struct timespec stop;
@@ -298,30 +296,25 @@ void linked_list_sort_test(void)
 		printw("\n");
 		refresh();
 		delete_list(new_list);
-	}
-	else
-	{
-		pthread_t threads[num_options];
+	} else {
+		pthread_t threads[NUM_LIST_SORTS];
 		pthread_attr_t attr;
 		pthread_attr_init(&attr);
-		struct list_sort_test_runner_vars vars[num_options];
+		struct list_sort_test_runner_vars vars[NUM_LIST_SORTS];
 
-		for (size_t i = 0; i < num_options; i++)
-		{
+		for (size_t i = 0; i < NUM_LIST_SORTS; i++) {
 			vars[i].sort_algo_num = i;
 			vars[i].original_list = int_list;
 			pthread_create(&threads[i], &attr, list_sort_test_runner, &vars[i]);
 		}
 
-		for (size_t i = 0; i < num_options; i++)
-		{
+		for (size_t i = 0; i < NUM_LIST_SORTS; i++) {
 			pthread_join(threads[i], NULL);
 		}
 		
 		clear();
 		printw("When sorting %zu elements:\n\n", list_length);
-		for (size_t i = 0; i < num_options; i++)
-		{
+		for (size_t i = 0; i < NUM_LIST_SORTS; i++) {
 			printw("%-26s: ", sort_algorithms[i]);
 			print_time_elapsed(vars[i].time_elapsed_ns);
 			if (!vars[i].was_successful)
@@ -346,21 +339,20 @@ void *list_sort_test_runner(void* arg)
 	struct timespec start;
 	struct timespec stop;
 	clock_gettime(CLOCK_MONOTONIC, &start);
-	switch (vars->sort_algo_num)
-	{
-	case 0:
+	switch (vars->sort_algo_num) {
+	case LIST_SELECTION_SORT:
 		selection_sort_list(new_list);
 		break;
-	case 1:
+	case LIST_SELECTION_SORT_SEDGE:
 		new_list = selection_sort_list_sw(new_list);
 		break;
-	case 2:
+	case LIST_INSERTION_SORT:
 		insertion_sort_list(new_list);
 		break;
-	case 3:
+	case LIST_INSERTION_SORT_SEDGE:
 		insertion_sort_list_sw(new_list);
 		break;
-	case 4:
+	case LIST_MERGE_SORT_SEDGE:
 		new_list->first = merge_sort_list(new_list->first);
 		break;
 	default:
@@ -372,7 +364,6 @@ void *list_sort_test_runner(void* arg)
 	vars->was_successful = list_is_sorted(new_list);
 	
 	delete_list(new_list);
-
 	return 0;
 }
 
@@ -387,8 +378,7 @@ void max_subarray_test(void)
 
 	size_t const array_len = get_num_elements();
 	int* const array = malloc(array_len * sizeof(int));
-	for (size_t i = 0; i < array_len; i++)
-	{
+	for (size_t i = 0; i < array_len; i++) {
 		array[i] = get_random_num(-100, 100);
 	}
 	printw("Original Array:\n");
@@ -403,8 +393,7 @@ void max_subarray_test(void)
 	clock_gettime(CLOCK_MONOTONIC, &stop);
 
 	printw("\n\nMax Subarray:\n");
-	for (size_t i = ms.low_index; i <= ms.high_index; i++)
-	{
+	for (size_t i = ms.low_index; i <= ms.high_index; i++) {
 		printw("%d ", array[i]);
 	}
 	printw("\n\nMax Subarray Sum: %d\n", ms.max_sum);
@@ -446,12 +435,10 @@ void union_find_test(void)
 	x = 0;
 	size_t highlighted_option = 0;
 	bool should_return_to_main = false;
-	while (!should_return_to_main)
-	{
+	while (!should_return_to_main) {
 		move(y, x);
 		clrtobot();
-		for (size_t i = 0; i < num_options; i++)
-		{
+		for (size_t i = 0; i < num_options; i++) {
 			if (i == highlighted_option)
 				attron(A_STANDOUT);
 			printw("%zu. %s\n", i + 1, menu_options[i]);
@@ -461,8 +448,7 @@ void union_find_test(void)
 		refresh();
 
 		int key_input = getch();
-		switch (key_input)
-		{
+		switch (key_input) {
 		case KEY_ENTER:
 		case 10:
 			if (highlighted_option == num_options - 1)
@@ -495,18 +481,14 @@ void union_find_test(void)
 
 void exercise_wqunion(struct wqunion* const wqu, int const option)
 {
-	switch (option)
-	{
+	switch (option) {
 	case 0: // Find root of a node
 		printw("\nEnter node number: ");
 		refresh();
 		size_t const node = get_size_t();
-		if (node > wqu->count - 1)
-		{
+		if (node > wqu->count - 1) {
 			printw("\nInvalid input.\n\n");
-		}
-		else
-		{
+		} else {
 			int const root = get_node_root(wqu, node);
 			printw("\nRoot of %d: %d\n\n", node, root);
 		}
@@ -520,18 +502,13 @@ void exercise_wqunion(struct wqunion* const wqu, int const option)
 		size_t const node2 = get_size_t();
 		// Validate input
 		size_t const last_node = wqu->count - 1;
-		if (node1 > last_node || node2 > last_node)
-		{
+		if (node1 > last_node || node2 > last_node) {
 			printw("\nInvalid input.\n\n");
-		}
-		else if (option == 1)
-		{
+		} else if (option == 1) {
 			printw("\nNodes %d and %d: ", node1, node2);
 			bool const connected = pair_is_connected(wqu, node1, node2);
 			printw("%s\n\n", connected ? "connected" : "not connected");
-		}
-		else
-		{
+		} else {
 			unify_nodes(wqu, node1, node2);
 			printw("\nConnected nodes %d and %d.\n\n", node1, node2);
 		}
@@ -553,8 +530,7 @@ size_t get_num_elements(void)
 	x = 0;
 	
 	size_t array_length = 0;
-	while (array_length <= 0)
-	{
+	while (array_length <= 0) {
 		move(y,x);
 		clrtobot();
 		printw("Enter desired number of elements: ");
@@ -575,8 +551,7 @@ bool get_yes_or_no(void)
 	size_t highlighted_option = 0;
 	bool user_pressed_enter = false;
 	bool did_choose_yes;
-	while (!user_pressed_enter)
-	{
+	while (!user_pressed_enter) {
 		move(y, x);
 		clrtobot();
 
@@ -595,8 +570,7 @@ bool get_yes_or_no(void)
 		refresh();
 
 		int const key_input = getch();
-		switch (key_input)
-		{
+		switch (key_input) {
 		case KEY_ENTER:
 		case 10:
 			user_pressed_enter = true;
@@ -630,20 +604,12 @@ bool get_yes_or_no(void)
 void print_time_elapsed(unsigned long const time_elapsed)
 {
 	if (time_elapsed < SI_hk)
-	{
 		printw("%10lu ns", time_elapsed);
-	}
 	else if (time_elapsed < SI_hM)
-	{
 		printw("%10lu us", time_elapsed / SI_k);
-	}
 	else if (time_elapsed < SI_hG)
-	{
 		printw("%10lu ms", time_elapsed / SI_M);
-	}
 	else
-	{
 		printw("%10lu  s", time_elapsed / SI_G);
-	}
 }
 

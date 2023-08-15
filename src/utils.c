@@ -17,12 +17,12 @@ int get_random_num(int const a, int const b)
 	return a + arc4random_uniform(b + 1);
 }
 
+#define NS_PER_S 1000000000L
 
-unsigned long const ns_per_s = 1000000000;
-unsigned long get_time_diff(struct timespec start, struct timespec stop)
+unsigned long get_time_diff(struct timespec const start, struct timespec const stop)
 {
-	unsigned long const start_nsec = start.tv_nsec + (start.tv_sec * ns_per_s);
-	unsigned long const stop_nsec = stop.tv_nsec + (stop.tv_sec * ns_per_s);
+	unsigned long const start_nsec = start.tv_nsec + (start.tv_sec * NS_PER_S);
+	unsigned long const stop_nsec = stop.tv_nsec + (stop.tv_sec * NS_PER_S);
 	return stop_nsec - start_nsec;
 }
 
@@ -32,8 +32,7 @@ void wait_for_enter()
 	printw("Press the enter key to continue.");
 	refresh();
 	int key_input = 0;
-	while (key_input != KEY_ENTER && key_input != 10)
-	{
+	while (key_input != KEY_ENTER && key_input != 10) {
 		key_input = getch();
 	}
 }
