@@ -8,9 +8,12 @@ struct max_subarray {
     int max_sum;
 };
 
-struct max_subarray find_max_crossing_subarray(int* const array,
-	size_t const low, size_t const mid, size_t const high);
-struct max_subarray find_max_subarray(int* const array,
-	size_t const low, size_t const high);
+struct max_subarray find_max_crossing_subarray(
+    int array[const],
+    const size_t low,
+    const size_t mid,
+    const size_t high);
+
+struct max_subarray find_max_subarray(int array[const], const size_t low, const size_t high);
 
 #endif

@@ -1,5 +1,5 @@
 CC := gcc
-CFLAGS := -Wall -Wextra -Werror
+CFLAGS := -std=c17 -Wall -Wextra -Werror -pedantic
 
 OS := $(shell uname)
 ifeq ($(OS), Darwin)
@@ -12,9 +12,9 @@ endif
 
 srcdir := ./src
 objdir := ./obj
-exclude := $(srcdir)/pqueue.c
+exclude := $(srcdir)/heap.c $(srcdir)/rbtree.c
 src := $(filter-out $(exclude), $(wildcard $(srcdir)/*.c))
-headers := $(patsubst %.c, %.h, $(filter-out $(srcdir)/main.c, $(src)))
+hdr := $(wildcard $(srcdir)/*.h)
 obj := $(patsubst $(srcdir)/%.c, $(objdir)/%.o, $(src))
 binary := algorithm_comparator
 
@@ -23,7 +23,7 @@ all: $(binary)
 $(binary): $(obj)
 	$(CC) $(LDFLAGS) $^ -o $@
 
-$(objdir)/main.o: $(srcdir)/main.c $(headers)
+$(objdir)/main.o: $(srcdir)/main.c $(hdr)
 $(objdir)/arraysort.o: $(srcdir)/arraysort.c
 $(objdir)/arrayutils.o: $(srcdir)/arrayutils.c
 $(objdir)/dllist.o: $(srcdir)/dllist.c $(srcdir)/utils.h
@@ -41,5 +41,5 @@ clean:
 
 print:
 	@echo src: $(src)
-	@echo headers: $(headers)
+	@echo hdr: $(hdr)
 	@echo obj: $(obj)

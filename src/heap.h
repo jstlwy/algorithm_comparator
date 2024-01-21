@@ -1,5 +1,5 @@
-#ifndef PQUEUE_H
-#define PQUEUE_H
+#ifndef HEAP_H
+#define HEAP_H
 #include <stdbool.h>
 
 // Priority queue
@@ -8,6 +8,7 @@ struct key {
     int value;
 };
 
+typedef struct heap heap_t;
 struct max_pqueue {
     size_t array_size;
     size_t num_items;
