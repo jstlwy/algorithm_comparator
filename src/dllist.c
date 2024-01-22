@@ -2,257 +2,191 @@
 #include "utils.h"
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
+#include <assert.h>
 #include <ncurses.h>
 
-struct dllist* init_list(void)
+dllist_t dllist_init(void)
 {
-    struct dllist* const new_list = malloc(sizeof(struct dllist));
-    new_list->size = 0;
-    new_list->first = NULL;
-    new_list->last = NULL;
-    return new_list;
+    return (dllist_t) {.size = 0, .first = NULL, .last = NULL};
 }
 
-
-int get_list_size(struct dllist* const list)
+void dllist_destroy(dllist_t list[const static 1])
 {
-    if (list == NULL) {
-        return 0;
+    dlnode_t* current = list->first;
+    while (current != NULL) {
+        dlnode_t* const next = current->next;
+        free(current);
+        current = next;
     }
+    list->size = 0;
+}
+
+size_t dllist_size(const dllist_t list[const static 1])
+{
     return list->size;
 }
 
-
-struct dllist* copy_int_list(struct dllist* const original_list)
+void dllist_print_curses(const dllist_t list[const static 1])
 {
-    struct dllist* const new_list = init_list();
-
-    if (original_list == NULL) {
-        return new_list;
-    }
-
-    struct dlnode* current_node = original_list->first;
-    while (current_node != NULL) {
-        struct dlnode* const new_node = malloc(sizeof(struct dlnode));
-        new_node->data = current_node->data;
-        insert_at_tail(new_list, new_node);
-        current_node = current_node->next;
-    }
-
-    return new_list;
-}
-
-
-void print_int_list_curses(struct dllist* const list)
-{
-    if (list == NULL)
-        return;
-
-    struct dlnode* current_node = list->first;
-    while (current_node != NULL)
-    {
-        printw("%d ", current_node->data);
-        current_node = current_node->next;
+    for (const dlnode_t* node = list->first; node != NULL; node = node->next) {
+        printw("%d ", node->data);
     }
 }
 
-
-bool list_contains_node(struct dllist* const list, struct dlnode* const node)
+bool dllist_is_sorted(const dllist_t list[const static 1])
 {
-    if ((list == NULL) || (node == NULL)) {
-        return false;
-    }
-
-    struct dlnode* current_node = list->first;
-    while (current_node != NULL) {
-        if (node == current_node) {
-            return true;
-        }
-        current_node = current_node->next;
-    }
-
-    return false;
-}
-
-
-bool list_is_sorted(struct dllist* const list)
-{
-    if ((list == NULL) || (list->first == NULL)) {
-        return false;
-    }
-    
-    struct dlnode* current_node = list->first;
-    while (current_node->next != NULL) {
-        if (current_node->next->data < current_node->data) {
+    const dlnode_t* current = list->first;
+    while (current != NULL) {
+        const dlnode_t* const next = current->next;
+        if ((next != NULL) && (current->data > next->data)) {
             return false;
         }
-        current_node = current_node->next;
+        current = next;
     }
-
     return true;
 }
 
-
-struct dlnode* find_max_node(struct dllist* const list)
+bool dllist_contains_node(const dllist_t list[const static 1], const dlnode_t target[const static 1])
 {
-    if (list == NULL) {
-        return NULL;
-    }
-
-    struct dlnode* max_node = list->first;
-    struct dlnode* current_node = max_node->next;
-    while (current_node != NULL)
-    {
-        if (current_node->data > max_node->data) {
-            max_node = current_node;
+    for (const dlnode_t* current = list->first; current != NULL; current = current->next) {
+        if (current == target) {
+            return true;
         }
-        current_node = current_node->next;
     }
-
-    return max_node;
+    return false;
 }
 
-
-struct dlnode* find_min_node(struct dllist* const list)
+dlnode_t* dllist_get_max_node(const dllist_t list[const static 1])
 {
-    if (list == NULL) {
-        return NULL;
-    }
-
-    struct dlnode* min_node = list->first;
-    struct dlnode* current_node = min_node->next;
-    while (current_node != NULL) {
-        if (current_node->data < min_node->data) {
-            min_node = current_node;
+    dlnode_t* max = list->first;
+    for (dlnode_t* current = max->next; current != NULL; current = current->next) {
+        if (current->data > max->data) {
+            max = current;
         }
-        current_node = current_node->next;
     }
-
-    return min_node;
+    return max;
 }
 
 
-void insert_at_head(struct dllist* const list, struct dlnode* const new_node)
+dlnode_t* dllist_get_min_node(const dllist_t list[const static 1])
 {
-    if (list == NULL) {
-        return;
+    dlnode_t* min = list->first;
+    for (dlnode_t* current = min->next; current != NULL; current = current->next) {
+        if (current->data < min->data) {
+            min = current;
+        }
     }
-
-    new_node->previous = NULL;
-
-    if (list->first == NULL) {
-        new_node->next = NULL;
-        list->last = new_node;
-    } else {
-        struct dlnode* old_first_node = list->first;
-        new_node->next = old_first_node;
-        old_first_node->previous = new_node;   
-    }
-
-    list->first = new_node;
-    list->size += 1;
+    return min;
 }
 
-
-void insert_at_tail(struct dllist* const list, struct dlnode* const new_node)
+void dllist_append(dllist_t list[const static 1], dlnode_t new_node[const static 1])
 {
-    if (list == NULL) {
-        return;
-    }
-
     new_node->next = NULL;
 
-    if (list->last == NULL) {
+    dlnode_t* const old_last = list->last;
+    if (old_last == NULL) {
         list->first = new_node;
         new_node->previous = NULL;
     } else {
-        struct dlnode* const old_last_node = list->last;
-        old_last_node->next = new_node;
-        new_node->previous = old_last_node;
+        old_last->next = new_node;
+        new_node->previous = old_last;
     }
 
     list->last = new_node;
     list->size += 1;
 }
 
-
-void insert_before_index(
-    struct dllist* const list,
-    struct dlnode* const new_node,
-    const int index)
+void dllist_prepend(dllist_t list[const static 1], dlnode_t new_node[const static 1])
 {
-    if ((list == NULL) || (new_node == NULL)) {
-        return;
+    new_node->previous = NULL;
+
+    dlnode_t* const old_first = list->first;
+    if (old_first == NULL) {
+        new_node->next = NULL;
+        list->last = new_node;
+    } else {
+        new_node->next = old_first;
+        old_first->previous = new_node;   
     }
 
+    list->first = new_node;
+    list->size += 1;
+}
+
+#if 0
+void dllist_insert_before_index(
+    dllist_t list[const static 1],
+    dlnode_t new_node[const static 1],
+    const size_t index)
+{
     struct dlnode* current_node = list->first;
     int current_index = 0;
-    while (current_node != NULL && current_index != index)
-    {
+    while (current_node != NULL && current_index != index) {
         current_node = current_node->next;
         current_index++;
     }
 
     // TODO
 }
+#endif
 
+dllist_t dllist_create_copy(const dllist_t src_list[const static 1])
+{
+    dllist_t new_list = {.first = NULL, .last = NULL, .size = 0};
+    for (dlnode_t* current = src_list->first; current != NULL; current = current->next) {
+        dlnode_t* const new_node = malloc(sizeof(dlnode_t));
+        if (new_node == NULL) {
+            fprintf(stderr, "%s: ERROR: malloc failed.\n", __func__);
+            exit(1);
+        }
+        memcpy(new_node, current, sizeof(dlnode_t));
+        dllist_append(&new_list, new_node);
+    }
+    return new_list;
+}
 
-void update_node(struct dlnode* const node, int const new_data)
+void dllist_delete_head(dllist_t list[const static 1])
+{
+    dlnode_t* const old_first = list->first;
+    if (old_first == NULL) {
+        return;
+    }
+    assert(list->size > 0);
+    if (old_first == list->last) {
+        list->first = NULL;
+        list->last = NULL;
+    } else {
+        dlnode_t* const new_first = old_first->next;
+        new_first->previous = NULL;
+        list->first = new_first;
+    }
+    free(old_first);
+    list->size -= 1;
+}
+
+void dllist_delete_tail(dllist_t list[const static 1])
+{
+    dlnode_t* const old_last = list->last;
+    if (old_last == NULL) {
+        return;
+    }
+    assert(list->size > 0);
+    if (old_last == list->first) {
+        list->first = NULL;
+        list->last = NULL;
+    } else {
+        dlnode_t* const new_last = old_last->previous;
+        new_last->next = NULL;
+        list->last = new_last;
+    }
+    free(old_last);
+    list->size -= 1;
+}
+
+void dllist_unlink_node(dllist_t list[const static 1], dlnode_t* const node)
 {
     if (node == NULL) {
-        return;
-    }
-    node->data = new_data;
-}
-
-
-void delete_head(struct dllist* const list)
-{
-    if (list == NULL) {
-        return;
-    }
-
-    struct dlnode* const old_first_node = list->first;
-    if (old_first_node != NULL) {
-        if (old_first_node == list->last) {
-            list->first = NULL;
-            list->last = NULL;
-        } else {
-            struct dlnode* const new_first_node = old_first_node->next;
-            new_first_node->previous = NULL;
-            list->first = new_first_node;
-        }
-        free(old_first_node);
-        list->size -= 1;
-    }
-}
-
-
-void delete_tail(struct dllist* const list)
-{
-    if (list == NULL) {
-        return;
-    }
-
-    struct dlnode* const old_last_node = list->last;
-    if (old_last_node != NULL) {
-        if (old_last_node == list->first) {
-            list->first = NULL;
-            list->last = NULL;
-        } else {
-            struct dlnode* const new_last_node = old_last_node->previous;
-            new_last_node->next = NULL;
-            list->last = new_last_node;
-        }
-        free(old_last_node);
-        list->size -= 1;
-    }
-}
-
-
-void unlink_node(struct dllist* const list, struct dlnode* const node)
-{
-    if ((list == NULL) || (node == NULL)) {
         return;
     }
 
@@ -282,26 +216,10 @@ void unlink_node(struct dllist* const list, struct dlnode* const node)
     list->size -= 1;
 }
 
-void delete_node(struct dllist* const list, struct dlnode* const node)
+void dllist_delete_node(dllist_t list[const static 1], dlnode_t* const node)
 {
-    if (list != NULL && node != NULL) {
-        unlink_node(list, node);
+    if (node != NULL) {
+        dllist_unlink_node(list, node);
         free(node);
     }
-}
-
-void delete_list(struct dllist* const list)
-{
-    if (list == NULL) {
-        return;
-    }
-
-    struct dlnode* current_node = list->first;
-    while (current_node != NULL) {
-        struct dlnode* next_node = current_node->next;
-        free(current_node);
-        current_node = next_node;
-    }
-
-    free(list);
 }

@@ -21,7 +21,7 @@ void insertion_sort(const size_t n, int array[const static n])
     for (size_t i = 1; i < n; i++) {
         int const key = array[i];
         int j = i - 1;
-        while (j >= 0 && array[j] > key) {
+        while ((j >= 0) && (array[j] > key)) {
             array[j + 1] = array[j];
             j--;
         }
@@ -45,7 +45,7 @@ void shellsort(const size_t n, int array[const static n])
     // Now, begin sorting the array
     while (h >= 1) {
         for (size_t i = h; i < n; i++) {
-            for (size_t j = i; j >= h && array[j] < array[j - h]; j -= h) {
+            for (size_t j = i; (j >= h) && (array[j] < array[j - h]); j -= h) {
                 const int temp = array[j];
                 array[j] = array[j - h];
                 array[j - h] = temp;
@@ -103,7 +103,7 @@ void merge(
     size_t i = first;
     size_t l = first;
     size_t r = mid + 1;
-    while (l <= mid && r <= last) {
+    while ((l <= mid) && (r <= last)) {
         if (helper_arr[l] <= helper_arr[r]) {
             arr[i++] = helper_arr[l++];
         } else {
@@ -172,7 +172,7 @@ size_t partition(int array[const], const size_t low, const size_t high)
 
 void swim_up(int arr[const], size_t k)
 {
-    while (k > 1 && arr[k/2] < arr[k]) {
+    while ((k > 1) && (arr[k/2] < arr[k])) {
         const int temp = arr[k/2];
         arr[k/2] = arr[k];
         arr[k] = temp;

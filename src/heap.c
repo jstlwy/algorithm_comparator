@@ -1,24 +1,41 @@
 #include "heap.h"
 #include <stdlib.h>
+#include <stdio.h>
 
-struct max_pqueue* init_max_pqueue_of_size(size_t n)
+heap_t heap_init(void)
 {
-    struct max_pqueue* pq = malloc(sizeof(struct max_pqueue));
-    
-    // max_pqueue array will be initialized with n slots,
-    // n-1 of which can be used to hold keys.
-    // First slot will always be an empty sentinel.
-    struct key** new_array = malloc((n+1) * sizeof(struct key));
-    for (size_t i = 0; i <= n; i++) {
-        new_array[i] = NULL;
+    heap_key_t* const key_array = malloc(HEAP_INIT_SIZE * sizeof(heap_key_t));
+    if (key_array == NULL) {
+        fprintf(stderr, "%s: ERROR: Failed to initialize heap.\n", __func__);
+        exit(1);
     }
-    pq->keys = new_array;
-    pq->num_items = 0;
-    pq->array_size = n;
-    return pq;
+    for (size_t i = 0; i < HEAP_INIT_SIZE; i++) {
+        key_array[i] = NULL;
+    }
+    return (heap_t) {.capacity = HEAP_INIT_SIZE, .size = 0, .keys = key_array};
 }
 
-void insert_into_pqueue(struct max_pqueue* pq, struct key* key)
+void heap_free(heap_t heap[const static 1])
+{
+    heap_key_t* const keys = heap->keys;
+    if (keys != NULL) {
+        free(keys);
+    }
+    heap->capacity = 0;
+    heap->size = 0;
+}
+
+size_t heap_get_size(const heap_t heap[const static 1])
+{
+    return heap->size;
+}
+
+bool heap_is_empty(const heap_t heap[const static 1])
+{
+    return heap->size == 0;
+}
+
+void heap_insert(heap_t heap[const static 1], const heap_key_t key[const static 1])
 {
     int n = pq->num_items + 1;
 
@@ -42,9 +59,38 @@ void insert_into_pqueue(struct max_pqueue* pq, struct key* key)
     pq->num_items = n;
 }
 
+heap_key_t* heap_get_min(heap_t heap[const static 1])
+{
+    if (heap->size == 0) {
+        return NULL;
+    }
+    return heap->keys[0];
+}
+
+heap_key_t* heap_get_max(heap_t heap[const static 1])
+{
+    if (heap->size == 0) {
+        return NULL;
+    }
+
+}
+
+heap_key_t* heap_get_idx(heap_t heap[const static 1], const size_t idx)
+{
+    if (idx >= heap->size) {
+        return NULL;
+    }
+    return heap->keys[idx];
+}
+
+void insert_into_pqueue(struct max_pqueue* pq, struct key* key)
+{
+    
+}
+
 struct key* get_max_in_pqueue(struct max_pqueue* pq)
 {
-    return pq->keys[1];
+    
 }
 
 void delete_max_in_pqueue(struct max_pqueue* pq)
@@ -96,16 +142,6 @@ void sink_down_pqueue(struct key** array, size_t size, size_t k)
     }
 }
 
-bool is_empty_pqueue(struct max_pqueue* pq)
-{
-    return (pq->num_items == 0);
-}
-
-int size_of_pqueue(struct max_pqueue* pq)
-{
-    return pq->num_items;
-}
-
 void heapsort(size_t n, struct key* array[n])
 {
     for (size_t k = n / 2; k >= 1; k--)
@@ -121,4 +157,3 @@ void heapsort(size_t n, struct key* array[n])
     }
     */
 }
-

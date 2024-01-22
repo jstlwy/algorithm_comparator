@@ -1,43 +1,50 @@
 #ifndef DLLIST_H
 #define DLLIST_H
+#include <stddef.h>
 #include <stdbool.h>
 
 // Doubly-linked list
 
+typedef struct dlnode dlnode_t;
 struct dlnode {
     int data;
     struct dlnode* previous;
     struct dlnode* next;
 };
 
+typedef struct dllist dllist_t;
 struct dllist {
-    int size;
-    struct dlnode* first;
-    struct dlnode* last;
+    size_t size;
+    dlnode_t* first;
+    dlnode_t* last;
 };
 
-struct dllist* init_list(void);
-int get_list_size(struct dllist* const list);
-struct dllist* copy_int_list(struct dllist* const original_list);
+dllist_t dllist_init(void);
+void dllist_destroy(dllist_t list[const static 1]);
 
-void print_int_list_curses(struct dllist* const list);
-bool list_contains_node(struct dllist* const list, struct dlnode* const node);
-bool list_is_sorted(struct dllist* const list);
-struct dlnode* find_max_node(struct dllist* const list);
-struct dlnode* find_min_node(struct dllist* const list);
+size_t dllist_size(const dllist_t list[const static 1]);
+void dllist_print_curses(const dllist_t list[const static 1]);
 
-void insert_at_head(struct dllist* const list, struct dlnode* const new_node);
-void insert_at_tail(struct dllist* const list, struct dlnode* const new_node);
-void insert_before_index(
-    struct dllist* const list,
-    struct dlnode* const new_node,
-    const int index);
-void update_node(struct dlnode* const node, const int new_data);
+bool dllist_is_sorted(const dllist_t list[const static 1]);
+bool dllist_contains_node(const dllist_t list[const static 1], const dlnode_t target[const static 1]);
+dlnode_t* dllist_get_max_node(const dllist_t list[const static 1]);
+dlnode_t* dllist_get_min_node(const dllist_t list[const static 1]);
 
-void delete_head(struct dllist* const list);
-void delete_tail(struct dllist* const list);
-void unlink_node(struct dllist* const list, struct dlnode* const node);
-void delete_node(struct dllist* const list, struct dlnode* const node);
-void delete_list(struct dllist* const list);
+void dllist_append(dllist_t list[const static 1], dlnode_t new_node[const static 1]);
+void dllist_prepend(dllist_t list[const static 1], dlnode_t new_node[const static 1]);
+#if 0
+void dllist_insert_before_idx(
+    dllist_t list[const static 1],
+    dlnode_t new_node[const static 1],
+    const size_t index);
+#endif
+
+dllist_t dllist_create_copy(const dllist_t src_list[const static 1]);
+
+void dllist_delete_head(dllist_t list[const static 1]);
+void dllist_delete_tail(dllist_t list[const static 1]);
+
+void dllist_unlink_node(dllist_t list[const static 1], dlnode_t* const node);
+void dllist_delete_node(dllist_t list[const static 1], dlnode_t* const node);
 
 #endif

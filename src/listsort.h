@@ -3,13 +3,13 @@
 #include "dllist.h"
 
 // Quadratic
-void selection_sort_list(struct dllist* const list);
-struct dllist* selection_sort_list_sw(struct dllist* const list);
-void insertion_sort_list(struct dllist* const list);
-void insertion_sort_list_sw(struct dllist* const list);
+void dllist_selection_sort(dllist_t list[const static 1]);
+dllist_t dllist_selection_sort_sw(dllist_t list[const static 1]);
+void dllist_insertion_sort(dllist_t list[const static 1]);
+void dllist_insertion_sort_sw(dllist_t list[const static 1]);
 
 // Linearithmic
-struct dlnode* merge_list(struct dlnode* a, struct dlnode* b);
-struct dlnode* merge_sort_list(struct dlnode* c);
+dlnode_t* dllist_merge(dlnode_t* a, dlnode_t* b);
+dlnode_t* dllist_merge_sort(dlnode_t* c);
 
 #endif

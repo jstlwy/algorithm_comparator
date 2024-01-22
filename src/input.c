@@ -13,8 +13,7 @@ size_t get_size_t(void)
     noecho();
 
     // Check whether all of the chars are numbers
-    for (size_t i = 0; user_input[i] != '\0'; i++)
-    {
+    for (size_t i = 0; user_input[i] != '\0'; i++) {
         if (user_input[i] < '0' || user_input[i] > '9') {
             return 0;
         }

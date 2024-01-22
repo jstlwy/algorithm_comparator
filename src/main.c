@@ -271,11 +271,15 @@ void linked_list_sort_test(void)
 
     const size_t list_length = get_num_elements();
     printw("\nList will contain %zu elements.\n\n", list_length);
-    struct dllist* const int_list = init_list();
+    dllist_t int_list = dllist_init();
     for (size_t i = 0; i < list_length; i++) {
-        struct dlnode* const new_node = malloc(sizeof(struct dlnode));
+        dlnode_t* const new_node = malloc(sizeof(struct dlnode));
+        if (new_node == NULL) {
+            fprintf(stderr, "%s: ERROR: malloc failed.\n", __func__);
+            exit(1);
+        }
         new_node->data = get_random_num(-1000, 1000);
-        insert_at_tail(int_list, new_node);
+        dllist_append(&int_list, new_node);
     }
 
     static const char* const sort_algorithms[NUM_LIST_SORTS] = {
@@ -292,23 +296,21 @@ void linked_list_sort_test(void)
     refresh();
 
     if (skip_quadratic) {
-        struct dllist* new_list = copy_int_list(int_list);
+        dllist_t new_list = dllist_create_copy(&int_list);
         struct timespec start;
-        struct timespec stop;
         clock_gettime(CLOCK_MONOTONIC, &start);
-        new_list->first = merge_sort_list(new_list->first);
+        new_list.first = dllist_merge_sort(new_list.first);
+        struct timespec stop;
         clock_gettime(CLOCK_MONOTONIC, &stop);
-
-        // Time returned in ns
-        long const time_elapsed = get_time_diff(start, stop);
+        const long time_elapsed_ns = get_time_diff(start, stop);
         printw("Merge sort: ");
-        print_time_elapsed(time_elapsed);
-        if (!list_is_sorted(new_list)) {
+        print_time_elapsed(time_elapsed_ns);
+        if (!dllist_is_sorted(&new_list)) {
             printw(" (failed)");
         }
         printw("\n");
         refresh();
-        delete_list(new_list);
+        dllist_destroy(&new_list);
     } else {
         pthread_t threads[NUM_LIST_SORTS];
         pthread_attr_t attr;
@@ -317,7 +319,7 @@ void linked_list_sort_test(void)
 
         for (size_t i = 0; i < NUM_LIST_SORTS; i++) {
             vars[i].sort_algo_num = i;
-            vars[i].original_list = int_list;
+            vars[i].original_list = &int_list;
             pthread_create(&threads[i], &attr, list_sort_test_runner, &vars[i]);
         }
 
@@ -338,34 +340,34 @@ void linked_list_sort_test(void)
         refresh();
     }
 
-    delete_list(int_list);
+    dllist_destroy(&int_list);
     printw("\n");
     wait_for_enter();
 }
 
 
-void *list_sort_test_runner(void* arg)
+void* list_sort_test_runner(void* arg)
 {	
     struct list_sort_test_runner_vars* const vars = arg;
-    struct dllist* new_list = copy_int_list(vars->original_list);
+    dllist_t new_list = dllist_create_copy(vars->original_list);
 
     struct timespec start;
     clock_gettime(CLOCK_MONOTONIC, &start);
     switch (vars->sort_algo_num) {
     case LIST_SELECTION_SORT:
-        selection_sort_list(new_list);
+        dllist_selection_sort(&new_list);
         break;
     case LIST_SELECTION_SORT_SEDGE:
-        new_list = selection_sort_list_sw(new_list);
+        new_list = dllist_selection_sort_sw(&new_list);
         break;
     case LIST_INSERTION_SORT:
-        insertion_sort_list(new_list);
+        dllist_insertion_sort(&new_list);
         break;
     case LIST_INSERTION_SORT_SEDGE:
-        insertion_sort_list_sw(new_list);
+        dllist_insertion_sort_sw(&new_list);
         break;
     case LIST_MERGE_SORT_SEDGE:
-        new_list->first = merge_sort_list(new_list->first);
+        new_list.first = dllist_merge_sort(new_list.first);
         break;
     default:
         break;
@@ -374,10 +376,10 @@ void *list_sort_test_runner(void* arg)
     clock_gettime(CLOCK_MONOTONIC, &stop);
 
     vars->time_elapsed_ns = get_time_diff(start, stop);
-    vars->was_successful = list_is_sorted(new_list);
+    vars->was_successful = dllist_is_sorted(&new_list);
     
-    delete_list(new_list);
-    return 0;
+    dllist_destroy(&new_list);
+    return (void*)0;
 }
 
 
