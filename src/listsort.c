@@ -3,30 +3,20 @@
 
 void dllist_selection_sort(dllist_t list[const static 1])
 {
-    dlnode_t* current_node = list->first;
-    while (current_node != NULL) {
+    for (dlnode_t* current = list->first; current != NULL; current = current->next) {
         // Start by assuming the current node has the smallest value
-        dlnode_t* min_node = current_node;
-        int min_value = current_node->data;
+        dlnode_t* min = current;
         // Now look at every node after the current node.
-        dlnode_t* next_node = current_node->next;
-        while (next_node != NULL) {
-            // Check the value of each subsequent node.
-            // Keep updating the minimum node/value
-            // as smaller values are discovered.
-            int next_node_value = next_node->data;
-            if (next_node_value < min_value) {
-                min_value = next_node_value;
-                min_node = next_node;
+        for (dlnode_t* next = current->next; next != NULL; next = next->next) {
+            // Keep updating the minimum node as smaller values are discovered.
+            if (next->data < min->data) {
+                min = next;
             }
-            next_node = next_node->next;
         }
-        // Swap the values of the current node
-        // and the node with the smallest value
-        min_node->data = current_node->data;
-        current_node->data = min_value;
-        // Start all over again from the next node
-        current_node = current_node->next;
+        // Swap the values of the current node and the minimum node
+        const int min_value = min->data;
+        min->data = current->data;
+        current->data = min_value;
     }
 }
 
