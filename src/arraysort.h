@@ -2,6 +2,16 @@
 #define ARRAYSORT_H
 #include <stddef.h>
 
+enum array_sorts {
+    SELECTION_SORT = 0,
+    INSERTION_SORT,
+    SHELLSORT,
+    HEAPSORT,
+    MERGE_SORT,
+    QUICKSORT,
+    NUM_ARRAY_SORTS
+};
+
 // QUADRATIC SORTING ALGORITHMS
 void selection_sort(const size_t n, int array[const static n]); // Unstable (stable for LL)
 void insertion_sort(const size_t n, int array[const static n]); // Stable

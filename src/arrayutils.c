@@ -17,7 +17,6 @@ bool array_is_sorted(const size_t n, const int array[const static n])
     return true;
 }
 
-
 // Returns index of sought-after number
 size_t binary_search(const int array[const], size_t first, size_t last, const int target)
 {
@@ -39,7 +38,6 @@ size_t binary_search(const int array[const], size_t first, size_t last, const in
     return soln_index;
 }
 
-
 void print_int_array(const size_t n, const int array[const static n])
 {
     if (n == 0) {
@@ -54,14 +52,19 @@ void print_int_array(const size_t n, const int array[const static n])
     puts("]");
 }
 
-
 void print_int_array_curses(const size_t n, const int array[const static n])
 {
-    for (size_t i = 0; i < n; i++) {
-        printw("%d ", array[i]);
+    if (n == 0) {
+        printw("[]\n");
+        return;
     }
-}
 
+    printw("[%d", array[0]);
+    for (size_t i = 1; i < n; i++) {
+        printw(", %d", array[i]);
+    }
+    printw("]\n");
+}
 
 int* copy_int_array(const size_t n, const int array[const static n])
 {

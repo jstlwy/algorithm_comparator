@@ -12,51 +12,29 @@
 #include "arraysort.h"
 #include "dllist.h"
 #include "listsort.h"
+#include "heap.h"
 #include "maxsubarray.h"
 #include "wqunion.h"
-
-const unsigned long SI_h = 100;
-const unsigned long SI_k = 1000;
-const unsigned long SI_M = 1000000;
-const unsigned long SI_G = 1000000000;
-const unsigned long SI_hk = SI_h * SI_k;
-const unsigned long SI_hM = SI_h * SI_M;
-const unsigned long SI_hG = SI_h * SI_G;
-
-struct array_sort_test_runner_vars {
-    unsigned int sort_algo_num;
-    int* original_array;
-    int array_length;
-    unsigned long time_elapsed_ns;
-    bool was_successful;
-};
-void array_sort_test(void);
-void *array_sort_test_runner(void* arg);
-
-struct list_sort_test_runner_vars {
-    unsigned int sort_algo_num;
-    struct dllist* original_list;
-    unsigned long time_elapsed_ns;
-    bool was_successful;
-};
-void linked_list_sort_test(void);
-void* list_sort_test_runner(void* arg);
-
-void max_subarray_test(void);
-void union_find_test(void);
-void exercise_wqunion(struct wqunion* const wqu, const int option);
-
-size_t get_num_elements(void);
-bool get_yes_or_no(void);
-void print_time_elapsed(const unsigned long time_elapsed);
 
 enum main_menu_options {
     ARRAY_SORT = 0,
     LIST_SORT,
+    MIN_HEAP,
     MAX_SUBARRAY,
     UNION_FIND,
     QUIT,
     NUM_MAIN_MENU_OPTIONS
+};
+
+enum heap_test_options {
+    HEAP_PRINT = 0,
+    HEAP_GET_MIN,
+    HEAP_GET_MAX,
+    HEAP_GET_IDX,
+    HEAP_INSERT,
+    HEAP_POP,
+    HEAP_EXIT,
+    NUM_HEAP_MENU_OPTIONS
 };
 
 enum union_menu_options {
@@ -66,6 +44,46 @@ enum union_menu_options {
     UNION_RETURN_MAIN,
     NUM_UNION_MENU_OPTIONS
 };
+
+struct array_sort_test_runner_vars {
+    unsigned int sort_algo_num;
+    int* original_array;
+    int array_length;
+    unsigned long time_elapsed_ns;
+    bool was_successful;
+};
+
+struct list_sort_test_runner_vars {
+    unsigned int sort_algo_num;
+    struct dllist* original_list;
+    unsigned long time_elapsed_ns;
+    bool was_successful;
+};
+
+const unsigned long SI_h = 100;
+const unsigned long SI_k = 1000;
+const unsigned long SI_M = 1000000;
+const unsigned long SI_G = 1000000000;
+const unsigned long SI_hk = SI_h * SI_k;
+const unsigned long SI_hM = SI_h * SI_M;
+const unsigned long SI_hG = SI_h * SI_G;
+
+void array_sort_test(void);
+void *array_sort_test_runner(void* arg);
+
+void linked_list_sort_test(void);
+void* list_sort_test_runner(void* arg);
+
+void min_heap_test(void);
+bool min_heap_test_helper(heap_t heap[const static 1], const int option);
+
+void max_subarray_test(void);
+void union_find_test(void);
+bool union_find_test_helper(struct wqunion wqu[const static 1], const int option);
+
+size_t get_num_elements(void);
+bool get_yes_or_no(void);
+void print_time_elapsed(const unsigned long time_elapsed);
 
 int main(void)
 {
@@ -79,6 +97,7 @@ int main(void)
     static const char* const menu_options[NUM_MAIN_MENU_OPTIONS] = {
         [ARRAY_SORT]   = "Array Sorting Algorithms",
         [LIST_SORT]    = "Linked List Sorting Algorithms",
+        [MIN_HEAP]     = "Min Heap Test",
         [MAX_SUBARRAY] = "Maximum Subarray",
         [UNION_FIND]   = "Union Find",
         [QUIT]         = "Quit"
@@ -113,6 +132,9 @@ int main(void)
             case LIST_SORT:
                 linked_list_sort_test();
                 break;
+            case MIN_HEAP:
+                min_heap_test();
+                break;
             case MAX_SUBARRAY:
                 max_subarray_test();
                 break;
@@ -137,16 +159,6 @@ int main(void)
     endwin();
     return 0;
 }
-
-enum array_sorts {
-    SELECTION_SORT = 0,
-    INSERTION_SORT,
-    SHELLSORT,
-    HEAPSORT,
-    MERGE_SORT,
-    QUICKSORT,
-    NUM_ARRAY_SORTS
-};
 
 void array_sort_test(void)
 {
@@ -211,7 +223,6 @@ void array_sort_test(void)
     wait_for_enter();
 }
 
-
 void *array_sort_test_runner(void* arg)
 {	
     struct array_sort_test_runner_vars* const vars = arg;
@@ -251,15 +262,6 @@ void *array_sort_test_runner(void* arg)
     free(new_array);
     return 0;
 }
-
-enum list_sorts {
-    LIST_SELECTION_SORT = 0,
-    LIST_SELECTION_SORT_SEDGE,
-    LIST_INSERTION_SORT,
-    LIST_INSERTION_SORT_SEDGE,
-    LIST_MERGE_SORT_SEDGE,
-    NUM_LIST_SORTS
-};
 
 void linked_list_sort_test(void)
 {
@@ -345,7 +347,6 @@ void linked_list_sort_test(void)
     wait_for_enter();
 }
 
-
 void* list_sort_test_runner(void* arg)
 {	
     struct list_sort_test_runner_vars* const vars = arg;
@@ -382,6 +383,120 @@ void* list_sort_test_runner(void* arg)
     return (void*)0;
 }
 
+void min_heap_test(void)
+{
+    static const char* const menu_options[NUM_HEAP_MENU_OPTIONS] = {
+        [HEAP_PRINT]   = "Print heap",
+        [HEAP_GET_MIN] = "Get heap minimum value",
+        [HEAP_GET_MAX] = "Get heap maximum value",
+        [HEAP_GET_IDX] = "Get value at index",
+        [HEAP_INSERT]  = "Add to heap",
+        [HEAP_POP]     = "Pop top value from heap",
+        [HEAP_EXIT]    = "Return to the main menu"
+    };
+    static const char MAX_CHAR = '0' + NUM_HEAP_MENU_OPTIONS;
+    _Static_assert((MAX_CHAR >= '0') && (MAX_CHAR <= '9'), "Invalid max char.");
+
+    erase();
+    attron(A_BOLD);
+    printw("MIN HEAP TEST\n\n");
+    attroff(A_BOLD);
+    refresh();
+
+    heap_t heap = heap_init();
+
+    int y;
+    int x;
+    getyx(stdscr, y, x);
+    x = 0;
+    int highlighted_option = 0;
+    bool should_return_to_main = false;
+    while (!should_return_to_main) {
+        move(y, x);
+        clrtobot();
+        for (int i = 0; i < NUM_HEAP_MENU_OPTIONS; i++) {
+            if (i == highlighted_option) {
+                attron(A_STANDOUT);
+            }
+            printw("%zu. %s\n", i + 1, menu_options[i]);
+            if (i == highlighted_option) {
+                attroff(A_STANDOUT);
+            }
+        }
+        refresh();
+
+        int key_input = getch();
+        switch (key_input) {
+        case KEY_ENTER:
+        case 10:
+            should_return_to_main = min_heap_test_helper(&heap, highlighted_option);
+            break;
+        case KEY_UP:
+            if (highlighted_option > 0) {
+                highlighted_option--;
+            }
+            break;
+        case KEY_DOWN:
+            if (highlighted_option < NUM_HEAP_MENU_OPTIONS - 1) {
+                highlighted_option++;
+            }
+            break;
+        default:
+            if ((key_input >= '1') && (key_input <= MAX_CHAR)) {
+                highlighted_option = key_input - '1';
+            }
+            break;
+        }
+    }
+
+    heap_free(&heap);
+}
+
+bool min_heap_test_helper(heap_t heap[const static 1], const int option)
+{
+    heap_key_t key;
+    size_t idx;
+
+    printw("\n");
+
+    switch (option) {
+    case HEAP_PRINT:
+        heap_print(heap);
+        break;
+    case HEAP_GET_MIN:
+        key = heap_get_min(heap);
+        printw("Key: %d\n", key.value);
+        break;
+    case HEAP_GET_MAX:
+        key = heap_get_max(heap);
+        printw("Key: %d\n", key.value);
+        break;
+    case HEAP_GET_IDX:
+        printw("Enter index: ");
+        idx = (size_t)get_int_input();
+        printw("\n");
+        key = heap_get_idx(heap, idx);
+        printw("Key: %d\n", key.value);
+        break;
+    case HEAP_INSERT:
+        printw("Enter value to insert: ");
+        key.value = get_int_input();
+        printw("\nInserting %d.\n", key.value);
+        heap_insert(heap, &key);
+        break;
+    case HEAP_POP:
+        heap_pop(heap);
+        break;
+    case HEAP_EXIT:
+        return true;
+    default:
+        break;
+    }
+
+    refresh();
+    wait_for_enter();
+    return false;
+}
 
 void max_subarray_test(void)
 {
@@ -396,10 +511,10 @@ void max_subarray_test(void)
     for (size_t i = 0; i < array_len; i++) {
         array[i] = get_random_num(-100, 100);
     }
+
     printw("Original Array:\n");
     print_int_array_curses(array_len, array);
     refresh();
-
     
     struct timespec start;
     clock_gettime(CLOCK_MONOTONIC, &start);
@@ -423,15 +538,16 @@ void max_subarray_test(void)
 
 void union_find_test(void)
 {
-    erase();
-    
     static const char* const menu_options[NUM_UNION_MENU_OPTIONS] = {
         [UNION_FIND_ROOT]        = "Find the root of a node",
         [UNION_CHECK_CONNECTION] = "Check whether two nodes are connected",
         [UNION_CONNECT]          = "Connect two nodes",
         [UNION_RETURN_MAIN]      = "Return to the main menu"
     };
+    static const char MAX_CHAR = '0' + NUM_UNION_MENU_OPTIONS;
+    _Static_assert((MAX_CHAR >= '0') && (MAX_CHAR <= '9'), "Invalid max char.");
 
+    erase();
     attron(A_BOLD);
     printw("UNION FIND TEST\n\n");
     attroff(A_BOLD);
@@ -446,12 +562,12 @@ void union_find_test(void)
     int x;
     getyx(stdscr, y, x);
     x = 0;
-    size_t highlighted_option = 0;
+    int highlighted_option = 0;
     bool should_return_to_main = false;
     while (!should_return_to_main) {
         move(y, x);
         clrtobot();
-        for (size_t i = 0; i < NUM_UNION_MENU_OPTIONS; i++) {
+        for (int i = 0; i < NUM_UNION_MENU_OPTIONS; i++) {
             if (i == highlighted_option) {
                 attron(A_STANDOUT);
             }
@@ -466,11 +582,7 @@ void union_find_test(void)
         switch (key_input) {
         case KEY_ENTER:
         case 10:
-            if (highlighted_option == NUM_UNION_MENU_OPTIONS - 1) {
-                should_return_to_main = true;
-            } else {
-                exercise_wqunion(wqu, highlighted_option);
-            }
+            should_return_to_main = union_find_test_helper(wqu, highlighted_option);
             break;
         case KEY_UP:
             if (highlighted_option > 0) {
@@ -482,13 +594,10 @@ void union_find_test(void)
                 highlighted_option++;
             }
             break;
-        case '1':
-        case '2':
-        case '3':
-        case '4':
-            highlighted_option = (size_t)(key_input - '1');
-            break;
         default:
+            if ((key_input >= '1') && (key_input <= MAX_CHAR)) {
+                highlighted_option = key_input - '1';
+            }
             break;
         }
     }
@@ -496,47 +605,55 @@ void union_find_test(void)
     delete_wqunion(wqu);
 }
 
-
-void exercise_wqunion(struct wqunion* const wqu, const int option)
+bool union_find_test_helper(struct wqunion wqu[const static 1], const int option)
 {
+    size_t node1;
+    size_t node2;
+    size_t last_node;
+
+    printw("\n");
+
     switch (option) {
     case UNION_FIND_ROOT: // Find root of a node
-        printw("\nEnter node number: ");
+        printw("Enter node number: ");
         refresh();
-        const size_t node = get_size_t();
-        if (node > wqu->count - 1) {
-            printw("\nInvalid input.\n\n");
+        node1 = (size_t)get_int_input();
+        printw("\n");
+        if (node1 > wqu->count - 1) {
+            printw("Invalid input.\n\n");
         } else {
-            const int root = get_node_root(wqu, node);
-            printw("\nRoot of %d: %d\n\n", node, root);
+            const int root = get_node_root(wqu, node1);
+            printw("Root of %d: %d\n\n", node1, root);
         }
-        wait_for_enter();
         break;
     case UNION_CHECK_CONNECTION: // Check if two nodes are connected
     case UNION_CONNECT: // Connect two nodes
-        printw("\nEnter number of first node:  ");
-        const size_t node1 = get_size_t();
-        printw("Enter number of second node: ");
-        const size_t node2 = get_size_t();
+        printw("Enter number of first node:  ");
+        node1 = (size_t)get_int_input();
+        printw("\nEnter number of second node: ");
+        node2 = (size_t)get_int_input();
+        printw("\n");
         // Validate input
-        const size_t last_node = wqu->count - 1;
+        last_node = wqu->count - 1;
         if ((node1 > last_node) || (node2 > last_node)) {
-            printw("\nInvalid input.\n\n");
+            printw("Invalid input.\n\n");
         } else if (option == UNION_CHECK_CONNECTION) {
-            printw("\nNodes %d and %d: ", node1, node2);
-            const bool connected = pair_is_connected(wqu, node1, node2);
-            printw("%s\n\n", connected ? "connected" : "not connected");
+            const bool are_connected = pair_is_connected(wqu, node1, node2);
+            printw("Nodes %d and %d: %s\n\n", node1, node2, are_connected ? "connected" : "not connected");
         } else {
             unify_nodes(wqu, node1, node2);
-            printw("\nConnected nodes %d and %d.\n\n", node1, node2);
+            printw("Connected nodes %d and %d.\n\n", node1, node2);
         }
-        wait_for_enter();
         break;
+    case UNION_RETURN_MAIN:
+        return true;
     default:
         break;
     }
-}
 
+    wait_for_enter();
+    return false;
+}
 
 size_t get_num_elements(void)
 {
@@ -547,18 +664,17 @@ size_t get_num_elements(void)
     getyx(stdscr, y, x);
     x = 0;
     
-    size_t array_length = 0;
+    int array_length = 0;
     while (array_length <= 0) {
         move(y,x);
         clrtobot();
         printw("Enter desired number of elements: ");
         refresh();
-        array_length = get_size_t();
+        array_length = get_int_input();
     }
 
     return array_length;
 }
-
 
 bool get_yes_or_no(void)
 {
@@ -623,7 +739,6 @@ bool get_yes_or_no(void)
     
     return did_choose_yes;
 }
-
 
 void print_time_elapsed(unsigned long const time_elapsed)
 {

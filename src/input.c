@@ -1,38 +1,36 @@
 #include "input.h"
-#include <ncurses.h>
-#include <limits.h>
+#include <stddef.h>
 #include <stdlib.h>
+#include <ncurses.h>
 
-size_t get_size_t(void)
+#define MAX_INPUT_DIGITS (7)
+
+int get_int_input(void)
 {
-    // Get user input
-    static const size_t n = 7;
-    char user_input[n+1];
+    // Add 1 for newline character
+    char user_input[MAX_INPUT_DIGITS+1];
     echo();
-    getnstr(user_input, n);
+    getnstr(user_input, MAX_INPUT_DIGITS);
     noecho();
 
     // Check whether all of the chars are numbers
-    for (size_t i = 0; user_input[i] != '\0'; i++) {
-        if (user_input[i] < '0' || user_input[i] > '9') {
-            return 0;
+    for (size_t i = 0; (i < MAX_INPUT_DIGITS) && (user_input[i] != '\0'); i++) {
+        if ((user_input[i] < '0') || (user_input[i] > '9')) {
+            return -1;
         }
     }
 
-    return (size_t) atoi(user_input);
+    return atoi(user_input);
 }
 
+#if 0
 /*
  * Keep the input retrieval process safe and robust
  * by using fgets, flushing the buffer to prevent overflow,
  * and checking whether the user entered anything other
  * than integers into the input field.
  * Return -1 for invalid input.
- *
- * No reason to use this function anymore.
- * I'm just leaving it here just for reference.
  */
-#if 0
 int get_int_input(int num_digits)
 {
     if (num_digits <= 0) {
