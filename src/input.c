@@ -3,24 +3,23 @@
 #include <stdlib.h>
 #include <ncurses.h>
 
-#define MAX_INPUT_DIGITS (7)
+#define MAX_INPUT_DIGITS (8)
 
 int get_int_input(void)
 {
     // Add 1 for newline character
     char user_input[MAX_INPUT_DIGITS+1];
+
     echo();
     getnstr(user_input, MAX_INPUT_DIGITS);
     noecho();
 
-    // Check whether all of the chars are numbers
-    for (size_t i = 0; (i < MAX_INPUT_DIGITS) && (user_input[i] != '\0'); i++) {
-        if ((user_input[i] < '0') || (user_input[i] > '9')) {
-            return -1;
-        }
+    char* endptr;
+    const int value = (int)strtol(user_input, &endptr, 10);
+    if (*endptr != '\0') {
+        printw("%s: ERROR: Invalid input.\n", __func__);
     }
-
-    return atoi(user_input);
+    return value;
 }
 
 #if 0

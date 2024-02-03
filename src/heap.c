@@ -41,11 +41,16 @@ void heap_print(const heap_t heap[const static 1])
         return;
     }
     heap_key_t* const keys = heap->keys;
-    printw("[%d", keys[0].value);
+    printw("%d\n", keys[0].value);
+    size_t next_newline = 2;
     for (size_t i = 1; i < size; i++) {
-        printw(", %d", keys[i].value);
+        printw("%d ", keys[i].value);
+        if (i == next_newline) {
+            printw("\n");
+            next_newline = (next_newline * 2) + 2;
+        }
     }
-    printw("]\n");
+    printw("\n");
 }
 
 static inline size_t heap_get_parent(const size_t idx)
