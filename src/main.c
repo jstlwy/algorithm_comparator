@@ -196,35 +196,37 @@ void array_sort_test(void)
     attroff(A_BOLD);
     refresh();
 
+    addstr("The array size will be a power of 2 (2^x).\n");
     int y;
     int x;
     getyx(stdscr, y, x);
     x = 0;
     size_t power = 0;
     static const size_t lower_limit = 4;
-    static const size_t upper_limit = 20;
+    static const size_t upper_limit = 22;
     while ((power < lower_limit) || (power > upper_limit)) {
         move(y, x);
         clrtoeol();
-        printw("Enter a number between %zu and %zu to raise 2 to for the size: ", lower_limit, upper_limit);
+        printw("Enter an exponent between %zu and %zu: ", lower_limit, upper_limit);
         refresh();
         power = (size_t)get_int_input();
     }
+    assert((power >= lower_limit) && (power <= upper_limit));
     const size_t num_elements = 1 << power;
-    printw("\nArray will contain 2 ^ %zu == %zu elements.\n\n", power, num_elements);
+    printw("Number of elements: 2^%zu = %zu (0x%zx)\n", power, num_elements, num_elements);
+    const size_t array_size = num_elements * sizeof(int);
+    printw("Array size: %zu (0x%zx) elements * %zu bytes/element = %zu (0x%zx) bytes\n", num_elements, num_elements, sizeof(int), array_size, array_size);
     refresh();
     
-    addstr("Skip quadratic algorithms?\n");
+    addstr("\nSkip quadratic algorithms?\n");
     const size_t start_point = get_yes_or_no() ? 2 : 0;
     assert(start_point < NUM_ARRAY_SORTS);
-    printw("\nStarting at: %s\n", sort_algorithm_names[start_point]);
+    printw("Starting at: %s\n", sort_algorithm_names[start_point]);
     refresh();
 
-    const size_t array_size = num_elements * sizeof(int);
-    printw("Individual array size: %zu elements * %zu bytes/element = %zu (%zx) bytes\n", num_elements, sizeof(int), array_size, array_size);
     const size_t num_arrays = NUM_ARRAY_SORTS - start_point;
     const size_t alloc_size = num_arrays * array_size;
-    printw("%zu arrays * %zu bytes/array = %zu (%zx) bytes\n", num_arrays, array_size, alloc_size, alloc_size);
+    printw("Arena size: %zu arrays * %zu bytes/array = %zu (0x%zx) bytes\n", num_arrays, array_size, alloc_size, alloc_size);
 
     refresh();
     int* const arena = malloc(alloc_size);
@@ -232,9 +234,9 @@ void array_sort_test(void)
         fprintf(stderr, "%s: ERROR: malloc failed.\n", __func__);
         exit(EXIT_FAILURE);
     }
-    printw("Arena address: %p\n", arena);
+    printw("Arena location: %p to %p\n", arena, (const uint8_t*)arena + alloc_size);
 
-    addstr("Creating a random pattern.\n");
+    printw("\nCreating random pattern in array 0 (%p to %p).\n", arena, arena + num_elements);
     refresh();
     for (size_t i = 0; i < num_elements; i++) {
         arena[i] = get_random_num(-1000, 1000);
@@ -243,7 +245,7 @@ void array_sort_test(void)
     refresh();
     for (size_t i = 1; i < num_arrays; i++) {
         int* const dest = arena + (i * num_elements);
-        printw("Copying pattern to %p.\n", dest);
+        printw("Copying pattern to array %zu (%p to %p).\n", i, dest, dest + num_elements);
         memcpy(dest, arena, num_elements);
     }
 

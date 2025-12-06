@@ -19,6 +19,8 @@ hdr := $(wildcard $(srcdir)/*.h)
 obj := $(patsubst $(srcdir)/%.c, $(objdir)/%.o, $(src))
 dep := $(obj:.o=.d)
 
+vpath %.c $(srcdir)
+
 binary := algorithm_comparator
 
 all: $(binary)
@@ -26,7 +28,7 @@ all: $(binary)
 $(binary): $(obj)
 	$(CC) $^ -o $@ $(LDFLAGS)
 
-$(objdir)/%.o: $(srcdir)/%.c
+$(objdir)/%.o: %.c
 	$(CC) -c $(CFLAGS) $< -o $@
 
 -include $(dep)
