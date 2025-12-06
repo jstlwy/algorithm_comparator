@@ -1,7 +1,10 @@
 #include <ncurses.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
+#include <inttypes.h>
 #include <stdbool.h>
+#include <assert.h>
 #include <time.h>
 #include <sys/time.h>
 #include <limits.h>
@@ -16,7 +19,7 @@
 #include "maxsubarray.h"
 #include "wqunion.h"
 
-enum main_menu_options {
+typedef enum main_menu_option {
     ARRAY_SORT = 0,
     LIST_SORT,
     MIN_HEAP,
@@ -24,9 +27,9 @@ enum main_menu_options {
     UNION_FIND,
     QUIT,
     NUM_MAIN_MENU_OPTIONS
-};
+} MENU_OPTION;
 
-enum heap_test_options {
+typedef enum heap_test_option {
     HEAP_PRINT = 0,
     HEAP_GET_MIN,
     HEAP_GET_MAX,
@@ -35,38 +38,38 @@ enum heap_test_options {
     HEAP_POP,
     HEAP_EXIT,
     NUM_HEAP_MENU_OPTIONS
-};
+} HEAP_TEST_OPTION;
 
-enum union_menu_options {
-    UNION_FIND_ROOT,
+typedef enum union_test_option {
+    UNION_FIND_ROOT = 0,
     UNION_CHECK_CONNECTION,
     UNION_CONNECT,
     UNION_RETURN_MAIN,
-    NUM_UNION_MENU_OPTIONS
-};
+    NUM_UNION_TEST_OPTIONS
+} UNION_TEST_OPTION;
 
-struct array_sort_test_runner_vars {
-    unsigned int sort_algo_num;
+typedef struct array_sort_thread_vars {
+    ARRAY_SORT_TYPE sort_type;
     int* original_array;
-    int array_length;
-    unsigned long time_elapsed_ns;
+    size_t array_length;
+#ifdef __APPLE__
+    uint64_t time_elapsed_ns;
+#else
+    struct timespec time_elapsed;
+#endif
     bool was_successful;
-};
+} ARRAY_SORT_THREAD_VARS;
 
-struct list_sort_test_runner_vars {
-    unsigned int sort_algo_num;
+typedef struct list_sort_thread_vars {
+    LIST_SORT_TYPE sort_type;
     struct dllist* original_list;
-    unsigned long time_elapsed_ns;
+#ifdef __APPLE__
+    uint64_t time_elapsed_ns;
+#else
+    struct timespec time_elapsed;
+#endif
     bool was_successful;
-};
-
-const unsigned long SI_h = 100;
-const unsigned long SI_k = 1000;
-const unsigned long SI_M = 1000000;
-const unsigned long SI_G = 1000000000;
-const unsigned long SI_hk = SI_h * SI_k;
-const unsigned long SI_hM = SI_h * SI_M;
-const unsigned long SI_hG = SI_h * SI_G;
+} LIST_SORT_THREAD_VARS;
 
 void array_sort_test(void);
 void *array_sort_test_runner(void* arg);
@@ -75,15 +78,17 @@ void linked_list_sort_test(void);
 void* list_sort_test_runner(void* arg);
 
 void min_heap_test(void);
-bool min_heap_test_helper(heap_t heap[const static 1], const int option);
+bool min_heap_test_helper(heap_t heap[const static 1], const HEAP_TEST_OPTION option);
 
 void max_subarray_test(void);
 void union_find_test(void);
-bool union_find_test_helper(struct wqunion wqu[const static 1], const int option);
+bool union_find_test_helper(struct wqunion wqu[const static 1], const UNION_TEST_OPTION option);
 
 size_t get_num_elements(void);
 bool get_yes_or_no(void);
-void print_time_elapsed(const unsigned long time_elapsed);
+#ifdef __APPLE__
+void print_time_elapsed(const uint64_t time_elapsed);
+#endif
 
 int main(void)
 {
@@ -104,7 +109,7 @@ int main(void)
     };
 
     int key_input = 0;
-    size_t highlighted_option = 0;
+    MENU_OPTION highlighted_option = ARRAY_SORT;
     bool exit_program = false;
     while (!exit_program)
     {
@@ -149,10 +154,10 @@ int main(void)
             }
         } else if ((key_input == KEY_UP) && (highlighted_option > 0)) {
             highlighted_option--;
-        } else if ((key_input == KEY_DOWN) && (highlighted_option < NUM_MAIN_MENU_OPTIONS - 1)) {
+        } else if ((key_input == KEY_DOWN) && (highlighted_option < (NUM_MAIN_MENU_OPTIONS - 1))) {
             highlighted_option++;
         } else if ((key_input >= '1') && (key_input <= max_option_char)) {
-            highlighted_option = ((int) key_input) - '1';
+            highlighted_option = (int)key_input - '1';
         }
     }
 
@@ -167,14 +172,19 @@ void array_sort_test(void)
     printw("Array Sorting Algorithms\n\n");
     attroff(A_BOLD);	
 
-    size_t const array_length = get_num_elements();
+    const size_t array_length = get_num_elements();
     printw("\nArray will contain %zu elements.\n\n", array_length);
     int* const array = malloc(array_length * sizeof(int));
+    if (array == NULL) {
+        fprintf(stderr, "%s: ERROR: malloc failed.\n", __func__);
+        exit(EXIT_FAILURE);
+    }
+
     for (size_t i = 0; i < array_length; i++) {
         array[i] = get_random_num(-1000, 1000);
     }
 
-    static const char* const sort_algorithms[NUM_ARRAY_SORTS] = {
+    static const char* const sort_algorithm_names[NUM_ARRAY_SORTS] = {
         [SELECTION_SORT] = "Selection Sort",
         [INSERTION_SORT] = "Insertion Sort",
         [SHELLSORT]      = "Shellsort",
@@ -184,55 +194,70 @@ void array_sort_test(void)
     };
     
     printw("Skip quadratic algorithms?\n");
-    const bool skip_quadratic = get_yes_or_no();
-    printw("\n\n");
-    const size_t start_point = skip_quadratic ? 2 : 0;
-    printw("Please wait...");
+    const size_t start_point = get_yes_or_no() ? 2 : 0;
+    printw("\n\nPlease wait...");
     refresh();
 
-    const size_t num_threads = NUM_ARRAY_SORTS - start_point;
-    pthread_t threads[num_threads];
+    pthread_t threads[NUM_ARRAY_SORTS];
     pthread_attr_t attr;
     pthread_attr_init(&attr);
-    struct array_sort_test_runner_vars vars[num_threads];
+    ARRAY_SORT_THREAD_VARS vars[NUM_ARRAY_SORTS];
 
-    for (size_t i = 0; i < num_threads; i++) {
-        vars[i].sort_algo_num = i + start_point;
+    for (size_t i = start_point; i < NUM_ARRAY_SORTS; i++) {
+        vars[i].sort_type = (ARRAY_SORT_TYPE)(i + start_point);
         vars[i].original_array = array;
         vars[i].array_length = array_length;
         pthread_create(&threads[i], &attr, array_sort_test_runner, &vars[i]);
     }
 
-    for (size_t i = 0; i < num_threads; i++) {
+    for (size_t i = start_point; i < NUM_ARRAY_SORTS; i++) {
         pthread_join(threads[i], NULL);
     }
-    
+
+    free(array);
     clear();
+
     printw("When sorting %zu elements:\n\n", array_length);
-    for (size_t i = 0; i < num_threads; i++) {
-        printw("%-14s: ", sort_algorithms[i + start_point]);
+    for (size_t i = start_point; i < NUM_ARRAY_SORTS; i++) {
+        printw("%-14s: ", sort_algorithm_names[i]);
+#ifdef __APPLE__
         print_time_elapsed(vars[i].time_elapsed_ns);
+#else
+        printw("%ld.%09ld s", vars[i].time_elapsed.tv_sec, vars[i].time_elapsed.tv_nsec);
+#endif
         if (!vars[i].was_successful) {
             printw(" (failed)");
         }
         printw("\n");
     }
-    refresh();
 
+    refresh();
     printw("\n");
     wait_for_enter();
 }
 
-void *array_sort_test_runner(void* arg)
-{	
-    struct array_sort_test_runner_vars* const vars = arg;
+void* array_sort_test_runner(void* arg)
+{
+    ARRAY_SORT_THREAD_VARS* const vars = arg;
 
-    int* const new_array = copy_int_array(vars->array_length, vars->original_array);
+    const size_t num_bytes = vars->array_length * sizeof(int);
+    int* const new_array = malloc(num_bytes);
+    if (new_array == NULL) {
+        fprintf(stderr, "%s: ERROR: malloc failed.\n", __func__);
+        exit(EXIT_FAILURE);
+    }
+    memcpy(new_array, vars->original_array, num_bytes);
 
-    struct timespec start;
-    struct timespec stop;
-    clock_gettime(CLOCK_MONOTONIC, &start);
-    switch (vars->sort_algo_num) {
+    printw("Start sort with \n\n");
+
+#ifdef __APPLE__
+    const uint64_t start_time = clock_gettime_nsec_np(CLOCK_UPTIME_RAW);
+#else
+    struct timespec start_time;
+    clock_gettime(CLOCK_MONOTONIC, &start_time);
+#endif
+
+    switch (vars->sort_type) {
     case SELECTION_SORT:
         selection_sort(vars->array_length, new_array);
         break;
@@ -254,13 +279,19 @@ void *array_sort_test_runner(void* arg)
     default:
         break;
     }
-    clock_gettime(CLOCK_MONOTONIC, &stop);
 
-    vars->time_elapsed_ns = get_time_diff(start, stop);
+#ifdef __APPLE__
+    vars->time_elapsed_ns = clock_gettime_nsec_np(CLOCK_UPTIME_RAW) - start_time;
+#else
+    struct timespec stop_time;
+    clock_gettime(CLOCK_MONOTONIC, &stop_time);
+    assert(get_time_diff(&start_time, &stop_time, &vars->time_elapsed) == 0);
+#endif
+
     vars->was_successful = array_is_sorted(vars->array_length, new_array);
     
     free(new_array);
-    return 0;
+    return (void*)0;
 }
 
 void linked_list_sort_test(void)
@@ -278,7 +309,7 @@ void linked_list_sort_test(void)
         dlnode_t* const new_node = malloc(sizeof(struct dlnode));
         if (new_node == NULL) {
             fprintf(stderr, "%s: ERROR: malloc failed.\n", __func__);
-            exit(1);
+            exit(EXIT_FAILURE);
         }
         new_node->data = get_random_num(-1000, 1000);
         dllist_append(&int_list, new_node);
@@ -299,14 +330,28 @@ void linked_list_sort_test(void)
 
     if (skip_quadratic) {
         dllist_t new_list = dllist_create_copy(&int_list);
-        struct timespec start;
-        clock_gettime(CLOCK_MONOTONIC, &start);
+
+#ifdef __APPLE__
+        const uint64_t start_time = clock_gettime_nsec_np(CLOCK_UPTIME_RAW);
+#else
+        struct timespec start_time;
+        clock_gettime(CLOCK_MONOTONIC, &start_time);
+#endif
+
         new_list.first = dllist_merge_sort(new_list.first);
-        struct timespec stop;
-        clock_gettime(CLOCK_MONOTONIC, &stop);
-        const long time_elapsed_ns = get_time_diff(start, stop);
+
+#ifdef __APPLE__
+        const uint64_t stop_time = clock_gettime_nsec_np(CLOCK_UPTIME_RAW);
         printw("Merge sort: ");
-        print_time_elapsed(time_elapsed_ns);
+        print_time_elapsed(stop_time - start_time);
+#else
+        struct timespec stop_time;
+        clock_gettime(CLOCK_MONOTONIC, &stop_time);
+        struct timespec elapsed_time;
+        assert(get_time_diff(&start_time, &stop_time, &elapsed_time) == 0);
+        printw("Merge sort: %ld.%09ld s", elapsed_time.tv_sec, elapsed_time.tv_nsec);
+#endif
+
         if (!dllist_is_sorted(&new_list)) {
             printw(" (failed)");
         }
@@ -317,10 +362,10 @@ void linked_list_sort_test(void)
         pthread_t threads[NUM_LIST_SORTS];
         pthread_attr_t attr;
         pthread_attr_init(&attr);
-        struct list_sort_test_runner_vars vars[NUM_LIST_SORTS];
+        LIST_SORT_THREAD_VARS vars[NUM_LIST_SORTS];
 
         for (size_t i = 0; i < NUM_LIST_SORTS; i++) {
-            vars[i].sort_algo_num = i;
+            vars[i].sort_type = i;
             vars[i].original_list = &int_list;
             pthread_create(&threads[i], &attr, list_sort_test_runner, &vars[i]);
         }
@@ -333,7 +378,11 @@ void linked_list_sort_test(void)
         printw("When sorting %zu elements:\n\n", list_length);
         for (size_t i = 0; i < NUM_LIST_SORTS; i++) {
             printw("%-26s: ", sort_algorithms[i]);
+#ifdef __APPLE__
             print_time_elapsed(vars[i].time_elapsed_ns);
+#else
+            printw("%ld.%09ld s", vars[i].time_elapsed.tv_sec, vars[i].time_elapsed.tv_nsec);
+#endif
             if (!vars[i].was_successful) {
                 printw(" (failed)");
             }
@@ -348,13 +397,18 @@ void linked_list_sort_test(void)
 }
 
 void* list_sort_test_runner(void* arg)
-{	
-    struct list_sort_test_runner_vars* const vars = arg;
+{
+    LIST_SORT_THREAD_VARS* const vars = arg;
     dllist_t new_list = dllist_create_copy(vars->original_list);
 
-    struct timespec start;
-    clock_gettime(CLOCK_MONOTONIC, &start);
-    switch (vars->sort_algo_num) {
+#ifdef __APPLE__
+    const uint64_t start_time = clock_gettime_nsec_np(CLOCK_UPTIME_RAW);
+#else
+    struct timespec start_time;
+    clock_gettime(CLOCK_MONOTONIC, &start_time);
+#endif
+
+    switch (vars->sort_type) {
     case LIST_SELECTION_SORT:
         dllist_selection_sort(&new_list);
         break;
@@ -373,10 +427,15 @@ void* list_sort_test_runner(void* arg)
     default:
         break;
     }
-    struct timespec stop;
-    clock_gettime(CLOCK_MONOTONIC, &stop);
 
-    vars->time_elapsed_ns = get_time_diff(start, stop);
+#ifdef __APPLE__
+    vars->time_elapsed_ns = clock_gettime_nsec_np(CLOCK_UPTIME_RAW) - start_time;
+#else
+    struct timespec stop_time;
+    clock_gettime(CLOCK_MONOTONIC, &stop_time);
+    assert(get_time_diff(&start_time, &stop_time, &vars->time_elapsed) == 0);
+#endif
+
     vars->was_successful = dllist_is_sorted(&new_list);
     
     dllist_destroy(&new_list);
@@ -395,7 +454,7 @@ void min_heap_test(void)
         [HEAP_EXIT]    = "Return to the main menu"
     };
     static const char MAX_CHAR = '0' + NUM_HEAP_MENU_OPTIONS;
-    _Static_assert((MAX_CHAR >= '0') && (MAX_CHAR <= '9'), "Invalid max char.");
+    assert((MAX_CHAR >= '0') && (MAX_CHAR <= '9'));
 
     erase();
     attron(A_BOLD);
@@ -452,7 +511,7 @@ void min_heap_test(void)
     heap_free(&heap);
 }
 
-bool min_heap_test_helper(heap_t heap[const static 1], const int option)
+bool min_heap_test_helper(heap_t heap[const static 1], const HEAP_TEST_OPTION option)
 {
     heap_key_t key;
     size_t idx;
@@ -515,12 +574,22 @@ void max_subarray_test(void)
     printw("Original Array:\n");
     print_int_array_curses(array_len, array);
     refresh();
-    
-    struct timespec start;
-    clock_gettime(CLOCK_MONOTONIC, &start);
+
+#ifdef __APPLE__
+    const uint64_t start_time = clock_gettime_nsec_np(CLOCK_UPTIME_RAW);
+#else
+    struct timespec start_time;
+    clock_gettime(CLOCK_MONOTONIC, &start_time);
+#endif
+
     struct max_subarray ms = find_max_subarray(array, 0, array_len - 1);
-    struct timespec stop;
-    clock_gettime(CLOCK_MONOTONIC, &stop);
+
+#ifdef __APPLE__
+    const uint64_t stop_time = clock_gettime_nsec_np(CLOCK_UPTIME_RAW);
+#else
+    struct timespec stop_time;
+    clock_gettime(CLOCK_MONOTONIC, &stop_time);
+#endif
 
     printw("\n\nMax Subarray:\n");
     for (size_t i = ms.low_index; i <= ms.high_index; i++) {
@@ -528,9 +597,15 @@ void max_subarray_test(void)
     }
     printw("\n\nMax Subarray Sum: %d\n", ms.max_sum);
 
-    printw("Time elapsed: ");
-    const long time_elapsed = get_time_diff(start, stop);
+#ifdef __APPLE__
+    const uint64_t time_elapsed = stop_time - start_time;
     print_time_elapsed(time_elapsed);
+#else
+    struct timespec elapsed_time;
+    assert(get_time_diff(&start_time, &stop_time, &elapsed_time) == 0);
+    printw("Time elapsed: %ld.%09ld s", elapsed_time.tv_sec, elapsed_time.tv_nsec);
+#endif
+
     printw("\n\n");
     refresh();
     wait_for_enter();
@@ -538,14 +613,14 @@ void max_subarray_test(void)
 
 void union_find_test(void)
 {
-    static const char* const menu_options[NUM_UNION_MENU_OPTIONS] = {
+    static const char* const menu_options[NUM_UNION_TEST_OPTIONS] = {
         [UNION_FIND_ROOT]        = "Find the root of a node",
         [UNION_CHECK_CONNECTION] = "Check whether two nodes are connected",
         [UNION_CONNECT]          = "Connect two nodes",
         [UNION_RETURN_MAIN]      = "Return to the main menu"
     };
-    static const char MAX_CHAR = '0' + NUM_UNION_MENU_OPTIONS;
-    _Static_assert((MAX_CHAR >= '0') && (MAX_CHAR <= '9'), "Invalid max char.");
+    static const char MAX_CHAR = '0' + NUM_UNION_TEST_OPTIONS;
+    assert((MAX_CHAR >= '0') && (MAX_CHAR <= '9'));
 
     erase();
     attron(A_BOLD);
@@ -567,7 +642,7 @@ void union_find_test(void)
     while (!should_return_to_main) {
         move(y, x);
         clrtobot();
-        for (int i = 0; i < NUM_UNION_MENU_OPTIONS; i++) {
+        for (int i = 0; i < NUM_UNION_TEST_OPTIONS; i++) {
             if (i == highlighted_option) {
                 attron(A_STANDOUT);
             }
@@ -590,7 +665,7 @@ void union_find_test(void)
             }
             break;
         case KEY_DOWN:
-            if (highlighted_option < NUM_UNION_MENU_OPTIONS - 1) {
+            if (highlighted_option < (NUM_UNION_TEST_OPTIONS - 1)) {
                 highlighted_option++;
             }
             break;
@@ -605,7 +680,7 @@ void union_find_test(void)
     delete_wqunion(wqu);
 }
 
-bool union_find_test_helper(struct wqunion wqu[const static 1], const int option)
+bool union_find_test_helper(struct wqunion wqu[const static 1], const UNION_TEST_OPTION option)
 {
     size_t node1;
     size_t node2;
@@ -740,16 +815,30 @@ bool get_yes_or_no(void)
     return did_choose_yes;
 }
 
-void print_time_elapsed(unsigned long const time_elapsed)
+#ifdef __APPLE__
+void print_time_elapsed(const uint64_t time_elapsed_ns)
 {
-    if (time_elapsed < SI_hk) {
-        printw("%10lu ns", time_elapsed);
-    } else if (time_elapsed < SI_hM) {
-        printw("%10lu us", time_elapsed / SI_k);
-    } else if (time_elapsed < SI_hG) {
-        printw("%10lu ms", time_elapsed / SI_M);
-    } else {
-        printw("%10lu  s", time_elapsed / SI_G);
+    if (time_elapsed_ns >= NS_PER_S)
+    {
+        const uint64_t seconds = time_elapsed_ns / NS_PER_S;
+        const uint64_t nanoseconds = time_elapsed_ns % NS_PER_S;
+        printw("%" PRIu64 ".%09" PRIu64 " s", seconds, nanoseconds);
+    }
+    else if (time_elapsed_ns >= NS_PER_MS)
+    {
+        const uint64_t milliseconds = time_elapsed_ns / NS_PER_MS;
+        const uint64_t nanoseconds = time_elapsed_ns % NS_PER_MS;
+        printw("%" PRIu64 ".%06" PRIu64 " ms", milliseconds, nanoseconds);
+    }
+    else if (time_elapsed_ns >= NS_PER_US)
+    {
+        const uint64_t microseconds = time_elapsed_ns / NS_PER_US;
+        const uint64_t nanoseconds = time_elapsed_ns % NS_PER_US;
+        printw("%" PRIu64 ".%03" PRIu64 " us", microseconds, nanoseconds);
+    }
+    else
+    {
+        printw("%" PRIu64 " ns", time_elapsed_ns);
     }
 }
-
+#endif

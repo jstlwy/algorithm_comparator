@@ -1,8 +1,5 @@
 #include "arrayutils.h"
-#include <limits.h>
 #include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
 #include <ncurses.h>
 
 bool array_is_sorted(const size_t n, const int array[const static n])
@@ -64,16 +61,5 @@ void print_int_array_curses(const size_t n, const int array[const static n])
         printw(", %d", array[i]);
     }
     printw("]\n");
-}
-
-int* copy_int_array(const size_t n, const int array[const static n])
-{
-    int* const new_array = malloc(n * sizeof(int));
-    if (new_array == NULL) {
-        fprintf(stderr, "%s: ERROR: malloc failed.\n", __func__);
-        exit(1);
-    }
-    memcpy(new_array, array, n * sizeof(int));
-    return new_array;
 }
 

@@ -1,10 +1,11 @@
 #include "utils.h"
 #include <ncurses.h>
+#ifdef __APPLE__
 #include <stdlib.h>
-#ifdef __linux__
+#elif defined(__linux__)
 #include <bsd/stdlib.h>
 #endif
-#include <time.h>
+#include <assert.h>
 
 int get_random_num(const int a, const int b)
 {
@@ -19,14 +20,43 @@ int get_random_num(const int a, const int b)
     return a + arc4random_uniform(b + 1);
 }
 
-#define NS_PER_S (1000000000L)
+#ifndef __APPLE__
+int get_time_diff(
+    const struct timespec* const start,
+    const struct timespec* const stop,
+    struct timespec* const elapsed
+) {
+    if ((start == NULL) || (stop == NULL) || (elapsed == NULL)) {
+        fprintf(stderr, "%s: ERROR: Null pointer.\n", __func__);
+        return -1;
+    }
+    if ((start == stop) || (start == elapsed) || (stop == elapsed)) {
+        fprintf(stderr, "%s: ERROR: Pointers must be unique.\n", __func__);
+        return -1;
+    }
+    if ((start->tv_sec > stop->tv_sec) || ((start->tv_sec == stop->tv_sec) && (start->tv_nsec > stop->tv_nsec))) {
+        fprintf(stderr, "%s: ERROR: Start time is later than stop time.\n", __func__);
+        return -1;
+    }
 
-unsigned long get_time_diff(const struct timespec start, const struct timespec stop)
-{
-    const unsigned long start_nsec = start.tv_nsec + (start.tv_sec * NS_PER_S);
-    const unsigned long stop_nsec = stop.tv_nsec + (stop.tv_sec * NS_PER_S);
-    return stop_nsec - start_nsec;
+    elapsed->tv_sec = stop->tv_sec - start->tv_sec;
+    elapsed->tv_nsec = stop->tv_nsec - start->tv_nsec;
+
+    if (elapsed->tv_sec < 0) {
+        assert(elapsed->tv_nsec >= NS_PER_S);
+        elapsed->tv_nsec -= NS_PER_S;
+        elapsed->tv_sec += 1;
+    } else if (elapsed->tv_nsec < 0) {
+        assert(elapsed->tv_sec >= 1);
+        elapsed->tv_sec -= 1;
+        elapsed->tv_nsec += NS_PER_S;
+    }
+
+    assert(elapsed->tv_sec >= 0);
+    assert(elapsed->tv_nsec >= 0);
+    return 0;
 }
+#endif
 
 void wait_for_enter(void)
 {

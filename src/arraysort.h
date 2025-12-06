@@ -2,7 +2,7 @@
 #define ARRAYSORT_H
 #include <stddef.h>
 
-enum array_sorts {
+typedef enum array_sort_type {
     SELECTION_SORT = 0,
     INSERTION_SORT,
     SHELLSORT,
@@ -10,7 +10,7 @@ enum array_sorts {
     MERGE_SORT,
     QUICKSORT,
     NUM_ARRAY_SORTS
-};
+} ARRAY_SORT_TYPE;
 
 // QUADRATIC SORTING ALGORITHMS
 void selection_sort(const size_t n, int array[const static n]); // Unstable (stable for LL)

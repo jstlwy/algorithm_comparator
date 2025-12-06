@@ -2,14 +2,14 @@
 #define LISTSORT_H
 #include "dllist.h"
 
-enum list_sorts {
+typedef enum list_sort_type {
     LIST_SELECTION_SORT = 0,
     LIST_SELECTION_SORT_SEDGE,
     LIST_INSERTION_SORT,
     LIST_INSERTION_SORT_SEDGE,
     LIST_MERGE_SORT_SEDGE,
     NUM_LIST_SORTS
-};
+} LIST_SORT_TYPE;
 
 // Quadratic
 void dllist_selection_sort(dllist_t list[const static 1]);

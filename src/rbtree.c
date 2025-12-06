@@ -1,4 +1,6 @@
 #include "rbtree.h"
+#include <stdlib.h>
+#include <stdio.h>
 
 rbtree_t rbtree_init(void)
 {
