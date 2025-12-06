@@ -52,7 +52,7 @@ void print_int_array(const size_t n, const int array[const static n])
 void print_int_array_curses(const size_t n, const int array[const static n])
 {
     if (n == 0) {
-        printw("[]\n");
+        addstr("[]\n");
         return;
     }
 
@@ -60,6 +60,6 @@ void print_int_array_curses(const size_t n, const int array[const static n])
     for (size_t i = 1; i < n; i++) {
         printw(", %d", array[i]);
     }
-    printw("]\n");
+    addstr("]\n");
 }
 

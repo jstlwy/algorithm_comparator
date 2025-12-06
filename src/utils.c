@@ -60,7 +60,7 @@ int get_time_diff(
 
 void wait_for_enter(void)
 {
-    printw("Press the enter key to continue.");
+    addstr("Please press Enter to continue.");
     refresh();
     int key_input = 0;
     while ((key_input != KEY_ENTER) && (key_input != 10)) {

@@ -9,6 +9,11 @@
 #include <sys/time.h>
 #include <limits.h>
 #include <pthread.h>
+#ifdef __APPLE__
+#include <dispatch/dispatch.h>
+#else
+#include <semaphore.h>
+#endif
 #include "input.h"
 #include "utils.h"
 #include "arrayutils.h"
@@ -50,14 +55,13 @@ typedef enum union_test_option {
 
 typedef struct array_sort_thread_vars {
     ARRAY_SORT_TYPE sort_type;
-    int* original_array;
-    size_t array_length;
+    int* array;
+    size_t size;
 #ifdef __APPLE__
-    uint64_t time_elapsed_ns;
+    dispatch_semaphore_t print_sem;
 #else
-    struct timespec time_elapsed;
+    sem_t print_sem;
 #endif
-    bool was_successful;
 } ARRAY_SORT_THREAD_VARS;
 
 typedef struct list_sort_thread_vars {
@@ -70,6 +74,15 @@ typedef struct list_sort_thread_vars {
 #endif
     bool was_successful;
 } LIST_SORT_THREAD_VARS;
+
+static const char* const sort_algorithm_names[NUM_ARRAY_SORTS] = {
+    [SELECTION_SORT] = "Selection Sort",
+    [INSERTION_SORT] = "Insertion Sort",
+    [SHELLSORT]      = "Shellsort",
+    [HEAPSORT]       = "Heapsort",
+    [MERGE_SORT]     = "Merge Sort",
+    [QUICKSORT]      = "Quicksort"
+};
 
 void array_sort_test(void);
 void *array_sort_test_runner(void* arg);
@@ -93,9 +106,19 @@ void print_time_elapsed(const uint64_t time_elapsed);
 int main(void)
 {
     initscr();
-    keypad(stdscr, true);
-    noecho();
-    curs_set(0);
+    if (keypad(stdscr, true) == ERR) {
+        fputs("ERROR: Failed to enable the keypad.\n", stderr);
+        return EXIT_FAILURE;
+    }
+    if (noecho() == ERR) {
+        fputs("ERROR: Failed to disable echoing.\n", stderr);
+        return EXIT_FAILURE;
+    }
+    if (curs_set(0) == ERR) {
+        fputs("ERROR: Failed to make the cursor invisible.\n", stderr);
+        return EXIT_FAILURE;
+    }
+
     srand(time(0));
 
     static const char max_option_char = '0' + NUM_MAIN_MENU_OPTIONS;
@@ -115,7 +138,7 @@ int main(void)
     {
         erase();
         attron(A_BOLD);
-        printw("DATA STRUCTURES AND ALGORITHMS TEST SUITE\n\n");
+        addstr("DATA STRUCTURES AND ALGORITHMS TEST SUITE\n\n");
         attroff(A_BOLD);
         for (size_t i = 0; i < NUM_MAIN_MENU_OPTIONS; i++) {
             if (i == highlighted_option) {
@@ -169,33 +192,62 @@ void array_sort_test(void)
 {
     erase();
     attron(A_BOLD);
-    printw("Array Sorting Algorithms\n\n");
-    attroff(A_BOLD);	
+    addstr("Array Sorting Algorithms\n\n");
+    attroff(A_BOLD);
+    refresh();
 
-    const size_t array_length = get_num_elements();
-    printw("\nArray will contain %zu elements.\n\n", array_length);
-    int* const array = malloc(array_length * sizeof(int));
-    if (array == NULL) {
+    int y;
+    int x;
+    getyx(stdscr, y, x);
+    x = 0;
+    size_t power = 0;
+    static const size_t lower_limit = 4;
+    static const size_t upper_limit = 20;
+    while ((power < lower_limit) || (power > upper_limit)) {
+        move(y, x);
+        clrtoeol();
+        printw("Enter a number between %zu and %zu to raise 2 to for the size: ", lower_limit, upper_limit);
+        refresh();
+        power = (size_t)get_int_input();
+    }
+    const size_t num_elements = 1 << power;
+    printw("\nArray will contain 2 ^ %zu == %zu elements.\n\n", power, num_elements);
+    refresh();
+    
+    addstr("Skip quadratic algorithms?\n");
+    const size_t start_point = get_yes_or_no() ? 2 : 0;
+    assert(start_point < NUM_ARRAY_SORTS);
+    printw("\nStarting at: %s\n", sort_algorithm_names[start_point]);
+    refresh();
+
+    const size_t array_size = num_elements * sizeof(int);
+    printw("Individual array size: %zu elements * %zu bytes/element = %zu (%zx) bytes\n", num_elements, sizeof(int), array_size, array_size);
+    const size_t num_arrays = NUM_ARRAY_SORTS - start_point;
+    const size_t alloc_size = num_arrays * array_size;
+    printw("%zu arrays * %zu bytes/array = %zu (%zx) bytes\n", num_arrays, array_size, alloc_size, alloc_size);
+
+    refresh();
+    int* const arena = malloc(alloc_size);
+    if (arena == NULL) {
         fprintf(stderr, "%s: ERROR: malloc failed.\n", __func__);
         exit(EXIT_FAILURE);
     }
+    printw("Arena address: %p\n", arena);
 
-    for (size_t i = 0; i < array_length; i++) {
-        array[i] = get_random_num(-1000, 1000);
+    addstr("Creating a random pattern.\n");
+    refresh();
+    for (size_t i = 0; i < num_elements; i++) {
+        arena[i] = get_random_num(-1000, 1000);
+    }
+    printw("Making %zu copies of the pattern.\n", num_arrays - 1);
+    refresh();
+    for (size_t i = 1; i < num_arrays; i++) {
+        int* const dest = arena + (i * num_elements);
+        printw("Copying pattern to %p.\n", dest);
+        memcpy(dest, arena, num_elements);
     }
 
-    static const char* const sort_algorithm_names[NUM_ARRAY_SORTS] = {
-        [SELECTION_SORT] = "Selection Sort",
-        [INSERTION_SORT] = "Insertion Sort",
-        [SHELLSORT]      = "Shellsort",
-        [HEAPSORT]       = "Heapsort",
-        [MERGE_SORT]     = "Merge Sort",
-        [QUICKSORT]      = "Quicksort"
-    };
-    
-    printw("Skip quadratic algorithms?\n");
-    const size_t start_point = get_yes_or_no() ? 2 : 0;
-    printw("\n\nPlease wait...");
+    addstr("Starting the threads. Please wait...\n\n");
     refresh();
 
     pthread_t threads[NUM_ARRAY_SORTS];
@@ -203,10 +255,37 @@ void array_sort_test(void)
     pthread_attr_init(&attr);
     ARRAY_SORT_THREAD_VARS vars[NUM_ARRAY_SORTS];
 
+#ifdef __APPLE__
+    dispatch_semaphore_t print_sem = dispatch_semaphore_create(1);
+    if (print_sem == NULL) {
+        fprintf(stderr, "ERROR: dispatch_semaphore_create failed.\n");
+        exit(EXIT_FAILURE);
+    }
+#else
+    sem_t print_sem;
+    const int sem_init_result = sem_init(&int_sem, 0, 1);
+    if (sem_init_result != 0) {
+        fprintf(stderr, "ERROR: sem_init failed: %d\n", sem_init_result);
+        exit(EXIT_FAILURE);
+    }
+    int current_sem_value;
+    const int getvalue_status = sem_getvalue(&int_sem, &current_sem_value);
+    if (getvalue_status != 0) {
+        fprintf(stderr, "ERROR: sem_getvalue failed: %d\n", getvalue_status);
+        exit(EXIT_FAILURE);
+    }
+    if (current_sem_value != 1) {
+        fprintf(stderr, "ERROR: Failed to initialize a binary semaphore.\n");
+        exit(EXIT_FAILURE);
+    }
+#endif
+
     for (size_t i = start_point; i < NUM_ARRAY_SORTS; i++) {
-        vars[i].sort_type = (ARRAY_SORT_TYPE)(i + start_point);
-        vars[i].original_array = array;
-        vars[i].array_length = array_length;
+        vars[i].sort_type = (ARRAY_SORT_TYPE)i;
+        assert(i >= start_point);
+        vars[i].array = arena + (i - start_point) * num_elements;
+        vars[i].size = num_elements;
+        vars[i].print_sem = print_sem;
         pthread_create(&threads[i], &attr, array_sort_test_runner, &vars[i]);
     }
 
@@ -214,41 +293,25 @@ void array_sort_test(void)
         pthread_join(threads[i], NULL);
     }
 
-    free(array);
-    clear();
-
-    printw("When sorting %zu elements:\n\n", array_length);
-    for (size_t i = start_point; i < NUM_ARRAY_SORTS; i++) {
-        printw("%-14s: ", sort_algorithm_names[i]);
-#ifdef __APPLE__
-        print_time_elapsed(vars[i].time_elapsed_ns);
+    free(arena);
+#if __APPLE__
+    dispatch_release(print_sem);
 #else
-        printw("%ld.%09ld s", vars[i].time_elapsed.tv_sec, vars[i].time_elapsed.tv_nsec);
-#endif
-        if (!vars[i].was_successful) {
-            printw(" (failed)");
-        }
-        printw("\n");
+    const int sem_destroy_result = sem_destroy(&print_sem);
+    if (sem_destroy_result != 0) {
+        fprintf(stderr, "ERROR: sem_destroy failed: %d\n", sem_destroy_result);
+        exit(EXIT_FAILURE);
     }
+#endif
 
+    addch('\n');
     refresh();
-    printw("\n");
     wait_for_enter();
 }
 
 void* array_sort_test_runner(void* arg)
 {
     ARRAY_SORT_THREAD_VARS* const vars = arg;
-
-    const size_t num_bytes = vars->array_length * sizeof(int);
-    int* const new_array = malloc(num_bytes);
-    if (new_array == NULL) {
-        fprintf(stderr, "%s: ERROR: malloc failed.\n", __func__);
-        exit(EXIT_FAILURE);
-    }
-    memcpy(new_array, vars->original_array, num_bytes);
-
-    printw("Start sort with \n\n");
 
 #ifdef __APPLE__
     const uint64_t start_time = clock_gettime_nsec_np(CLOCK_UPTIME_RAW);
@@ -259,38 +322,48 @@ void* array_sort_test_runner(void* arg)
 
     switch (vars->sort_type) {
     case SELECTION_SORT:
-        selection_sort(vars->array_length, new_array);
+        selection_sort(vars->size, vars->array);
         break;
     case INSERTION_SORT:
-        insertion_sort(vars->array_length, new_array);
+        insertion_sort(vars->size, vars->array);
         break;
     case SHELLSORT:
-        shellsort(vars->array_length, new_array);
+        shellsort(vars->size, vars->array);
         break;
     case HEAPSORT:
-        heapsort_array(new_array, 0, vars->array_length - 1);
+        heapsort_array(vars->array, 0, vars->size - 1);
         break;
     case MERGE_SORT:
-        merge_sort_array(vars->array_length, new_array);
+        merge_sort_array(vars->size, vars->array);
         break;
     case QUICKSORT:
-        quicksort(new_array, 0, vars->array_length - 1);
+        quicksort(vars->array, 0, vars->size - 1);
         break;
     default:
         break;
     }
 
+    assert(vars->sort_type < NUM_ARRAY_SORTS);
 #ifdef __APPLE__
-    vars->time_elapsed_ns = clock_gettime_nsec_np(CLOCK_UPTIME_RAW) - start_time;
+    const uint64_t time_elapsed_ns = clock_gettime_nsec_np(CLOCK_UPTIME_RAW) - start_time;
+    dispatch_semaphore_wait(vars->print_sem, DISPATCH_TIME_FOREVER);
+    printw("%-14s: ", sort_algorithm_names[vars->sort_type]);
+    print_time_elapsed(time_elapsed_ns);
+    printw(" (%s)\n", array_is_sorted(vars->size, vars->array) ? "OK" : "FAILED");
+    refresh();
+    dispatch_semaphore_signal(vars->print_sem);
 #else
     struct timespec stop_time;
     clock_gettime(CLOCK_MONOTONIC, &stop_time);
-    assert(get_time_diff(&start_time, &stop_time, &vars->time_elapsed) == 0);
+    struct timespec time_elapsed;
+    assert(get_time_diff(&start_time, &stop_time, &time_elapsed) == 0);
+    sem_wait(&vars->print_sem);
+    printw("%-14s: %ld.%09ld s", sort_algorithm_names[vars->sort_type], time_elapsed.tv_sec, time_elapsed.tv_nsec);
+    printw(" (%s)\n", array_is_sorted(vars->size, vars->array) ? "OK" : "FAILED");
+    refresh();
+    sem_post(&vars->print_sem);
 #endif
 
-    vars->was_successful = array_is_sorted(vars->array_length, new_array);
-    
-    free(new_array);
     return (void*)0;
 }
 
@@ -298,7 +371,7 @@ void linked_list_sort_test(void)
 {
     erase();
     attron(A_BOLD);
-    printw("Linked List Sorting Algorithms\n\n");
+    addstr("Linked List Sorting Algorithms\n\n");
     attroff(A_BOLD);
     refresh();
 
@@ -323,9 +396,9 @@ void linked_list_sort_test(void)
         [LIST_MERGE_SORT_SEDGE]     = "Merge Sort (Sedgewick)"
     };
 
-    printw("Skip quadratic algorithms?\n");
+    addstr("Skip quadratic algorithms?\n");
     const bool skip_quadratic = get_yes_or_no();
-    printw("\n\nPlease wait...");
+    addstr("\n\nPlease wait...");
     refresh();
 
     if (skip_quadratic) {
@@ -342,7 +415,7 @@ void linked_list_sort_test(void)
 
 #ifdef __APPLE__
         const uint64_t stop_time = clock_gettime_nsec_np(CLOCK_UPTIME_RAW);
-        printw("Merge sort: ");
+        addstr("Merge sort: ");
         print_time_elapsed(stop_time - start_time);
 #else
         struct timespec stop_time;
@@ -353,9 +426,9 @@ void linked_list_sort_test(void)
 #endif
 
         if (!dllist_is_sorted(&new_list)) {
-            printw(" (failed)");
+            addstr(" (failed)");
         }
-        printw("\n");
+        addch('\n');
         refresh();
         dllist_destroy(&new_list);
     } else {
@@ -384,15 +457,15 @@ void linked_list_sort_test(void)
             printw("%ld.%09ld s", vars[i].time_elapsed.tv_sec, vars[i].time_elapsed.tv_nsec);
 #endif
             if (!vars[i].was_successful) {
-                printw(" (failed)");
+                addstr(" (failed)");
             }
-            printw("\n");
+            addch('\n');
         }
         refresh();
     }
 
     dllist_destroy(&int_list);
-    printw("\n");
+    addch('\n');
     wait_for_enter();
 }
 
@@ -458,7 +531,7 @@ void min_heap_test(void)
 
     erase();
     attron(A_BOLD);
-    printw("MIN HEAP TEST\n\n");
+    addstr("MIN HEAP TEST\n\n");
     attroff(A_BOLD);
     refresh();
 
@@ -516,7 +589,7 @@ bool min_heap_test_helper(heap_t heap[const static 1], const HEAP_TEST_OPTION op
     heap_key_t key;
     size_t idx;
 
-    printw("\n");
+    addch('\n');
 
     switch (option) {
     case HEAP_PRINT:
@@ -531,14 +604,14 @@ bool min_heap_test_helper(heap_t heap[const static 1], const HEAP_TEST_OPTION op
         printw("Key: %d\n", key.value);
         break;
     case HEAP_GET_IDX:
-        printw("Enter index: ");
+        addstr("Enter index: ");
         idx = (size_t)get_int_input();
-        printw("\n");
+        addch('\n');
         key = heap_get_idx(heap, idx);
         printw("Key: %d\n", key.value);
         break;
     case HEAP_INSERT:
-        printw("Enter value to insert: ");
+        addstr("Enter value to insert: ");
         key.value = get_int_input();
         printw("\nInserting %d.\n", key.value);
         heap_insert(heap, &key);
@@ -561,7 +634,7 @@ void max_subarray_test(void)
 {
     erase();
     attron(A_BOLD);
-    printw("Max Subarray Test\n\n");
+    addstr("Max Subarray Test\n\n");
     attroff(A_BOLD);
     refresh();
 
@@ -571,7 +644,7 @@ void max_subarray_test(void)
         array[i] = get_random_num(-100, 100);
     }
 
-    printw("Original Array:\n");
+    addstr("Original Array:\n");
     print_int_array_curses(array_len, array);
     refresh();
 
@@ -591,7 +664,7 @@ void max_subarray_test(void)
     clock_gettime(CLOCK_MONOTONIC, &stop_time);
 #endif
 
-    printw("\n\nMax Subarray:\n");
+    addstr("\n\nMax Subarray:\n");
     for (size_t i = ms.low_index; i <= ms.high_index; i++) {
         printw("%d ", array[i]);
     }
@@ -624,7 +697,7 @@ void union_find_test(void)
 
     erase();
     attron(A_BOLD);
-    printw("UNION FIND TEST\n\n");
+    addstr("UNION FIND TEST\n\n");
     attroff(A_BOLD);
     refresh();
 
@@ -686,16 +759,16 @@ bool union_find_test_helper(struct wqunion wqu[const static 1], const UNION_TEST
     size_t node2;
     size_t last_node;
 
-    printw("\n");
+    addch('\n');
 
     switch (option) {
     case UNION_FIND_ROOT: // Find root of a node
-        printw("Enter node number: ");
+        addstr("Enter node number: ");
         refresh();
         node1 = (size_t)get_int_input();
-        printw("\n");
+        addch('\n');
         if (node1 > wqu->count - 1) {
-            printw("Invalid input.\n\n");
+            addstr("Invalid input.\n\n");
         } else {
             const int root = get_node_root(wqu, node1);
             printw("Root of %d: %d\n\n", node1, root);
@@ -703,15 +776,15 @@ bool union_find_test_helper(struct wqunion wqu[const static 1], const UNION_TEST
         break;
     case UNION_CHECK_CONNECTION: // Check if two nodes are connected
     case UNION_CONNECT: // Connect two nodes
-        printw("Enter number of first node:  ");
+        addstr("Enter number of first node:  ");
         node1 = (size_t)get_int_input();
-        printw("\nEnter number of second node: ");
+        addstr("\nEnter number of second node: ");
         node2 = (size_t)get_int_input();
-        printw("\n");
+        addch('\n');
         // Validate input
         last_node = wqu->count - 1;
         if ((node1 > last_node) || (node2 > last_node)) {
-            printw("Invalid input.\n\n");
+            addstr("Invalid input.\n\n");
         } else if (option == UNION_CHECK_CONNECTION) {
             const bool are_connected = pair_is_connected(wqu, node1, node2);
             printw("Nodes %d and %d: %s\n\n", node1, node2, are_connected ? "connected" : "not connected");
@@ -743,7 +816,7 @@ size_t get_num_elements(void)
     while (array_length <= 0) {
         move(y,x);
         clrtobot();
-        printw("Enter desired number of elements: ");
+        addstr("Enter desired number of elements: ");
         refresh();
         array_length = get_int_input();
     }
@@ -767,7 +840,7 @@ bool get_yes_or_no(void)
         if (highlighted_option == 0) {
             attron(A_STANDOUT);
         }
-        printw("Yes\n");
+        addstr("Yes\n");
         if (highlighted_option == 0) {
             attroff(A_STANDOUT);
         }
@@ -775,7 +848,7 @@ bool get_yes_or_no(void)
         if (highlighted_option == 1) {
             attron(A_STANDOUT);
         }
-        printw("No\n");
+        addstr("No\n");
         if (highlighted_option == 1) {
             attroff(A_STANDOUT);
         }
