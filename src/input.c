@@ -1,11 +1,13 @@
 #include "input.h"
-#include <stddef.h>
+//#include <stddef.h>
 #include <stdlib.h>
+#include <limits.h>
+#include <errno.h>
 #include <ncurses.h>
 
 #define MAX_INPUT_DIGITS (8)
 
-int get_int_input(void)
+long get_int_input(void)
 {
     // Add 1 for newline character
     char user_input[MAX_INPUT_DIGITS+1];
@@ -14,10 +16,12 @@ int get_int_input(void)
     getnstr(user_input, MAX_INPUT_DIGITS);
     noecho();
 
-    char* endptr;
-    const int value = (int)strtol(user_input, &endptr, 10);
-    if (*endptr != '\0') {
+    errno = 0;
+    char* endptr = NULL;
+    const long value = strtol(user_input, &endptr, 10);
+    if ((errno == ERANGE) || (endptr == user_input)) {
         printw("%s: ERROR: Invalid input.\n", __func__);
+        return LONG_MIN;
     }
     return value;
 }

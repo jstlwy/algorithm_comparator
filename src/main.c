@@ -1,13 +1,14 @@
-#include <ncurses.h>
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <inttypes.h>
 #include <stdbool.h>
+#include <inttypes.h>
 #include <assert.h>
+#include <limits.h>
 #include <time.h>
 #include <sys/time.h>
-#include <limits.h>
+#include <ncurses.h>
 #include <pthread.h>
 #ifdef __APPLE__
 #include <dispatch/dispatch.h>
@@ -49,6 +50,7 @@ typedef enum union_test_option {
     UNION_FIND_ROOT = 0,
     UNION_CHECK_CONNECTION,
     UNION_CONNECT,
+    UNION_SHOW,
     UNION_RETURN_MAIN,
     NUM_UNION_TEST_OPTIONS
 } UNION_TEST_OPTION;
@@ -282,6 +284,7 @@ void array_sort_test(void)
     }
 #endif
 
+    printw("%-14s | Status | Time\n", "Name");
     for (size_t i = start_point; i < NUM_ARRAY_SORTS; i++) {
         vars[i].sort_type = (ARRAY_SORT_TYPE)i;
         assert(i >= start_point);
@@ -311,9 +314,10 @@ void array_sort_test(void)
     wait_for_enter();
 }
 
-void* array_sort_test_runner(void* arg)
+void* array_sort_test_runner(void* args)
 {
-    ARRAY_SORT_THREAD_VARS* const vars = arg;
+    assert(args != NULL);
+    ARRAY_SORT_THREAD_VARS* const vars = (ARRAY_SORT_THREAD_VARS*)args;
 
 #ifdef __APPLE__
     const uint64_t start_time = clock_gettime_nsec_np(CLOCK_UPTIME_RAW);
@@ -349,9 +353,9 @@ void* array_sort_test_runner(void* arg)
 #ifdef __APPLE__
     const uint64_t time_elapsed_ns = clock_gettime_nsec_np(CLOCK_UPTIME_RAW) - start_time;
     dispatch_semaphore_wait(vars->print_sem, DISPATCH_TIME_FOREVER);
-    printw("%-14s: ", sort_algorithm_names[vars->sort_type]);
+    printw("%-14s | %-6s | ", sort_algorithm_names[vars->sort_type], array_is_sorted(vars->size, vars->array) ? "OK" : "FAILED");
     print_time_elapsed(time_elapsed_ns);
-    printw(" (%s)\n", array_is_sorted(vars->size, vars->array) ? "OK" : "FAILED");
+    addch('\n');
     refresh();
     dispatch_semaphore_signal(vars->print_sem);
 #else
@@ -360,8 +364,7 @@ void* array_sort_test_runner(void* arg)
     struct timespec time_elapsed;
     assert(get_time_diff(&start_time, &stop_time, &time_elapsed) == 0);
     sem_wait(&vars->print_sem);
-    printw("%-14s: %ld.%09ld s", sort_algorithm_names[vars->sort_type], time_elapsed.tv_sec, time_elapsed.tv_nsec);
-    printw(" (%s)\n", array_is_sorted(vars->size, vars->array) ? "OK" : "FAILED");
+    printw("%-14s | %-6s | %ld.%09ld s\n", sort_algorithm_names[vars->sort_type], array_is_sorted(vars->size, vars->array) ? "OK" : "FAILED", time_elapsed.tv_sec, time_elapsed.tv_nsec);
     refresh();
     sem_post(&vars->print_sem);
 #endif
@@ -471,9 +474,10 @@ void linked_list_sort_test(void)
     wait_for_enter();
 }
 
-void* list_sort_test_runner(void* arg)
+void* list_sort_test_runner(void* args)
 {
-    LIST_SORT_THREAD_VARS* const vars = arg;
+    assert(args != NULL);
+    LIST_SORT_THREAD_VARS* const vars = (LIST_SORT_THREAD_VARS*)args;
     dllist_t new_list = dllist_create_copy(vars->original_list);
 
 #ifdef __APPLE__
@@ -589,7 +593,6 @@ void min_heap_test(void)
 bool min_heap_test_helper(heap_t heap[const static 1], const HEAP_TEST_OPTION option)
 {
     heap_key_t key;
-    size_t idx;
 
     addch('\n');
 
@@ -605,16 +608,21 @@ bool min_heap_test_helper(heap_t heap[const static 1], const HEAP_TEST_OPTION op
         key = heap_get_max(heap);
         printw("Key: %d\n", key.value);
         break;
-    case HEAP_GET_IDX:
+    case HEAP_GET_IDX: {
         addstr("Enter index: ");
-        idx = (size_t)get_int_input();
+        const long idx = get_int_input();
         addch('\n');
+        if (idx < 0) {
+            addstr("ERROR: Index must be nonnegative.\n");
+            break;
+        }
         key = heap_get_idx(heap, idx);
         printw("Key: %d\n", key.value);
         break;
+    }
     case HEAP_INSERT:
         addstr("Enter value to insert: ");
-        key.value = get_int_input();
+        key.value = (int)get_int_input();
         printw("\nInserting %d.\n", key.value);
         heap_insert(heap, &key);
         break;
@@ -692,6 +700,7 @@ void union_find_test(void)
         [UNION_FIND_ROOT]        = "Find the root of a node",
         [UNION_CHECK_CONNECTION] = "Check whether two nodes are connected",
         [UNION_CONNECT]          = "Connect two nodes",
+        [UNION_SHOW]            = "Show all the nodes",
         [UNION_RETURN_MAIN]      = "Return to the main menu"
     };
     static const char MAX_CHAR = '0' + NUM_UNION_TEST_OPTIONS;
@@ -706,7 +715,7 @@ void union_find_test(void)
     const size_t size = get_num_elements();
     printw("\n%zu-element weighted quick UF\n\n", size);
     refresh();
-    struct wqunion* const wqu = init_wqunion_of_size(size);
+    WQUNION wqu = init_wqunion_of_size(size);
 
     int y;
     int x;
@@ -732,7 +741,7 @@ void union_find_test(void)
         switch (key_input) {
         case KEY_ENTER:
         case 10:
-            should_return_to_main = union_find_test_helper(wqu, highlighted_option);
+            should_return_to_main = union_find_test_helper(&wqu, highlighted_option);
             break;
         case KEY_UP:
             if (highlighted_option > 0) {
@@ -752,55 +761,74 @@ void union_find_test(void)
         }
     }
 
-    delete_wqunion(wqu);
+    delete_wqunion(&wqu);
 }
 
-bool union_find_test_helper(struct wqunion wqu[const static 1], const UNION_TEST_OPTION option)
+bool union_find_test_helper(WQUNION* wqu, const UNION_TEST_OPTION option)
 {
-    size_t node1;
-    size_t node2;
-    size_t last_node;
+    assert((option >= 0) && (option < NUM_UNION_TEST_OPTIONS));
 
-    addch('\n');
-
-    switch (option) {
-    case UNION_FIND_ROOT: // Find root of a node
-        addstr("Enter node number: ");
-        refresh();
-        node1 = (size_t)get_int_input();
-        addch('\n');
-        if (node1 > wqu->count - 1) {
-            addstr("Invalid input.\n\n");
-        } else {
-            const int root = get_node_root(wqu, node1);
-            printw("Root of %d: %d\n\n", node1, root);
-        }
-        break;
-    case UNION_CHECK_CONNECTION: // Check if two nodes are connected
-    case UNION_CONNECT: // Connect two nodes
-        addstr("Enter number of first node:  ");
-        node1 = (size_t)get_int_input();
-        addstr("\nEnter number of second node: ");
-        node2 = (size_t)get_int_input();
-        addch('\n');
-        // Validate input
-        last_node = wqu->count - 1;
-        if ((node1 > last_node) || (node2 > last_node)) {
-            addstr("Invalid input.\n\n");
-        } else if (option == UNION_CHECK_CONNECTION) {
-            const bool are_connected = pair_is_connected(wqu, node1, node2);
-            printw("Nodes %d and %d: %s\n\n", node1, node2, are_connected ? "connected" : "not connected");
-        } else {
-            unify_nodes(wqu, node1, node2);
-            printw("Connected nodes %d and %d.\n\n", node1, node2);
-        }
-        break;
-    case UNION_RETURN_MAIN:
+    if (option == UNION_RETURN_MAIN) {
         return true;
-    default:
-        break;
     }
 
+    if (option == UNION_FIND_ROOT)
+    {
+        addstr("\nEnter node number: ");
+        refresh();
+        const long node = get_int_input();
+        if ((node < 0) || (node > INT_MAX) || ((size_t)node >= wqu->count)) {
+            addstr("\nInvalid node number.\n\n");
+        } else {
+            const int root = get_node_root(wqu, (int)node);
+            printw("\nRoot of %ld: %d\n\n", node, root);
+        }
+    }
+    else if (option == UNION_SHOW)
+    {
+        static const size_t max_print_lines = 10;
+        printw("\nPrinting no more than %zu lines at a time.\n\n", max_print_lines);
+        addstr("Node       | ID         | Size\n");
+        int y, x;
+        getyx(stdscr, y, x);
+        x = 0;
+        for (size_t i = 0; i < wqu->count; i += max_print_lines) {
+            move(y, x);
+            clrtobot();
+            const size_t j_end = i + max_print_lines;
+            for (size_t j = i; (j < wqu->count) && (j < j_end); j++) {
+                printw("%10zu | %10d | %10d\n", j, wqu->nodes[j].id, wqu->nodes[j].size);
+            }
+            wait_for_enter();
+        }
+        printw("\nPrinted all %zu nodes.\n\n", wqu->count);
+    }
+    else
+    {
+        addstr("\nEnter number of first node: ");
+        const long node1 = get_int_input();
+        if ((node1 < 0) || (node1 > INT_MAX) || ((size_t)node1 >= wqu->count)) {
+            addstr("\nInvalid node number.\n\n");
+            goto end_union_find_test_helper;
+        }
+
+        addstr("\nEnter number of second node: ");
+        const long node2 = get_int_input();
+        if ((node2 < 0) || (node2 > INT_MAX) || ((size_t)node2 >= wqu->count)) {
+            addstr("\nInvalid node number.\n\n");
+            goto end_union_find_test_helper;
+        }
+
+        if (option == UNION_CHECK_CONNECTION) {
+            const bool are_connected = pair_is_connected(wqu, (int)node1, (int)node2);
+            printw("\nNodes %d and %d: %s\n\n", node1, node2, are_connected ? "connected" : "not connected");
+        } else {
+            unify_nodes(wqu, node1, node2);
+            printw("\nConnected nodes %d and %d.\n\n", node1, node2);
+        }
+    }
+
+end_union_find_test_helper:
     wait_for_enter();
     return false;
 }
@@ -814,7 +842,7 @@ size_t get_num_elements(void)
     getyx(stdscr, y, x);
     x = 0;
     
-    int array_length = 0;
+    long array_length = 0;
     while (array_length <= 0) {
         move(y,x);
         clrtobot();
@@ -823,7 +851,8 @@ size_t get_num_elements(void)
         array_length = get_int_input();
     }
 
-    return array_length;
+    assert(array_length > 0);
+    return (size_t)array_length;
 }
 
 bool get_yes_or_no(void)

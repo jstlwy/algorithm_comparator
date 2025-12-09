@@ -4,6 +4,6 @@
 // Keep the input retrieval process safe and robust
 // by using getnstr, which prevents the user from entering
 // more than the specified number of characters.
-int get_int_input(void);
+long get_int_input(void);
 
 #endif

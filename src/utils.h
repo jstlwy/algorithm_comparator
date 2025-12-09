@@ -1,6 +1,8 @@
 #ifndef UTILS_H
 #define UTILS_H
+#ifdef __linux__
 #include <time.h>
+#endif
 
 #define NS_PER_S  1000000000
 #define NS_PER_MS 1000000

@@ -4,35 +4,29 @@
 
 bool array_is_sorted(const size_t n, const int array[const static n])
 {
-    for (size_t i = 1; i < n; i++)
-    {
+    for (size_t i = 1; i < n; i++) {
         if (array[i] < array[i-1]) {
             return false;
         }
     }
-
     return true;
 }
 
-// Returns index of sought-after number
-size_t binary_search(const int array[const], size_t first, size_t last, const int target)
+// Returns index of target
+ssize_t binary_search(const int array[const], ssize_t first, ssize_t last, const int target)
 {
-    // Return -1 if the index isn't found
-    size_t soln_index = -1;
-
     while (first <= last) {
-        size_t middle = (first + last) / 2;
+        const ssize_t middle = (first + last) / 2;
         if (array[middle] == target) {
-            soln_index = middle;
-            break;
-        } else if (target < array[middle]) {
+            return middle;
+        }
+        if (target < array[middle]) {
             last = middle - 1;
         } else {
             first = middle + 1;
         }
     }
-
-    return soln_index;
+    return -1;
 }
 
 void print_int_array(const size_t n, const int array[const static n])
